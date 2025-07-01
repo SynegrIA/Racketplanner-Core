@@ -1,12 +1,8 @@
 import { CALENDARS, BUSINESS_HOURS, RESERVATION_DURATION_MINUTES } from '../../config/calendars.js'
 import { GoogleCalendarService } from '../../api/services/googleCalendar.js'
 import { enviarMensajeWhatsApp } from '../../api/services/builderBot.js'
-import { shortenUrl } from '../../api/services/acortarURL.js'
-import dotenv from 'dotenv'
-
-dotenv.config();
-
-const DOMINIO_FRONTEND = process.env.DOMINIO_FRONTEND;
+import { shortenUrl } from '../../api/services/acortarURL.js' // No se usa por el momento, no permite acortar rutas de "Localhost"
+import { DOMINIO_FRONTEND } from '../../config/config.js'
 
 export class ReservasController {
 

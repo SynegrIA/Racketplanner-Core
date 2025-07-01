@@ -1,14 +1,12 @@
 import { google } from 'googleapis'
-import dotenv from 'dotenv'
-
-dotenv.config();
+import { GOOGLE_CLIENT_EMAIL, GOOGLE_PRIVATE_KEY } from '../../config/config.js';
 
 const SCOPES = ['https://www.googleapis.com/auth/calendar']
 
 const auth = new google.auth.GoogleAuth({
     credentials: {
-        client_email: process.env.GOOGLE_CLIENT_EMAIL,
-        private_key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+        client_email: GOOGLE_CLIENT_EMAIL,
+        private_key: GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
     },
     scopes: SCOPES,
 });

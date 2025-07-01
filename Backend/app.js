@@ -1,13 +1,10 @@
 import express from 'express';
 import cors from 'cors'
-import dotenv from "dotenv";
 import reservasRouter from './src/api/routes/reservas.js'
 import jugadoresRouter from './src/api/routes/jugadores.js';
 import invitacionesRouter from './src/api/routes/invitaciones.js';
 import pagosRouter from './src/api/routes/pagos.js';
 import utilsRouter from './src/api/routes/utils.js';
-
-dotenv.config()
 
 const app = express();
 app.disable("x-powered-by")
