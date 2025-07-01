@@ -1,0 +1,31 @@
+import express from 'express';
+import cors from 'cors'
+import dotenv from "dotenv";
+import reservasRouter from './src/api/routes/reservas.js'
+import jugadoresRouter from './src/api/routes/jugadores.js';
+import invitacionesRouter from './src/api/routes/invitaciones.js';
+import pagosRouter from './src/api/routes/pagos.js';
+import utilsRouter from './src/api/routes/utils.js';
+
+dotenv.config()
+
+const app = express();
+app.disable("x-powered-by")
+
+const PORT = process.env.PORT || 3000;
+
+// Middleware para parsear JSON
+app.use(express.json());
+app.use(cors());
+
+// Rutas
+app.use("jugadores", jugadoresRouter);
+app.use("/reservas", reservasRouter);
+app.use("/invitaciones", invitacionesRouter);
+app.use("/pagos", pagosRouter);
+app.use("/utils", utilsRouter);
+
+// Arranca el servidor
+app.listen(PORT, () => {
+    console.log(`Servidor escuchando en http://localhost:${PORT}`);
+});

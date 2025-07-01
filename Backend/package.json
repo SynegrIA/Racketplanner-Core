@@ -1,0 +1,25 @@
+{
+  "name": "picketball-planner-backend",
+  "version": "1.0.0",
+  "main": "app.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "node --watch app.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.50.2",
+    "axios": "^1.10.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.6.0",
+    "express": "^5.1.0",
+    "googleapis": "^150.0.1",
+    "node-cron": "^4.1.1",
+    "stripe": "^18.2.1",
+    "zod": "^3.25.67"
+  }
+}
