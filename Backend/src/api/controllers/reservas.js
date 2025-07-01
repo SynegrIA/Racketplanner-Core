@@ -3,6 +3,7 @@ import { GoogleCalendarService } from '../../api/services/googleCalendar.js'
 import { enviarMensajeWhatsApp } from '../../api/services/builderBot.js'
 import { shortenUrl } from '../../api/services/acortarURL.js' // No se usa por el momento, no permite acortar rutas de "Localhost"
 import { DOMINIO_FRONTEND } from '../../config/config.js'
+import { ReservasModel } from '../../models/reservas.js'
 
 export class ReservasController {
 
@@ -188,6 +189,58 @@ Jugador 4: ${jugador4}
 
             const urlInvitarCorta = `${DOMINIO_FRONTEND}/unir-jugador-reserva?eventId=${encodeURIComponent(evento.id)}&nombre=${encodeURIComponent(nombre)}&numero=${encodeURIComponent(numero)}`;
             //const urlInvitarCorta = await shortenUrl(urlInvitar);
+
+            // Guardar la reserva en la base de datos
+            try {
+                // Convertir el tipo de partida al formato de estado_enum
+                const estado = partida === "completa" ? "Completa" : "Abierta";
+
+                // Extraer solo la fecha del ISO
+                const fechaSoloISO = fechaInicio.toISOString().split('T')[0];
+
+                // Extraer solo la hora
+                const horaInicio = fechaInicio.toISOString().split('T')[1].substring(0, 8);
+                const horaFin = fechaFin.toISOString().split('T')[1].substring(0, 8);
+
+                // Crear objeto para la base de datos
+                const reservaObj = {
+                    "Fecha ISO": fechaSoloISO,
+                    "Inicio": horaInicio,
+                    "Fin": horaFin,
+                    "Pista": pista,
+                    "Nivel": nivel,
+                    "Nº Actuales": jugadoresActuales,
+                    "Nº Faltantes": parseInt(jugadores_faltan) || 0,
+                    "Estado": estado,
+                    "ID Event": evento.id,
+                    "Fecha Creación": new Date().toISOString(),
+                    "Fecha Actualización": new Date().toISOString(),
+                    "1º Contacto": numero,
+                    "Último Contacto": numero,
+                    "Actualización": "Creación de la reserva",
+                    "Jugador 1": nombre,
+                    "Jugador 2": jugador2 || null,
+                    "Jugador 3": jugador3 || null,
+                    "Jugador 4": jugador4 || null,
+                    "Telefono 1": numero,
+                    "Telefono 2": null,
+                    "Telefono 3": null,
+                    "Telefono 4": null,
+                    "Lista_invitados": "",
+                    "Link Join": urlInvitarCorta,
+                    "Link Delete": urlEliminarCorta,
+                    "Link Cancel": urlCancelarCorta
+                };
+
+                // Guardar en la base de datos
+                const reservaGuardada = await ReservasModel.create(reservaObj);
+                console.log("Reserva guardada en la base de datos:", reservaGuardada);
+            } catch (dbError) {
+                console.error("Error al guardar la reserva en la base de datos:", dbError);
+                throw new Error(dbError.message)
+                // Nota: No devolvemos error al cliente, ya que el evento de calendario ya se creó
+                // Pero registramos el error para seguimiento
+            }
 
             // 11. Formatear fecha para el mensaje
             const fechaFormateada = fechaInicio.toLocaleDateString('es-ES', {
