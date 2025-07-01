@@ -95,7 +95,7 @@ export default function ConfirmarReserva() {
                                     <div className="form-text">Recibirás notificaciones por WhatsApp</div>
                                 </div>
                                 <button className="btn btn-success w-100" disabled={enviando}>
-                                    {enviando ? "Enviando..." : "Unirme a la partida"}
+                                    {enviando ? "Enviando..." : "Confirmar reserva"}
                                 </button>
                             </form>
 
