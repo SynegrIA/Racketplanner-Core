@@ -1,12 +1,18 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import ConfirmarReserva from './pages/ConfirmarReserva.jsx'
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import ReservaConfirmar from './pages/ReservaConfirmar.jsx';
+import CancelarReserva from './pages/ReservaCancelar.jsx';
+import ReservaUnirse from './pages/ReservaUnirse.jsx';
+import ReservaEliminarJugador from './pages/ReservaEliminarJugador.jsx';
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/confirmar-reserva" element={<ConfirmarReserva />} />
+        <Route path="/confirmar-reserva" element={<ReservaConfirmar />} />
+        <Route path="/cancelar-reserva" element={<CancelarReserva />} />
+        <Route path="/unir-jugador-reserva" element={<ReservaUnirse />} />
+        <Route path="/eliminar-jugador-reserva" element={<ReservaEliminarJugador />} />
       </Routes>
     </BrowserRouter>
   )

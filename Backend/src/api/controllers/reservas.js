@@ -180,13 +180,13 @@ Jugador 4: ${jugador4}
             });
 
             // 10. Generar enlaces para cancelación, eliminación e invitación
-            const urlCancelarCorta = `${DOMINIO_FRONTEND}/reservas/cancelar?eventId=${encodeURIComponent(evento.id)}&calendarId=${encodeURIComponent(pistaConfig.id)}&numero=${encodeURIComponent(numero)}`;
+            const urlCancelarCorta = `${DOMINIO_FRONTEND}/cancelar-reserva?eventId=${encodeURIComponent(evento.id)}&calendarId=${encodeURIComponent(pistaConfig.id)}&numero=${encodeURIComponent(numero)}`;
             //const urlCancelarCorta = await shortenUrl(urlCancelar);
 
-            const urlEliminarCorta = `${DOMINIO_FRONTEND}/reservas/eliminar-jugador?eventId=${encodeURIComponent(evento.id)}&numero=${encodeURIComponent(numero)}&nombreJugador=${encodeURIComponent(nombre)}&calendarId=${encodeURIComponent(pistaConfig.id)}`;
+            const urlEliminarCorta = `${DOMINIO_FRONTEND}/eliminar-jugador-reserva?eventId=${encodeURIComponent(evento.id)}&numero=${encodeURIComponent(numero)}&nombreJugador=${encodeURIComponent(nombre)}&calendarId=${encodeURIComponent(pistaConfig.id)}`;
             //const urlEliminarCorta = await shortenUrl(urlEliminar);
 
-            const urlInvitarCorta = `${DOMINIO_FRONTEND}/reservas/unirse-partida?eventId=${encodeURIComponent(evento.id)}&nombre=${encodeURIComponent(nombre)}&numero=${encodeURIComponent(numero)}`;
+            const urlInvitarCorta = `${DOMINIO_FRONTEND}/unir-jugador-reserva?eventId=${encodeURIComponent(evento.id)}&nombre=${encodeURIComponent(nombre)}&numero=${encodeURIComponent(numero)}`;
             //const urlInvitarCorta = await shortenUrl(urlInvitar);
 
             // 11. Formatear fecha para el mensaje
