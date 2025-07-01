@@ -21,7 +21,6 @@ export default function ConfirmarReserva() {
     }
 
     useEffect(() => {
-        console.log(partida)
         setNombre(partida.nombre)
         setNumero(partida.numero)
     }, [])
@@ -44,6 +43,12 @@ export default function ConfirmarReserva() {
                     numero
                 })
             })
+
+            console.log(JSON.stringify({
+                ...partida,
+                nombre,
+                numero
+            }))
 
             const data = await response.json()
 

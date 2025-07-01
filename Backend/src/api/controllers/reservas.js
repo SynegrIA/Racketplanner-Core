@@ -94,7 +94,7 @@ export class ReservasController {
 
     static async confirmarReserva(req, res) {
         try {
-            const { pista, inicio, fin, nombre, numero, partida = 'completa', nivel = '', jugadores_faltan = '0', payment_id = '' } = req.body;
+            const { pista, inicio, fin, nombre, numero, partida, nivel, jugadores_faltan } = req.body;
 
             // 1. Validación básica
             if (!pista || !inicio || !fin || !nombre || !numero) {
@@ -184,14 +184,14 @@ Jugador 4: ${jugador4}
             });
 
             // 10. Generar enlaces para cancelación, eliminación e invitación
-            const urlCancelar = `${DOMINIO_FRONTEND}/cancelar-reserva?eventId=${encodeURIComponent(evento.id)}&calendarId=${encodeURIComponent(pistaConfig.id)}&numero=${encodeURIComponent(numero)}`;
-            const urlCancelarCorta = await shortenUrl(urlCancelar);
+            const urlCancelarCorta = `${DOMINIO_FRONTEND}/cancelar-reserva?eventId=${encodeURIComponent(evento.id)}&calendarId=${encodeURIComponent(pistaConfig.id)}&numero=${encodeURIComponent(numero)}`;
+            //const urlCancelarCorta = await shortenUrl(urlCancelar);
 
-            const urlEliminar = `${DOMINIO_FRONTEND}/eliminar-jugador?eventId=${encodeURIComponent(evento.id)}&numero=${encodeURIComponent(numero)}&nombreJugador=${encodeURIComponent(nombre)}&calendarId=${encodeURIComponent(pistaConfig.id)}`;
-            const urlEliminarCorta = await shortenUrl(urlEliminar);
+            const urlEliminarCorta = `${DOMINIO_FRONTEND}/eliminar-jugador?eventId=${encodeURIComponent(evento.id)}&numero=${encodeURIComponent(numero)}&nombreJugador=${encodeURIComponent(nombre)}&calendarId=${encodeURIComponent(pistaConfig.id)}`;
+            //const urlEliminarCorta = await shortenUrl(urlEliminar);
 
-            const urlInvitar = `${DOMINIO_FRONTEND}/unirse-partida?eventId=${encodeURIComponent(evento.id)}&nombre=${encodeURIComponent(nombre)}&numero=${encodeURIComponent(numero)}`;
-            const urlInvitarCorta = await shortenUrl(urlInvitar);
+            const urlInvitarCorta = `${DOMINIO_FRONTEND}/unirse-partida?eventId=${encodeURIComponent(evento.id)}&nombre=${encodeURIComponent(nombre)}&numero=${encodeURIComponent(numero)}`;
+            //const urlInvitarCorta = await shortenUrl(urlInvitar);
 
             // 11. Formatear fecha para el mensaje
             const fechaFormateada = fechaInicio.toLocaleDateString('es-ES', {
