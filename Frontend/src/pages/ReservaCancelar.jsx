@@ -59,18 +59,16 @@ export default function CancelarReserva() {
         setError("");
 
         try {
+            // Construir URL con query params
+            const queryParams = new URLSearchParams({
+                calendarId,
+                numero,
+                ...(motivoCancelacion && { motivo: motivoCancelacion })
+            }).toString();
+
             // Enviar solicitud de cancelación al backend
-            const response = await fetch(`${DOMINIO_BACKEND}/reservas/cancelar`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    eventId,
-                    calendarId,
-                    numero,
-                    motivo: motivoCancelacion || "Cancelación sin especificar"
-                })
+            const response = await fetch(`${DOMINIO_BACKEND}/reservas/cancelar/${eventId}?${queryParams}`, {
+                method: "DELETE"
             });
 
             const data = await response.json();

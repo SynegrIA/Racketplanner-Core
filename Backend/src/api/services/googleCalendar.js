@@ -44,5 +44,18 @@ export const GoogleCalendarService = {
             resource: event
         })
         return res.data
+    },
+
+    async deleteEvent(calendarId, eventId) {
+        try {
+            const res = await calendar.events.delete({
+                calendarId,
+                eventId
+            });
+            return res.data;
+        } catch (error) {
+            console.error("Error al eliminar evento de Google Calendar:", error);
+            throw error;
+        }
     }
 }

@@ -376,7 +376,142 @@ Jugador 4: ${jugador4}
             });
         }
     }
+
+    static async cancelarReserva(req, res) {
+        try {
+            // Obtener eventId de la ruta y demás parámetros de query
+            const eventId = req.params.eventId;
+            const { calendarId, numero, motivo } = req.query;
+
+            // Validación básica
+            if (!eventId || !calendarId) {
+                return res.status(400).json({
+                    status: "error",
+                    message: "Los parámetros eventId y calendarId son obligatorios."
+                });
+            }
+
+            // 1. Obtener detalles del evento antes de eliminarlo
+            let evento;
+            try {
+                evento = await GoogleCalendarService.getEvent(calendarId, eventId);
+                if (!evento) {
+                    return res.status(404).json({
+                        status: "error",
+                        message: "No se encontró el evento especificado."
+                    });
+                }
+            } catch (eventError) {
+                console.error("Error al obtener detalles del evento:", eventError);
+                // Continuamos con el proceso aunque no podamos obtener los detalles
+            }
+
+            // 2. Verificar si faltan más de 5 horas para el evento
+            if (evento && evento.start && evento.start.dateTime) {
+                const fechaEvento = new Date(evento.start.dateTime);
+                const ahora = new Date();
+                const diffHoras = (fechaEvento - ahora) / (1000 * 60 * 60);
+
+                if (diffHoras < 5) {
+                    return res.status(400).json({
+                        status: "error",
+                        message: "Solo se pueden cancelar reservas con al menos 5 horas de antelación."
+                    });
+                }
+            }
+
+            // 3. Eliminar el evento de Google Calendar
+            try {
+                await GoogleCalendarService.deleteEvent(calendarId, eventId);
+            } catch (deleteError) {
+                console.error("Error al eliminar evento de Google Calendar:", deleteError);
+                return res.status(500).json({
+                    status: "error",
+                    message: "Error al cancelar la reserva en el calendario."
+                });
+            }
+
+            // 4. Eliminar el registro de la base de datos
+            let reservaEliminada;
+            try {
+                reservaEliminada = await ReservasModel.delete(eventId);
+            } catch (dbError) {
+                console.error("Error al eliminar registro de la base de datos:", dbError);
+                // No devolvemos error porque el evento ya se eliminó del calendario
+            }
+
+            // 5. Preparar mensaje de confirmación para WhatsApp
+            let mensajeConfirmacion = "✅ Tu reserva ha sido cancelada con éxito.";
+
+            if (evento) {
+                const fechaEvento = new Date(evento.start.dateTime);
+                const fechaFormateada = fechaEvento.toLocaleDateString('es-ES', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    timeZone: 'Europe/Madrid'
+                });
+
+                const horaInicio = fechaEvento.toLocaleTimeString('es-ES', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    timeZone: 'Europe/Madrid'
+                });
+
+                let pistaInfo = "";
+                if (evento.description) {
+                    const descripcionLineas = evento.description.split('\n');
+                    for (const linea of descripcionLineas) {
+                        if (linea.startsWith('Pista:')) {
+                            pistaInfo = linea.split(':')[1].trim();
+                            break;
+                        }
+                    }
+                }
+
+                mensajeConfirmacion = `✅ Tu reserva ha sido cancelada con éxito.\n\n` +
+                    `📅 Detalles de la reserva cancelada:\n` +
+                    `📆 Fecha: ${fechaFormateada}\n` +
+                    `🕒 Hora: ${horaInicio}\n` +
+                    `🎾 Pista: ${pistaInfo || "No especificada"}`;
+
+                if (motivo) {
+                    mensajeConfirmacion += `\n\n📝 Motivo: "${motivo}"`;
+                }
+            }
+
+            // 6. Enviar mensaje de WhatsApp si tenemos número
+            if (numero) {
+                try {
+                    await enviarMensajeWhatsApp(mensajeConfirmacion, numero);
+                } catch (whatsappError) {
+                    console.error("Error al enviar mensaje WhatsApp:", whatsappError);
+                    // No bloqueamos la respuesta por un error en WhatsApp
+                }
+            }
+
+            // 7. Devolver respuesta exitosa
+            return res.status(200).json({
+                status: "success",
+                message: "La reserva ha sido cancelada exitosamente.",
+                data: {
+                    eventoId: eventId,
+                    reservaEliminada
+                }
+            });
+
+        } catch (error) {
+            console.error("Error general al cancelar reserva:", error);
+            return res.status(500).json({
+                status: "error",
+                message: error.message || "Error al procesar la cancelación de la reserva."
+            });
+        }
+    }
+
 }
+
 
 // Helper: Busca si la hora coincide exactamente con un slot y si hay pista libre
 async function buscarSlotDisponibleExacto(startDate) {
