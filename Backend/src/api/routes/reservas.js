@@ -3,6 +3,7 @@ import { ReservasController } from '../controllers/reservas.js'
 
 const reservasRouter = express.Router();
 
+reservasRouter.get("/detalles", ReservasController.obtenerDetallesReserva)
 reservasRouter.post("/agendar", ReservasController.agendar)
 reservasRouter.post("/confirmar", ReservasController.confirmarReserva)
 

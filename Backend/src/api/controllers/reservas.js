@@ -7,6 +7,70 @@ import { ReservasModel } from '../../models/reservas.js'
 
 export class ReservasController {
 
+    static async obtenerDetallesReserva(req, res) {
+        try {
+            const { eventId, calendarId } = req.query;
+
+            // Validación básica
+            if (!eventId || !calendarId) {
+                return res.status(400).json({
+                    status: "error",
+                    message: "Los parámetros eventId y calendarId son obligatorios."
+                });
+            }
+
+            // Obtener evento desde Google Calendar
+            const evento = await GoogleCalendarService.getEvent(calendarId, eventId);
+
+            if (!evento) {
+                return res.status(404).json({
+                    status: "error",
+                    message: "No se encontró la reserva solicitada."
+                });
+            }
+
+            // Extraer información relevante del evento
+            // La descripción del evento contiene los detalles en formato de texto
+            const descripcion = evento.description || "";
+
+            // Extraer información del evento
+            const infoMap = {};
+            descripcion.split('\n').forEach(line => {
+                if (line.includes(':')) {
+                    const [key, value] = line.split(':', 2);
+                    infoMap[key.trim()] = value.trim();
+                }
+            });
+
+            // Crear objeto de reserva con los datos formateados
+            const reserva = {
+                id: evento.id,
+                titulo: evento.summary,
+                inicio: evento.start.dateTime,
+                fin: evento.end.dateTime,
+                pista: infoMap['Pista'] || '',
+                nivel: infoMap['Nivel'] || '',
+                organizador: infoMap['Jugador Principal'] || '',
+                jugadores_actuales: infoMap['Nº Actuales'] || '0',
+                jugadores_faltan: infoMap['Nº Faltantes'] || '0',
+                idPartida: infoMap['ID'] || '',
+                colorId: evento.colorId || '0'
+            };
+
+            // Devolver los datos formateados
+            return res.json({
+                status: "success",
+                reserva
+            });
+        } catch (error) {
+            console.error("Error al obtener detalles de reserva:", error);
+            return res.status(500).json({
+                status: "error",
+                message: error.message || "Error al obtener detalles de la reserva"
+            });
+        }
+    }
+
     static async agendar(req, res) {
         try {
             const { fecha_ISO, nombre, numero, partida, nivel, n_jugadores } = req.body
