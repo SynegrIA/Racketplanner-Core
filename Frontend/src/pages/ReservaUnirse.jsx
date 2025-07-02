@@ -21,8 +21,9 @@ export default function ReservaUnirse() {
     const eventId = searchParams.get("eventId");
     const organizador = searchParams.get("nombre");
     const numeroOrganizador = searchParams.get("numero");
+    const calendarId = searchParams.get("calendarId"); // Añadir esta línea
 
-    // Cargar detalles de la partida al montar el componente
+    // Modificar la función cargarDetallesPartida dentro del useEffect
     useEffect(() => {
         const cargarDetallesPartida = async () => {
             if (!eventId) {
@@ -31,9 +32,16 @@ export default function ReservaUnirse() {
                 return;
             }
 
+            // Validar que también tenemos calendarId
+            if (!calendarId) {
+                setError("Falta el identificador del calendario.");
+                setCargando(false);
+                return;
+            }
+
             try {
-                // Obtener detalles de la partida desde el backend
-                const response = await fetch(`${DOMINIO_BACKEND}/reservas/detalles?eventId=${encodeURIComponent(eventId)}`);
+                // Incluir calendarId en la solicitud
+                const response = await fetch(`${DOMINIO_BACKEND}/reservas/detalles?eventId=${encodeURIComponent(eventId)}&calendarId=${encodeURIComponent(calendarId)}`);
 
                 if (!response.ok) {
                     throw new Error("Error al obtener detalles de la partida");
@@ -55,7 +63,7 @@ export default function ReservaUnirse() {
         };
 
         cargarDetallesPartida();
-    }, [eventId]);
+    }, [eventId, calendarId]);
 
     // Manejador para unirse a la partida
     const handleSubmit = (e) => {

@@ -251,7 +251,9 @@ Jugador 4: ${jugador4}
             const urlEliminarCorta = `${DOMINIO_FRONTEND}/eliminar-jugador-reserva?eventId=${encodeURIComponent(evento.id)}&numero=${encodeURIComponent(numero)}&nombreJugador=${encodeURIComponent(nombre)}&calendarId=${encodeURIComponent(pistaConfig.id)}`;
             //const urlEliminarCorta = await shortenUrl(urlEliminar);
 
-            const urlInvitarCorta = `${DOMINIO_FRONTEND}/unir-jugador-reserva?eventId=${encodeURIComponent(evento.id)}&nombre=${encodeURIComponent(nombre)}&numero=${encodeURIComponent(numero)}`;
+            // En el método confirmarReserva, modificar la creación de la URL
+
+            const urlInvitarCorta = `${DOMINIO_FRONTEND}/unir-jugador-reserva?eventId=${encodeURIComponent(evento.id)}&nombre=${encodeURIComponent(nombre)}&numero=${encodeURIComponent(numero)}&calendarId=${encodeURIComponent(pistaConfig.id)}`;
             //const urlInvitarCorta = await shortenUrl(urlInvitar);
 
             // Guardar la reserva en la base de datos
@@ -506,6 +508,58 @@ Jugador 4: ${jugador4}
             return res.status(500).json({
                 status: "error",
                 message: error.message || "Error al procesar la cancelación de la reserva."
+            });
+        }
+    }
+
+    // En tu controlador de reservas
+
+    static async unirseReserva(req, res) {
+        try {
+            const { eventId, nombreInvitado, numeroInvitado, organizador, numeroOrganizador, tipoUnion } = req.body;
+
+            // Obtener detalles de la reserva (para calendarId, etc.)
+            const reserva = await obtenerReservaDesdeBaseDeDatos(eventId);
+
+            if (!reserva) {
+                return res.status(404).json({
+                    status: "error",
+                    message: "No se encontró la partida especificada."
+                });
+            }
+
+            // Verificar si hay espacio disponible
+            if (parseInt(reserva.jugadores_faltan) <= 0) {
+                return res.status(400).json({
+                    status: "error",
+                    message: "La partida está completa. No se pueden añadir más jugadores."
+                });
+            }
+
+            // Actualizar el evento en el calendario y la base de datos
+            await actualizarPartidaConNuevoJugador(eventId, nombreInvitado, numeroInvitado, tipoUnion);
+
+            // Enviar notificaciones según el tipo de unión
+            if (tipoUnion === "new" && numeroInvitado) {
+                // Notificar al nuevo jugador
+                await enviarMensajeWhatsApp("¡Te has unido a la partida exitosamente!", numeroInvitado);
+            }
+
+            // Notificar al organizador
+            const mensajeOrganizador = `${nombreInvitado} se ha unido a tu partida.`;
+            await enviarMensajeWhatsApp(mensajeOrganizador, numeroOrganizador);
+
+            return res.json({
+                status: "success",
+                message: tipoUnion === "new"
+                    ? "Te has unido a la partida. Recibirás notificaciones por WhatsApp."
+                    : "Te has unido a la partida como invitado."
+            });
+        } catch (error) {
+            console.error("Error al unirse a la reserva:", error);
+            return res.status(500).json({
+                status: "error",
+                message: error.message || "Error al procesar la unión a la partida."
             });
         }
     }
