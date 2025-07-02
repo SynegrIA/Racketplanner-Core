@@ -512,24 +512,51 @@ Jugador 4: ${jugador4}
         }
     }
 
-    // En tu controlador de reservas
-
     static async unirseReserva(req, res) {
         try {
-            const { eventId, nombreInvitado, numeroInvitado, organizador, numeroOrganizador, tipoUnion } = req.body;
+            const { eventId, nombreInvitado, numeroInvitado, organizador, numeroOrganizador, tipoUnion, calendarId } = req.body;
 
-            // Obtener detalles de la reserva (para calendarId, etc.)
-            const reserva = await obtenerReservaDesdeBaseDeDatos(eventId);
-
-            if (!reserva) {
-                return res.status(404).json({
+            // Validación básica
+            if (!eventId || !calendarId) {
+                return res.status(400).json({
                     status: "error",
-                    message: "No se encontró la partida especificada."
+                    message: "Los parámetros eventId y calendarId son obligatorios."
                 });
             }
 
+            // Obtener detalles de la reserva desde Google Calendar
+            let evento;
+            try {
+                evento = await GoogleCalendarService.getEvent(calendarId, eventId);
+                if (!evento) {
+                    return res.status(404).json({
+                        status: "error",
+                        message: "No se encontró la partida especificada."
+                    });
+                }
+            } catch (error) {
+                console.error("Error al obtener evento de Google Calendar:", error);
+                return res.status(500).json({
+                    status: "error",
+                    message: "Error al obtener detalles de la reserva."
+                });
+            }
+
+            // Extraer información relevante del evento
+            const descripcion = evento.description || "";
+
+            // Extraer información del evento
+            const infoMap = {};
+            descripcion.split('\n').forEach(line => {
+                if (line.includes(':')) {
+                    const [key, value] = line.split(':', 2);
+                    infoMap[key.trim()] = value.trim();
+                }
+            });
+
             // Verificar si hay espacio disponible
-            if (parseInt(reserva.jugadores_faltan) <= 0) {
+            const jugadoresFaltan = parseInt(infoMap['Nº Faltantes'] || '0');
+            if (jugadoresFaltan <= 0) {
                 return res.status(400).json({
                     status: "error",
                     message: "La partida está completa. No se pueden añadir más jugadores."
@@ -537,7 +564,7 @@ Jugador 4: ${jugador4}
             }
 
             // Actualizar el evento en el calendario y la base de datos
-            await actualizarPartidaConNuevoJugador(eventId, nombreInvitado, numeroInvitado, tipoUnion);
+            await actualizarPartidaConNuevoJugador(eventId, calendarId, nombreInvitado, numeroInvitado, tipoUnion);
 
             // Enviar notificaciones según el tipo de unión
             if (tipoUnion === "new" && numeroInvitado) {
@@ -546,8 +573,10 @@ Jugador 4: ${jugador4}
             }
 
             // Notificar al organizador
-            const mensajeOrganizador = `${nombreInvitado} se ha unido a tu partida.`;
-            await enviarMensajeWhatsApp(mensajeOrganizador, numeroOrganizador);
+            if (numeroOrganizador) {
+                const mensajeOrganizador = `${nombreInvitado} se ha unido a tu partida.`;
+                await enviarMensajeWhatsApp(mensajeOrganizador, numeroOrganizador);
+            }
 
             return res.json({
                 status: "success",
@@ -665,4 +694,79 @@ async function buscarAlternativasSlots(startDate, nombre, numero, partida, nivel
     // Ordenar por cercanía temporal y limitar a 2
     alternativas.sort((a, b) => new Date(a.inicio) - new Date(b.inicio))
     return alternativas.slice(0, 2)
+}
+
+async function actualizarPartidaConNuevoJugador(eventId, calendarId, nombreInvitado, numeroInvitado, tipoUnion) {
+    try {
+        // 1. Obtener evento actual
+        const evento = await GoogleCalendarService.getEvent(calendarId, eventId);
+
+        // 2. Extraer información actual
+        const descripcion = evento.description || "";
+        const infoMap = {};
+        descripcion.split('\n').forEach(line => {
+            if (line.includes(':')) {
+                const [key, value] = line.split(':', 2);
+                infoMap[key.trim()] = value.trim();
+            }
+        });
+
+        // 3. Actualizar contadores
+        const jugadoresActuales = parseInt(infoMap['Nº Actuales'] || '1') + 1;
+        const jugadoresFaltan = parseInt(infoMap['Nº Faltantes'] || '0') - 1;
+
+        // 4. Buscar espacio libre para el nuevo jugador
+        let posicionLibre = 0;
+        for (let i = 2; i <= 4; i++) {
+            if (!infoMap[`Jugador ${i}`] || infoMap[`Jugador ${i}`].trim() === '') {
+                posicionLibre = i;
+                break;
+            }
+        }
+
+        if (posicionLibre === 0) {
+            throw new Error("No hay espacio para más jugadores.");
+        }
+
+        // 5. Preparar nueva descripción
+        const lineas = descripcion.split('\n');
+        const nuevasLineas = lineas.map(line => {
+            if (line.startsWith('Nº Actuales:')) {
+                return `Nº Actuales: ${jugadoresActuales}`;
+            } else if (line.startsWith('Nº Faltantes:')) {
+                return `Nº Faltantes: ${jugadoresFaltan}`;
+            } else if (line.startsWith(`Jugador ${posicionLibre}:`)) {
+                return `Jugador ${posicionLibre}: ${nombreInvitado}`;
+            } else if (line.startsWith(`Telefono ${posicionLibre}:`) && tipoUnion === 'new') {
+                return `Telefono ${posicionLibre}: ${numeroInvitado}`;
+            }
+            return line;
+        });
+
+        // 6. Actualizar evento en Google Calendar
+        await GoogleCalendarService.updateEvent(calendarId, eventId, {
+            description: nuevasLineas.join('\n')
+        });
+
+        // 7. Actualizar registro en base de datos utilizando el modelo
+        try {
+            await ReservasModel.updateWithNewPlayer(
+                eventId,
+                posicionLibre,
+                nombreInvitado,
+                numeroInvitado,
+                jugadoresActuales,
+                jugadoresFaltan,
+                tipoUnion
+            );
+        } catch (dbError) {
+            console.error("Error al actualizar la base de datos:", dbError);
+            // No lanzamos el error porque ya actualizamos Google Calendar
+        }
+
+        return true;
+    } catch (error) {
+        console.error("Error al actualizar partida con nuevo jugador:", error);
+        throw error;
+    }
 }

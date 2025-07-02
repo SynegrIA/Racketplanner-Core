@@ -85,6 +85,7 @@ export default function ReservaUnirse() {
                 },
                 body: JSON.stringify({
                     eventId,
+                    calendarId,
                     nombreInvitado,
                     numeroInvitado: tipoUnion === "new" ? numeroCompleto : "",
                     organizador,

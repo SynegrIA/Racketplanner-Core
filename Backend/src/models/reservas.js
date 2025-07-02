@@ -24,4 +24,44 @@ export class ReservasModel {
         return data[0];
     }
 
+    // Nuevo método para actualizar reserva con nuevo jugador
+    static async updateWithNewPlayer(eventId, posicionLibre, nombreInvitado, numeroInvitado, jugadoresActuales, jugadoresFaltan, tipoUnion) {
+        try {
+            // 1. Obtener el registro actual
+            const { data, error } = await supabase
+                .from('Reservas')
+                .select('*')
+                .eq('ID Event', eventId)
+                .single();
+
+            if (error) throw new Error(error.message);
+
+            // 2. Preparar datos para actualización
+            const actualizaciones = {
+                "Nº Actuales": jugadoresActuales,
+                "Nº Faltantes": jugadoresFaltan,
+                "Fecha Actualización": new Date().toISOString(),
+                "Actualización": `${nombreInvitado} se unió a la partida`,
+                [`Jugador ${posicionLibre}`]: nombreInvitado
+            };
+
+            if (tipoUnion === 'new') {
+                actualizaciones[`Telefono ${posicionLibre}`] = numeroInvitado;
+            }
+
+            // 3. Actualizar el registro
+            const { error: updateError } = await supabase
+                .from('Reservas')
+                .update(actualizaciones)
+                .eq('ID Event', eventId);
+
+            if (updateError) throw new Error(updateError.message);
+
+            return true;
+        } catch (error) {
+            console.error("Error al actualizar reserva con nuevo jugador:", error);
+            throw error;
+        }
+    }
+
 }

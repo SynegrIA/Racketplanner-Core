@@ -46,6 +46,21 @@ export const GoogleCalendarService = {
         return res.data
     },
 
+    // Añadir este método al objeto GoogleCalendarService
+    async updateEvent(calendarId, eventId, eventData) {
+        try {
+            const res = await calendar.events.patch({
+                calendarId,
+                eventId,
+                resource: eventData
+            });
+            return res.data;
+        } catch (error) {
+            console.error("Error al actualizar evento en Google Calendar:", error);
+            throw error;
+        }
+    },
+
     async deleteEvent(calendarId, eventId) {
         try {
             const res = await calendar.events.delete({
