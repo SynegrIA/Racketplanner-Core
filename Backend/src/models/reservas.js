@@ -94,4 +94,64 @@ export class ReservasModel {
         }
     }
 
+    static async getReservasActivas(numeroTelefono) {
+        try {
+            const hoy = new Date();
+
+            // Consultar reservas futuras
+            const { data, error } = await supabase
+                .from('Reservas')
+                .select('*')
+                .or(`"Telefono 1".eq.${numeroTelefono},"Telefono 2".eq.${numeroTelefono},"Telefono 3".eq.${numeroTelefono},"Telefono 4".eq.${numeroTelefono}`)
+                .gt('Fecha ISO', hoy.toISOString().split('T')[0])
+                .order('Fecha ISO', { ascending: true });
+
+            if (error) throw new Error(error.message);
+
+            const partidasCompletas = [];
+            const partidasAbiertas = [];
+
+            // Procesar los resultados
+            data.forEach(row => {
+                const fechaObj = new Date(`${row['Fecha ISO']}T${row['Inicio']}`);
+
+                // Verificar si el usuario es el dueño de la reserva
+                const esDuenio = row['Telefono 1'] === numeroTelefono;
+
+                // Información básica común para ambos tipos de partidas
+                const partidaInfo = {
+                    idPartida: row['ID'] || '',
+                    fechaLegible: fechaObj.toLocaleDateString('es-ES', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        timeZone: 'Europe/Madrid'
+                    }).replace(',', ' a las'),
+                    estado: row['Estado'],
+                    linkCancel: row['Link Cancel'] || "",
+                    esDuenio: esDuenio
+                };
+
+                // Separar según el estado
+                if (row['Estado'] === 'Completa') {
+                    partidasCompletas.push(partidaInfo);
+                } else if (row['Estado'] === 'Abierta') {
+                    // Añadir información adicional para partidas abiertas
+                    partidaInfo.jugadoresActuales = row['Nº Actuales'] || 0;
+                    partidaInfo.jugadoresFaltantes = row['Nº Faltantes'] || 0;
+                    partidaInfo.linkJoin = row['Link Join'] || "";
+                    partidaInfo.linkDelete = row['Link Delete'] || "";
+                    partidasAbiertas.push(partidaInfo);
+                }
+            });
+
+            return { partidasCompletas, partidasAbiertas };
+        } catch (error) {
+            console.error("Error al obtener reservas activas:", error);
+            throw error;
+        }
+    }
+
 }
