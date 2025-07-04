@@ -58,28 +58,35 @@ export default function ReservaEliminarJugador() {
     }, [eventId, calendarId]);
 
     // Función para extraer jugadores invitados de la reserva
+    // Modificar la función en ReservaEliminarJugador.jsx
     const extraerJugadoresInvitados = (reserva) => {
-        // Esta función debería extraer los jugadores invitados de los datos de la reserva
-        // Por ejemplo, si la reserva tiene una descripción que incluye "Invitado de [nombre]"
+        // Si ya tenemos la lista procesada desde el backend, usarla directamente
+        if (reserva.jugadores && Array.isArray(reserva.jugadores)) {
+            // Filtrar solo los jugadores que no son organizadores
+            return reserva.jugadores
+                .filter(jugador => !jugador.esOrganizador)
+                .map(jugador => ({
+                    nombre: jugador.nombre,
+                    posicion: jugador.posicion
+                }));
+        }
+
+        // Método alternativo: usar las propiedades individuales
         const jugadoresArray = [];
 
-        // Esta es una implementación simplificada - ajustar según la estructura real de los datos
-        if (reserva.descripcion) {
-            const lineas = reserva.descripcion.split('\n');
-            lineas.forEach(linea => {
-                if (linea.toLowerCase().includes('invitado de') ||
-                    (linea.toLowerCase().includes('jugador') &&
-                        !linea.toLowerCase().includes('jugador principal') &&
-                        linea.split(':')[1]?.trim())) {
-                    const nombreMatch = linea.split(':')[1]?.trim();
-                    if (nombreMatch) {
-                        jugadoresArray.push({
-                            nombre: nombreMatch,
-                            posicion: jugadoresArray.length + 1
-                        });
-                    }
-                }
-            });
+        // Excluir al organizador de la lista
+        const organizadorNombre = reserva.organizador;
+
+        // En estos sistemas, usualmente la información de jugadores viene en pares
+        for (let i = 2; i <= 4; i++) {
+            // Acceder a propiedades como "jugador2", "jugador3", etc.
+            const nombreJugador = reserva[`jugador${i}`];
+            if (nombreJugador && nombreJugador.trim() !== '' && nombreJugador !== organizadorNombre) {
+                jugadoresArray.push({
+                    nombre: nombreJugador,
+                    posicion: i
+                });
+            }
         }
 
         return jugadoresArray;

@@ -7,6 +7,7 @@ import { ReservasModel } from '../../models/reservas.js'
 
 export class ReservasController {
 
+    // Modificar la función obtenerDetallesReserva en reservas.js
     static async obtenerDetallesReserva(req, res) {
         try {
             const { eventId, calendarId } = req.query;
@@ -30,7 +31,6 @@ export class ReservasController {
             }
 
             // Extraer información relevante del evento
-            // La descripción del evento contiene los detalles en formato de texto
             const descripcion = evento.description || "";
 
             // Extraer información del evento
@@ -41,6 +41,33 @@ export class ReservasController {
                     infoMap[key.trim()] = value.trim();
                 }
             });
+
+            // Extraer información de jugadores
+            const jugadores = [];
+            const organizadorNombre = infoMap['Jugador Principal'] || '';
+
+            // Añadir organizador como Jugador 1
+            if (organizadorNombre) {
+                jugadores.push({
+                    nombre: organizadorNombre,
+                    posicion: 1,
+                    telefono: infoMap['Teléfono'] || '',
+                    esOrganizador: true
+                });
+            }
+
+            // Añadir jugadores 2, 3 y 4
+            for (let i = 2; i <= 4; i++) {
+                const nombreJugador = infoMap[`Jugador ${i}`] || '';
+                if (nombreJugador && nombreJugador.trim() !== '') {
+                    jugadores.push({
+                        nombre: nombreJugador,
+                        posicion: i,
+                        telefono: infoMap[`Telefono ${i}`] || '',
+                        esOrganizador: false
+                    });
+                }
+            }
 
             // Crear objeto de reserva con los datos formateados
             const reserva = {
@@ -54,7 +81,15 @@ export class ReservasController {
                 jugadores_actuales: infoMap['Nº Actuales'] || '0',
                 jugadores_faltan: infoMap['Nº Faltantes'] || '0',
                 idPartida: infoMap['ID'] || '',
-                colorId: evento.colorId || '0'
+                colorId: evento.colorId || '0',
+                // Añadir campos para jugadores
+                jugadores: jugadores,
+                // También incluir campos individuales para compatibilidad
+                jugador1: infoMap['Jugador Principal'] || '',
+                jugador2: infoMap['Jugador 2'] || '',
+                jugador3: infoMap['Jugador 3'] || '',
+                jugador4: infoMap['Jugador 4'] || '',
+                descripcion_completa: descripcion // Incluir la descripción completa
             };
 
             // Devolver los datos formateados
