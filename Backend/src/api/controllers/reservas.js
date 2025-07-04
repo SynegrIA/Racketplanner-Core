@@ -845,7 +845,7 @@ Jugador 4: ${jugador4}
             const { numero } = req.params;
             const { nombre } = req.query;
 
-            console.log(`Número --> ${numero}\n Nombre --> ${nombre}`)
+            console.log(`Número --> ${numero}\nNombre --> ${nombre}`)
 
             // Validación básica
             if (!numero) {
