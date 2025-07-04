@@ -628,6 +628,196 @@ Jugador 4: ${jugador4}
         }
     }
 
+    static async eliminarJugadorReserva(req, res) {
+        try {
+            const { eventId, calendarId, nombreJugador, numero } = req.body;
+
+            // Validación básica
+            if (!eventId || !calendarId || !nombreJugador) {
+                return res.status(400).json({
+                    status: "error",
+                    message: "Los parámetros eventId, calendarId y nombreJugador son obligatorios."
+                });
+            }
+
+            // 1. Obtener evento desde Google Calendar usando el servicio
+            let evento;
+            try {
+                evento = await GoogleCalendarService.getEvent(calendarId, eventId);
+
+                if (!evento) {
+                    return res.status(404).json({
+                        status: "error",
+                        message: "No se encontró la partida especificada."
+                    });
+                }
+            } catch (errorCalendar) {
+                console.error("Error al obtener evento de Google Calendar:", errorCalendar);
+                return res.status(500).json({
+                    status: "error",
+                    message: "Error al acceder a los detalles de la partida."
+                });
+            }
+
+            // 2. Extraer información y verificar que el jugador existe
+            const descripcion = evento.description || "";
+            const infoMap = {};
+            descripcion.split('\n').forEach(line => {
+                if (line.includes(':')) {
+                    const [key, value] = line.split(':', 2);
+                    infoMap[key.trim()] = value.trim();
+                }
+            });
+
+            // Encontrar la posición del jugador a eliminar
+            let posicionJugador = 0;
+            for (let i = 2; i <= 4; i++) {
+                if (infoMap[`Jugador ${i}`] === nombreJugador) {
+                    posicionJugador = i;
+                    break;
+                }
+            }
+
+            if (posicionJugador === 0) {
+                return res.status(404).json({
+                    status: "error",
+                    message: "El jugador especificado no se encontró en esta partida."
+                });
+            }
+
+            // 3. Actualizar contadores
+            const jugadoresActuales = parseInt(infoMap['Nº Actuales'] || '1') - 1;
+            const jugadoresFaltan = parseInt(infoMap['Nº Faltantes'] || '0') + 1;
+
+            // 4. Preparar nueva descripción para Google Calendar
+            const lineas = descripcion.split('\n');
+            const nuevasLineas = lineas.map(line => {
+                if (line.startsWith('Nº Actuales:')) {
+                    return `Nº Actuales: ${jugadoresActuales}`;
+                } else if (line.startsWith('Nº Faltantes:')) {
+                    return `Nº Faltantes: ${jugadoresFaltan}`;
+                } else if (line.startsWith(`Jugador ${posicionJugador}:`)) {
+                    return `Jugador ${posicionJugador}: `;
+                } else if (line.startsWith(`Telefono ${posicionJugador}:`)) {
+                    return `Telefono ${posicionJugador}: `;
+                }
+                return line;
+            });
+
+            // 5. Actualizar evento en Google Calendar usando el servicio
+            try {
+                await GoogleCalendarService.updateEvent(calendarId, eventId, {
+                    description: nuevasLineas.join('\n')
+                });
+            } catch (errorUpdate) {
+                console.error("Error al actualizar evento en Google Calendar:", errorUpdate);
+                return res.status(500).json({
+                    status: "error",
+                    message: "Error al actualizar la información de la partida."
+                });
+            }
+
+            // 6. Actualizar registro en base de datos usando el modelo
+            try {
+                await ReservasModel.removePlayer(
+                    eventId,
+                    posicionJugador,
+                    jugadoresActuales,
+                    jugadoresFaltan,
+                    nombreJugador
+                );
+            } catch (dbError) {
+                console.error("Error al actualizar la base de datos:", dbError);
+                // No detenemos la ejecución ya que el calendario ya se actualizó
+            }
+
+            // 7. Notificar al organizador
+            const organizadorNumero = infoMap['Teléfono'] || numero;
+            const organizadorNombre = infoMap['Jugador Principal'] || "Organizador";
+
+            if (organizadorNumero) {
+                try {
+                    const fechaEvento = new Date(evento.start.dateTime);
+                    const fechaFormateada = fechaEvento.toLocaleDateString('es-ES', {
+                        weekday: 'long',
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        timeZone: 'Europe/Madrid'
+                    });
+
+                    const horaEvento = fechaEvento.toLocaleTimeString('es-ES', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        timeZone: 'Europe/Madrid'
+                    });
+
+                    const mensaje = `⚠️ Actualización de partida\n\n` +
+                        `El jugador ${nombreJugador} ha sido eliminado de tu partida.\n\n` +
+                        `📅 Fecha: ${fechaFormateada}\n` +
+                        `⏰ Hora: ${horaEvento}\n` +
+                        `🎾 Pista: ${infoMap['Pista'] || "No especificada"}\n\n` +
+                        `👥 Jugadores actuales: ${jugadoresActuales}/4\n` +
+                        `👥 Jugadores faltantes: ${jugadoresFaltan}`;
+
+                    await enviarMensajeWhatsApp(mensaje, organizadorNumero);
+                } catch (whatsappError) {
+                    console.error("Error al enviar mensaje WhatsApp:", whatsappError);
+                    // No bloqueamos la respuesta por este error
+                }
+            }
+
+            // 8. Notificar al jugador eliminado si tenemos su teléfono
+            const telefonoJugador = infoMap[`Telefono ${posicionJugador}`];
+            if (telefonoJugador) {
+                try {
+                    const fechaEvento = new Date(evento.start.dateTime);
+                    const fechaFormateada = fechaEvento.toLocaleDateString('es-ES', {
+                        weekday: 'long',
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        timeZone: 'Europe/Madrid'
+                    });
+
+                    const horaEvento = fechaEvento.toLocaleTimeString('es-ES', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        timeZone: 'Europe/Madrid'
+                    });
+
+                    const mensaje = `ℹ️ Has sido eliminado de una partida\n\n` +
+                        `${organizadorNombre} te ha eliminado de la siguiente partida:\n\n` +
+                        `📅 Fecha: ${fechaFormateada}\n` +
+                        `⏰ Hora: ${horaEvento}\n` +
+                        `🎾 Pista: ${infoMap['Pista'] || "No especificada"}\n\n` +
+                        `Si crees que es un error, por favor contacta con el organizador.`;
+
+                    await enviarMensajeWhatsApp(mensaje, telefonoJugador);
+                } catch (whatsappError) {
+                    console.error("Error al enviar mensaje WhatsApp:", whatsappError);
+                    // No bloqueamos la respuesta por este error
+                }
+            }
+
+            // 9. Devolver respuesta exitosa
+            return res.json({
+                status: "success",
+                message: `El jugador ${nombreJugador} ha sido eliminado exitosamente de la partida.`,
+                data: {
+                    eventoId: eventId,
+                    jugadoresActuales,
+                    jugadoresFaltan
+                }
+            });
+        } catch (error) {
+            console.error("Error general al eliminar jugador:", error);
+            return res.status(500).json({
+                status: "error",
+                message: error.message || "Error al procesar la eliminación del jugador."
+            });
+        }
+    }
 }
 
 

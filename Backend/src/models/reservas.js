@@ -64,4 +64,34 @@ export class ReservasModel {
         }
     }
 
+    // Añadir este método al final de la clase ReservasModel
+
+    static async removePlayer(eventId, posicionJugador, jugadoresActuales, jugadoresFaltan, nombreJugador) {
+        try {
+            // 1. Preparar datos para actualización
+            const actualizaciones = {
+                "Nº Actuales": jugadoresActuales,
+                "Nº Faltantes": jugadoresFaltan,
+                "Fecha Actualización": new Date().toISOString(),
+                "Actualización": `Se eliminó al jugador ${nombreJugador}`,
+                [`Jugador ${posicionJugador}`]: null,
+                [`Telefono ${posicionJugador}`]: null
+            };
+
+            // 2. Actualizar el registro
+            const { data, error } = await supabase
+                .from('Reservas')
+                .update(actualizaciones)
+                .eq('ID Event', eventId)
+                .select();
+
+            if (error) throw new Error(error.message);
+
+            return data[0];
+        } catch (error) {
+            console.error("Error al eliminar jugador de reserva:", error);
+            throw error;
+        }
+    }
+
 }

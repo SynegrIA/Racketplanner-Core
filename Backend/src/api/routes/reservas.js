@@ -8,5 +8,6 @@ reservasRouter.post("/agendar", ReservasController.agendar)
 reservasRouter.post("/confirmar", ReservasController.confirmarReserva)
 reservasRouter.delete("/cancelar/:eventId", ReservasController.cancelarReserva)
 reservasRouter.post("/unirse", ReservasController.unirseReserva)
+reservasRouter.delete("/eliminar-jugador", ReservasController.eliminarJugadorReserva)
 
 export default reservasRouter;
