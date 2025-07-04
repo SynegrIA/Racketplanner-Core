@@ -842,7 +842,10 @@ Jugador 4: ${jugador4}
     // Añadir este método a la clase ReservasController
     static async obtenerReservasActivas(req, res) {
         try {
-            const { nombre, numero } = req.body;
+            const { numero } = req.params;
+            const { nombre } = req.query;
+
+            console.log(`Número --> ${numero}\n Nombre --> ${nombre}`)
 
             // Validación básica
             if (!numero) {
@@ -933,6 +936,9 @@ Jugador 4: ${jugador4}
     }
 
 }
+
+
+
 
 
 // Helper: Busca si la hora coincide exactamente con un slot y si hay pista libre
