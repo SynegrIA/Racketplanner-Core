@@ -420,12 +420,21 @@ Jugador 4: ${jugador4}
             const eventId = req.params.eventId;
             const { calendarId, numero, motivo } = req.query;
 
+            //console.log(`Solicitud para cancelar reserva: eventId=${eventId}, calendarId=${calendarId}`);
+
             // Validación básica
             if (!eventId || !calendarId) {
                 return res.status(400).json({
                     status: "error",
                     message: "Los parámetros eventId y calendarId son obligatorios."
                 });
+            }
+
+            // Verificar que el calendarId es válido
+            const calendarioValido = CALENDARS.some(cal => cal.id === calendarId);
+            if (!calendarioValido) {
+                console.warn(`⚠️ Advertencia: calendarId no reconocido: ${calendarId}`);
+                // Continuamos porque puede ser válido aunque no esté en la lista
             }
 
             // 1. Obtener detalles del evento antes de eliminarlo
@@ -459,14 +468,25 @@ Jugador 4: ${jugador4}
 
             // 3. Eliminar el evento de Google Calendar
             try {
-                await GoogleCalendarService.deleteEvent(calendarId, eventId);
+                console.log(`Eliminando evento ${eventId} del calendario ${calendarId}...`);
+                const resultado = await GoogleCalendarService.deleteEvent(calendarId, eventId);
+                //console.log("Resultado de eliminación:", resultado);
+
+                if (resultado.alreadyDeleted) {
+                    console.log("El evento ya había sido eliminado previamente.");
+                }
             } catch (deleteError) {
-                console.error("Error al eliminar evento de Google Calendar:", deleteError);
+                console.error("Error detallado al eliminar evento:", deleteError);
+
+                // Proporcionar información más detallada sobre el error
                 return res.status(500).json({
                     status: "error",
-                    message: "Error al cancelar la reserva en el calendario."
+                    message: "Error al cancelar la reserva en el calendario: " +
+                        (deleteError.message || "Error desconocido"),
+                    details: deleteError.response?.data || {}
                 });
             }
+
 
             // 4. Eliminar el registro de la base de datos
             let reservaEliminada;

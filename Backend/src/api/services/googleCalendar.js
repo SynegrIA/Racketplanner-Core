@@ -14,6 +14,7 @@ const auth = new google.auth.GoogleAuth({
 const calendar = google.calendar({ version: 'v3', auth })
 
 export const GoogleCalendarService = {
+
     async getEvents(calendarId, timeMin, timeMax) {
         const res = await calendar.events.list({
             calendarId,
@@ -63,14 +64,34 @@ export const GoogleCalendarService = {
 
     async deleteEvent(calendarId, eventId) {
         try {
+            // Registrar la intención para facilitar depuración
+            console.log(`Intentando eliminar evento: ID=${eventId} del calendario: ID=${calendarId}`);
+
             const res = await calendar.events.delete({
                 calendarId,
-                eventId
+                eventId,
+                sendUpdates: 'all' // Notificar a los participantes sobre la eliminación
             });
-            return res.data;
+
+            console.log(`Evento ${eventId} eliminado con éxito`);
+            return { success: true };
         } catch (error) {
-            console.error("Error al eliminar evento de Google Calendar:", error);
+            console.error("Error detallado al eliminar evento:", error);
+
+            // Manejar errores específicos
+            if (error.response) {
+                console.error(`Código de error: ${error.response.status}`);
+                console.error(`Mensaje API: ${JSON.stringify(error.response.data)}`);
+
+                // Si el evento ya no existe, considerarlo como eliminado exitosamente
+                if (error.response.status === 404) {
+                    console.log("El evento ya no existe, se considera eliminado correctamente");
+                    return { success: true, alreadyDeleted: true };
+                }
+            }
+
             throw error;
         }
     }
+
 }
