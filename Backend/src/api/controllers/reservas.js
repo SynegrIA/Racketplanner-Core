@@ -838,6 +838,100 @@ Jugador 4: ${jugador4}
             });
         }
     }
+
+    // Añadir este método a la clase ReservasController
+    static async obtenerReservasActivas(req, res) {
+        try {
+            const { nombre, numero } = req.body;
+
+            // Validación básica
+            if (!numero) {
+                return res.status(400).json({
+                    status: "error",
+                    message: "El parámetro 'numero' es obligatorio."
+                });
+            }
+
+            // 1. Obtener las partidas futuras del usuario
+            const { partidasCompletas, partidasAbiertas } = await ReservasModel.getReservasActivas(numero);
+
+            // 2. Formatear el mensaje para WhatsApp con emojis
+            let mensajeFinal = `🎾 ¡Hola *${nombre || 'jugador'}*! 🎾\n`;
+            mensajeFinal += `Estas son tus próximas partidas:\n\n`;
+
+            // PARTIDAS COMPLETAS
+            if (partidasCompletas.length > 0) {
+                mensajeFinal += `✅ *PARTIDAS COMPLETAS:*\n`;
+                partidasCompletas.forEach(info => {
+                    mensajeFinal += `━━━━━━━━━━━━━━━\n`;
+                    mensajeFinal += `🏸 ID: *${info.idPartida}*\n`;
+                    mensajeFinal += `📅 Fecha: ${info.fechaLegible}\n`;
+                    mensajeFinal += `🔵 Estado: ${info.estado}\n`;
+
+                    // Solo mostrar link de cancelar si es el jugador principal
+                    if (info.esDuenio) {
+                        mensajeFinal += `❌ Cancelar: ${info.linkCancel}\n`;
+                        mensajeFinal += `👑 _Eres el jugador principal_\n`;
+                    }
+                    mensajeFinal += `\n`;
+                });
+            } else {
+                mensajeFinal += `📝 No hay partidas completas programadas.\n\n`;
+            }
+
+            // PARTIDAS ABIERTAS
+            if (partidasAbiertas.length > 0) {
+                mensajeFinal += `🔄 *PARTIDAS ABIERTAS:*\n`;
+                partidasAbiertas.forEach(info => {
+                    mensajeFinal += `━━━━━━━━━━━━━━━\n`;
+                    mensajeFinal += `🏸 ID: *${info.idPartida}*\n`;
+                    mensajeFinal += `📅 Fecha: ${info.fechaLegible}\n`;
+                    mensajeFinal += `🔵 Estado: ${info.estado}\n`;
+                    mensajeFinal += `👥 Jugadores: ${info.jugadoresActuales}\n`;
+                    mensajeFinal += `⭐ Faltan: ${info.jugadoresFaltantes}\n`;
+
+                    // Solo mostrar links si es el jugador principal
+                    if (info.esDuenio) {
+                        mensajeFinal += `✅ Unirse: ${info.linkJoin}\n`;
+                        mensajeFinal += `🚫 Eliminar: ${info.linkDelete}\n`;
+                        mensajeFinal += `❌ Cancelar: ${info.linkCancel}\n`;
+                        mensajeFinal += `👑 _Eres el jugador principal_\n`;
+                    }
+                    mensajeFinal += `\n`;
+                });
+            } else {
+                mensajeFinal += `📝 No hay partidas abiertas disponibles.\n\n`;
+            }
+
+            mensajeFinal += `🏆 ¡Que disfrutes del juego! 🎾`;
+
+            // 3. Enviar el mensaje por WhatsApp
+            try {
+                await enviarMensajeWhatsApp(mensajeFinal, numero);
+            } catch (whatsappError) {
+                console.error("Error al enviar mensaje WhatsApp:", whatsappError);
+                // No bloqueamos la respuesta por error en WhatsApp
+            }
+
+            // 4. Devolver respuesta exitosa
+            return res.status(200).json({
+                status: "success",
+                message: "Mensaje enviado correctamente",
+                data: {
+                    partidasCompletas: partidasCompletas.length,
+                    partidasAbiertas: partidasAbiertas.length
+                }
+            });
+
+        } catch (error) {
+            console.error("Error al obtener reservas activas:", error);
+            return res.status(500).json({
+                status: "error",
+                message: error.message || "Error al obtener reservas activas"
+            });
+        }
+    }
+
 }
 
 
