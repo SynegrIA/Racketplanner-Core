@@ -15,7 +15,7 @@ app.use(express.json());
 app.use(cors());
 
 // Rutas
-app.use("jugadores", jugadoresRouter);
+app.use("/jugadores", jugadoresRouter);
 app.use("/reservas", reservasRouter);
 app.use("/invitaciones", invitacionesRouter);
 app.use("/pagos", pagosRouter);
