@@ -32,6 +32,24 @@ export default function CalendarPage() {
     const [availableSlots, setAvailableSlots] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    // Nuevos estados para los parámetros de URL
+    const [nombre, setNombre] = useState('');
+    const [numero, setNumero] = useState('');
+
+    // Recuperar parámetros de la URL al montar el componente
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const nombreParam = params.get('nombre');
+        const numeroParam = params.get('numero');
+
+        if (nombreParam) {
+            setNombre(decodeURIComponent(nombreParam));
+        }
+
+        if (numeroParam) {
+            setNumero(decodeURIComponent(numeroParam));
+        }
+    }, []);
 
     // Función para obtener los horarios disponibles
     const fetchAvailableSlots = async (date) => {
