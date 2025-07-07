@@ -37,38 +37,31 @@ export default function CalendarPage() {
     const fetchAvailableSlots = async (date) => {
         setLoading(true);
         setError('');
-        try {
-            // Simula una llamada a un endpoint que devuelve alternativas
-            // En un caso real, este endpoint debería devolver los slots disponibles para un día
-            const response = await fetch(`${DOMINIO_BACKEND}/reservas/agendar`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    fecha_ISO: new Date(date).toISOString(),
-                    // Datos dummy para que el endpoint de alternativas funcione
-                    nombre: "temp",
-                    numero: "temp"
-                }),
-            });
+        setAvailableSlots([]); // Limpiar slots anteriores al iniciar la carga
 
+        try {
+            // Llamada al nuevo endpoint GET que devuelve todos los slots disponibles
+            const response = await fetch(`${DOMINIO_BACKEND}/reservas/disponibles?fecha=${date}`);
             const data = await response.json();
 
-            if (data.status === 'alternativas') {
-                setAvailableSlots(data.alternativas);
-            } else {
-                // Si no hay alternativas, vaciamos los slots
-                setAvailableSlots([]);
-                if (data.status === 'nodisponible') {
-                    setError('No hay horarios disponibles para esta fecha.');
+            if (response.ok && data.status === 'success') {
+                setAvailableSlots(data.data);
+                if (data.data.length === 0) {
+                    // Si la respuesta es exitosa pero no hay datos, informamos al usuario.
+                    setError('No hay horarios disponibles para la fecha seleccionada.');
                 }
+            } else {
+                // Captura otros estados como 'nodisponible' o errores del servidor.
+                setError(data.message || 'No se pudieron cargar los horarios.');
             }
         } catch (err) {
-            setError('Error al cargar los horarios. Inténtalo de nuevo.');
+            setError('Error de conexión al cargar los horarios. Inténtalo de nuevo.');
             console.error(err);
         } finally {
             setLoading(false);
         }
     };
+
 
     // Cargar horarios cuando la fecha cambia
     useEffect(() => {
@@ -118,12 +111,11 @@ export default function CalendarPage() {
                         <div className="row">
                             {availableSlots.length > 0 ? (
                                 availableSlots.map((slot, index) => (
-                                    <TimeSlot key={index} slot={slot} />
+                                    <TimeSlot key={index} slot={slot} onSelect={() => { }} />
                                 ))
                             ) : (
-                                <div className="text-center text-muted">
-                                    <p>No hay horarios disponibles para la fecha seleccionada.</p>
-                                </div>
+                                // No mostramos nada aquí, el mensaje de error/info ya lo cubre
+                                null
                             )}
                         </div>
                     )}

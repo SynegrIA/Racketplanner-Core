@@ -935,11 +935,105 @@ Jugador 4: ${jugador4}
         }
     }
 
+    // NUEVO MÉTODO: Obtener slots disponibles para una fecha
+    static async obtenerSlotsDisponibles(req, res) {
+        try {
+            const { fecha } = req.query;
+
+            if (!fecha) {
+                return res.status(400).json({
+                    status: "error",
+                    message: "El parámetro 'fecha' es obligatorio."
+                });
+            }
+
+            const startDate = new Date(fecha);
+            if (isNaN(startDate.getTime())) {
+                return res.status(400).json({
+                    status: "error",
+                    message: "La fecha proporcionada no es válida."
+                });
+            }
+
+            const slotsDisponibles = await buscarTodosLosSlotsDisponibles(startDate);
+
+            if (slotsDisponibles.length > 0) {
+                return res.json({
+                    status: "success",
+                    data: slotsDisponibles
+                });
+            } else {
+                return res.json({
+                    status: "nodisponible",
+                    message: "No hay horarios disponibles para la fecha seleccionada.",
+                    data: []
+                });
+            }
+
+        } catch (error) {
+            console.error("Error al obtener slots disponibles:", error);
+            return res.status(500).json({
+                status: "error",
+                message: error.message || "Error interno del servidor."
+            });
+        }
+    }
+
 }
 
 
 
 
+
+// NUEVA FUNCIÓN HELPER: Busca todos los slots disponibles en un día
+async function buscarTodosLosSlotsDisponibles(fecha) {
+    const slots = [];
+    const dia = fecha.getDay();
+    const isWeekend = dia === 0 || dia === 6;
+
+    for (const pista of CALENDARS) {
+        const horarios = isWeekend ? pista.businessHours.weekends : pista.businessHours.weekdays;
+        if (!horarios || horarios.length === 0) continue;
+
+        for (const rango of horarios) {
+            const [startHour, startMinute] = rango.start.split(":").map(Number);
+            const [endHour, endMinute] = rango.end.split(":").map(Number);
+
+            let slotInicio = new Date(fecha);
+            slotInicio.setHours(startHour, startMinute, 0, 0);
+
+            let slotFinRango = new Date(fecha);
+            slotFinRango.setHours(endHour, endMinute, 0, 0);
+            if (endHour === 0 && endMinute === 0) slotFinRango.setDate(slotFinRango.getDate() + 1);
+
+
+            while (slotInicio < slotFinRango) {
+                const slotFin = new Date(slotInicio.getTime() + pista.slotDuration * 60000);
+                if (slotFin > slotFinRango) break;
+
+                // Solo considerar slots futuros
+                if (slotInicio > new Date()) {
+                    const eventos = await GoogleCalendarService.getEvents(
+                        pista.id,
+                        slotInicio.toISOString(),
+                        slotFin.toISOString()
+                    );
+
+                    if (!eventos || eventos.length === 0) {
+                        slots.push({
+                            pista: pista.name,
+                            inicio: slotInicio.toISOString(),
+                            fin: slotFin.toISOString(),
+                        });
+                    }
+                }
+                slotInicio = new Date(slotInicio.getTime() + pista.slotDuration * 60000);
+            }
+        }
+    }
+    // Ordenar por hora de inicio
+    return slots.sort((a, b) => new Date(a.inicio) - new Date(b.inicio));
+}
 
 // Helper: Busca si la hora coincide exactamente con un slot y si hay pista libre
 async function buscarSlotDisponibleExacto(startDate) {

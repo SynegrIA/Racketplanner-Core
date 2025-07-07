@@ -10,5 +10,6 @@ reservasRouter.delete("/cancelar/:eventId", ReservasController.cancelarReserva)
 reservasRouter.post("/unirse", ReservasController.unirseReserva)
 reservasRouter.delete("/eliminar-jugador", ReservasController.eliminarJugadorReserva)
 reservasRouter.get("/activas/:numero", ReservasController.obtenerReservasActivas)
+reservasRouter.get("/disponibles", ReservasController.obtenerSlotsDisponibles)
 
 export default reservasRouter;
