@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  backend:
+    build: 
+      context: ./Backend
+      dockerfile: Dockerfile
+    image: picketball-backend
+    container_name: picketball-backend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./Backend/.env
+    environment:
+      - NODE_ENV=production
+    networks:
+      - picketball-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/utils/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  frontend:
+    build:
+      context: ./Frontend
+      dockerfile: Dockerfile
+    image: picketball-frontend
+    container_name: picketball-frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - picketball-network
+    environment:
+      - VITE_DOMINIO_BACKEND=http://backend:3000
+      # Si necesitas otras variables de entorno, agrégalas aquí
+
+networks:
+  picketball-network:
+    driver: bridge
+
+volumes:
+  picketball-data:
+    driver: local
