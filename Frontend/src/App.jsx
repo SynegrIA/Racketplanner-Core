@@ -4,11 +4,13 @@ import ReservaConfirmar from './pages/ReservaConfirmar.jsx';
 import CancelarReserva from './pages/ReservaCancelar.jsx';
 import ReservaUnirse from './pages/ReservaUnirse.jsx';
 import ReservaEliminarJugador from './pages/ReservaEliminarJugador.jsx';
+import CalendarPage from './pages/CalendarPage.jsx';
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route path="/" element={<CalendarPage />} />
         <Route path="/confirmar-reserva" element={<ReservaConfirmar />} />
         <Route path="/cancelar-reserva" element={<CancelarReserva />} />
         <Route path="/unir-jugador-reserva" element={<ReservaUnirse />} />
