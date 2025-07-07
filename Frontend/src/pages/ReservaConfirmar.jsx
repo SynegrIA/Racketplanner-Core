@@ -21,9 +21,12 @@ export default function ReservaConfirmar() {
     }
 
     useEffect(() => {
-        setNombre(partida.nombre)
-        setNumero(partida.numero)
-    }, [])
+        // Solo intentar acceder a las propiedades si partida no es null
+        if (partida) {
+            setNombre(partida.nombre || '');
+            setNumero(partida.numero || '');
+        }
+    }, [partida]); // Añadir partida como dependencia
 
     const handleSubmit = async (e) => {
         e.preventDefault()

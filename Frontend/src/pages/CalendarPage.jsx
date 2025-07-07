@@ -1,13 +1,30 @@
 import { useState, useEffect } from 'react';
 import { DOMINIO_BACKEND } from '../../config';
+import { useNavigate } from 'react-router-dom';
 
 // Componente para mostrar cada tarjeta de horario
-function TimeSlot({ slot, onSelect }) {
+function TimeSlot({ slot, onSelect, nombre, numero }) {
+    const navigate = useNavigate();
+
     const handleSelect = () => {
-        // Aquí puedes añadir la lógica para manejar la selección,
-        // como abrir un modal de confirmación o navegar a otra página.
-        alert(`Has seleccionado: ${slot.pista} a las ${new Date(slot.inicio).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}`);
-        // onSelect(slot); // Descomenta si necesitas manejar el estado en el componente padre
+        // Crear un objeto con todos los datos necesarios
+        const reservaData = {
+            id: slot.id,
+            pista: slot.pista,
+            inicio: slot.inicio,
+            nombre: nombre || '',
+            numero: numero || '',
+            // Añadir otros campos que pueda necesitar ReservaConfirmar
+            nivel: slot.nivel || 'No especificado',
+            jugadores_faltan: slot.jugadores_faltan || '?'
+        };
+
+        // Codificar los datos como un único parámetro
+        const params = new URLSearchParams();
+        params.append('data', encodeURIComponent(JSON.stringify(reservaData)));
+
+        // Redirigir a la página de confirmación con el parámetro data
+        navigate(`/confirmar-reserva?${params.toString()}`);
     };
 
     return (
@@ -129,7 +146,13 @@ export default function CalendarPage() {
                         <div className="row">
                             {availableSlots.length > 0 ? (
                                 availableSlots.map((slot, index) => (
-                                    <TimeSlot key={index} slot={slot} onSelect={() => { }} />
+                                    <TimeSlot
+                                        key={index}
+                                        slot={slot}
+                                        nombre={nombre}
+                                        numero={numero}
+                                        onSelect={() => { }}
+                                    />
                                 ))
                             ) : (
                                 // No mostramos nada aquí, el mensaje de error/info ya lo cubre
