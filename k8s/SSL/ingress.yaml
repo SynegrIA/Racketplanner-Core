@@ -1,0 +1,35 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: default-ingress
+  namespace: default
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+spec:
+  ingressClassName: "nginx"
+  rules:
+    - host: picketball.racketplanner.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend-service
+                port:
+                  number: 80
+    - host: backend.picketball.racketplanner.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: backend-service
+                port:
+                  number: 80
+  tls:
+  - hosts:
+    - picketball.racketplanner.com
+    - backend.picketball.racketplanner.com
+    secretName: picketball-racketplanner-dev-tls

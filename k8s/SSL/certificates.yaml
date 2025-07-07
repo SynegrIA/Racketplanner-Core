@@ -1,0 +1,14 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: picketball-racketplanner-cert
+  namespace: default
+spec:
+  secretName: picketball-racketplanner-dev-tls
+  dnsNames:
+    - racketplanner.com
+    - picketball.racketplanner.com
+    - backend.picketball.racketplanner.com
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
