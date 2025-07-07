@@ -35,7 +35,7 @@ function TimeSlot({ slot, onSelect, nombre, numero }) {
                     <p className="card-text fs-4 fw-bold">
                         {new Date(slot.inicio).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
                     </p>
-                    <button className="btn btn-primary" onClick={handleSelect}>
+                    <button className="btn btn-success" onClick={handleSelect}>
                         Seleccionar
                     </button>
                 </div>
