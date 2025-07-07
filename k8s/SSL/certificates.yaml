@@ -6,7 +6,6 @@ metadata:
 spec:
   secretName: picketball-racketplanner-dev-tls
   dnsNames:
-    - racketplanner.com
     - picketball.racketplanner.com
     - backend.picketball.racketplanner.com
   issuerRef:
