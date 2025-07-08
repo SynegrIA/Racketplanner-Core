@@ -28,7 +28,7 @@ export class InvitacionesController {
             const data = validacion.data;
 
             // 2. Generar URL de invitación
-            const urlCorta = `${DOMINIO_FRONTEND}/unir-jugador-reserva` +
+            const urlLarga = `${DOMINIO_FRONTEND}/unir-jugador-reserva` +
                 `?eventId=${encodeURIComponent(data.eventId)}` +
                 `&nombre=${encodeURIComponent(data.nombre)}` +
                 `&numero=${encodeURIComponent(data.numero)}` +
@@ -36,7 +36,7 @@ export class InvitacionesController {
                 `&action=new`;
 
             // 3. Acortar la URL usando el servicio existente
-            //const urlCorta = await shortenUrl(urlLarga);
+            const urlCorta = await shortenUrl(urlLarga);
 
             // 4. Formatear la fecha para mostrar en el mensaje
             let fechaObj;

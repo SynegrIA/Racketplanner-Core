@@ -143,7 +143,7 @@ export class ReservasController {
                     jugadores_faltan
                 }
                 const urlReserva = `${DOMINIO_FRONTEND}/confirmar-reserva?data=${encodeURIComponent(JSON.stringify(reservaPayload))}`
-                const enlace = urlReserva //await shortenUrl(urlReserva)
+                const enlace = await shortenUrl(urlReserva)
                 const mensaje = `✅ Hay disponibilidad para reservar el ${slotInfo.pista.name} el ${slotInfo.slotInicio.toLocaleString('es-ES', { timeZone: 'Europe/Madrid' })}.\n\n[Haz clic aquí para confirmar la reserva](${enlace})`
                 await enviarMensajeWhatsApp(mensaje, numero)
                 return res.json({
@@ -280,16 +280,16 @@ Jugador 4: ${jugador4}
             });
 
             // 10. Generar enlaces para cancelación, eliminación e invitación
-            const urlCancelarCorta = `${DOMINIO_FRONTEND}/cancelar-reserva?eventId=${encodeURIComponent(evento.id)}&calendarId=${encodeURIComponent(pistaConfig.id)}&numero=${encodeURIComponent(numero)}`;
-            //const urlCancelarCorta = await shortenUrl(urlCancelar);
+            const urlCancelar = `${DOMINIO_FRONTEND}/cancelar-reserva?eventId=${encodeURIComponent(evento.id)}&calendarId=${encodeURIComponent(pistaConfig.id)}&numero=${encodeURIComponent(numero)}`;
+            const urlCancelarCorta = await shortenUrl(urlCancelar);
 
-            const urlEliminarCorta = `${DOMINIO_FRONTEND}/eliminar-jugador-reserva?eventId=${encodeURIComponent(evento.id)}&numero=${encodeURIComponent(numero)}&nombreJugador=${encodeURIComponent(nombre)}&calendarId=${encodeURIComponent(pistaConfig.id)}`;
-            //const urlEliminarCorta = await shortenUrl(urlEliminar);
+            const urlEliminar = `${DOMINIO_FRONTEND}/eliminar-jugador-reserva?eventId=${encodeURIComponent(evento.id)}&numero=${encodeURIComponent(numero)}&nombreJugador=${encodeURIComponent(nombre)}&calendarId=${encodeURIComponent(pistaConfig.id)}`;
+            const urlEliminarCorta = await shortenUrl(urlEliminar);
 
             // En el método confirmarReserva, modificar la creación de la URL
 
-            const urlInvitarCorta = `${DOMINIO_FRONTEND}/unir-jugador-reserva?eventId=${encodeURIComponent(evento.id)}&nombre=${encodeURIComponent(nombre)}&numero=${encodeURIComponent(numero)}&calendarId=${encodeURIComponent(pistaConfig.id)}`;
-            //const urlInvitarCorta = await shortenUrl(urlInvitar);
+            const urlInvitar = `${DOMINIO_FRONTEND}/unir-jugador-reserva?eventId=${encodeURIComponent(evento.id)}&nombre=${encodeURIComponent(nombre)}&numero=${encodeURIComponent(numero)}&calendarId=${encodeURIComponent(pistaConfig.id)}`;
+            const urlInvitarCorta = await shortenUrl(urlInvitar);
 
             // Guardar la reserva en la base de datos
             try {
@@ -1117,7 +1117,7 @@ async function buscarAlternativasSlots(startDate, nombre, numero, partida, nivel
                             jugadores_faltan
                         }
                         const urlReserva = `${DOMINIO_FRONTEND}/confirmar-reserva?data=${encodeURIComponent(JSON.stringify(reservaPayload))}`
-                        const enlace = urlReserva//await shortenUrl(urlReserva)
+                        const enlace = await shortenUrl(urlReserva)
                         alternativas.push({
                             pista: pista.name,
                             inicio: slotInicio.toISOString(),
