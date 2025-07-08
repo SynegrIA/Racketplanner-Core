@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: picketball-racketplanner-frontend
-        image: xesuspb/picketball-racketplanner-frontend:latest
+        image: xesuspb/picketballplanner-frontend:latest
         ports:
         - containerPort: 80
 ---
