@@ -1,14 +1,14 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: default-ingress
-  namespace: default
+  name: picketball-racketplanner-ingress
+  namespace: synergia
   annotations:
     nginx.ingress.kubernetes.io/ssl-redirect: "false"
 spec:
   ingressClassName: "nginx"
   rules:
-    - host: picketball.racketplanner.com
+    - host: picketball.racketplanner.es
       http:
         paths:
           - path: /
@@ -18,7 +18,7 @@ spec:
                 name: frontend-service
                 port:
                   number: 80
-    - host: backend.picketball.racketplanner.com
+    - host: backend.picketball.racketplanner.es
       http:
         paths:
           - path: /
@@ -30,6 +30,6 @@ spec:
                   number: 80
   tls:
   - hosts:
-    - picketball.racketplanner.com
-    - backend.picketball.racketplanner.com
+    - picketball.racketplanner.es
+    - backend.picketball.racketplanner.es
     secretName: picketball-racketplanner-dev-tls
