@@ -1,33 +1,33 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: frontend
+  name: picketball-racketplanner-frontend
   labels:
-    app: frontend
+    app: picketball-racketplanner-frontend
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: frontend
+      app: picketball-racketplanner-frontend
   template:
     metadata:
       labels:
-        app: frontend
+        app: picketball-racketplanner-frontend
     spec:
       containers:
-      - name: frontend
-        image: xesuspb/picketballplanner-frontend:latest
+      - name: picketball-racketplanner-frontend
+        image: xesuspb/picketball-racketplanner-frontend:latest
         ports:
         - containerPort: 80
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: frontend-service
+  name: picketball-racketplanner-frontend-service
 spec:
   type: ClusterIP
   ports:
   - port: 80
     targetPort: 80
   selector:
-    app: frontend
+    app: picketball-racketplanner-frontend

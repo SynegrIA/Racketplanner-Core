@@ -23,7 +23,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: frontend-service
+                name: picketball-racketplanner-frontend-service
                 port:
                   number: 80
     - host: backend.picketball.racketplanner.es
@@ -33,7 +33,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: backend-service
+                name: picketball-racketplanner-backend-service
                 port:
                   number: 80
   tls:
