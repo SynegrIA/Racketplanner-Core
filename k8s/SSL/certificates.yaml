@@ -6,8 +6,8 @@ metadata:
 spec:
   secretName: picketball-racketplanner-dev-tls
   dnsNames:
-    - picketball.racketplanner.com
-    - backend.picketball.racketplanner.com
+    - picketball.racketplanner.es
+    - backend.picketball.racketplanner.es
   issuerRef:
     name: letsencrypt-prod
     kind: ClusterIssuer

@@ -4,6 +4,8 @@ metadata:
   name: picketball-racketplanner-ingress
   namespace: synergia
   annotations:
+    nginx.ingress.kubernetes.io/cors-allow-origin: "https://picketball.racketplanner.es"
+    nginx.ingress.kubernetes.io/enable-cors: "true"
     cert-manager.io/cluster-issuer: letsencrypt
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
     nginx.ingress.kubernetes.io/server-snippet: |-
@@ -35,7 +37,7 @@ spec:
               service:
                 name: picketball-racketplanner-backend-service
                 port:
-                  number: 80
+                  number: 3000
   tls:
   - hosts:
     - picketball.racketplanner.es
