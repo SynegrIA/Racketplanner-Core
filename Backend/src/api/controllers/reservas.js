@@ -108,8 +108,7 @@ export class ReservasController {
 
     static async agendar(req, res) {
         try {
-            const { fecha_ISO, nombre, numero, partida, nivel, n_jugadores } = req.body
-            const jugadores_faltan = n_jugadores
+            const { fecha_ISO, nombre, numero, partida, nivel, jugadores_faltan } = req.body
 
             // 1. Validación básica
             if (!fecha_ISO || !nombre || !numero) {
