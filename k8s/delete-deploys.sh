@@ -1,2 +1,0 @@
-kubectl delete deployment picketball-racketplanner-backend
-kubectl delete deployment picketball-racketplanner-frontend
