@@ -6,6 +6,15 @@ import { useNavigate } from 'react-router-dom';
 function TimeSlot({ slot, onSelect, nombre, numero }) {
     const navigate = useNavigate();
 
+    // Formatear la hora consistentemente
+    const formatearHora = (isoString) => {
+        return new Date(isoString).toLocaleTimeString('es-ES', {
+            hour: '2-digit',
+            minute: '2-digit',
+            timeZone: 'Europe/Madrid'
+        });
+    };
+
     const handleSelect = () => {
         // Crear un objeto con todos los datos necesarios
         const reservaData = {
@@ -33,7 +42,7 @@ function TimeSlot({ slot, onSelect, nombre, numero }) {
                 <div className="card-body d-flex flex-column justify-content-between">
                     <h5 className="card-title">{slot.pista}</h5>
                     <p className="card-text fs-4 fw-bold">
-                        {new Date(slot.inicio).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid' })}
+                        {formatearHora(slot.inicio)}
                     </p>
                     <button className="btn btn-success" onClick={handleSelect}>
                         Seleccionar

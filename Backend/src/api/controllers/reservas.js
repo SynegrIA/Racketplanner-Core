@@ -946,7 +946,17 @@ Jugador 4: ${jugador4}
                 });
             }
 
-            const startDate = new Date(`${fecha}T00:00:00.000+02:00`)
+            // Crear fecha con zona horaria explícita de Madrid
+            const fechaBase = new Date(fecha);
+            // Ajustar a la zona horaria de España
+            const startDate = new Date(
+                Date.UTC(
+                    fechaBase.getFullYear(),
+                    fechaBase.getMonth(),
+                    fechaBase.getDate()
+                )
+            );
+
             if (isNaN(startDate.getTime())) {
                 return res.status(400).json({
                     status: "error",
@@ -990,6 +1000,8 @@ async function buscarTodosLosSlotsDisponibles(fecha) {
     const dia = fecha.getDay();
     const isWeekend = dia === 0 || dia === 6;
 
+    const ahora = new Date()
+
     for (const pista of CALENDARS) {
         const horarios = isWeekend ? pista.businessHours.weekends : pista.businessHours.weekdays;
         if (!horarios || horarios.length === 0) continue;
@@ -998,12 +1010,30 @@ async function buscarTodosLosSlotsDisponibles(fecha) {
             const [startHour, startMinute] = rango.start.split(":").map(Number);
             const [endHour, endMinute] = rango.end.split(":").map(Number);
 
-            let slotInicio = new Date(fecha);
-            slotInicio.setHours(startHour, startMinute, 0, 0);
+            let slotInicio = new Date(Date.UTC(
+                fecha.getUTCFullYear(),
+                fecha.getUTCMonth(),
+                fecha.getUTCDate(),
+                startHour,
+                startMinute,
+                0,
+                0
+            ));
 
-            let slotFinRango = new Date(fecha);
-            slotFinRango.setHours(endHour, endMinute, 0, 0);
-            if (endHour === 0 && endMinute === 0) slotFinRango.setDate(slotFinRango.getDate() + 1);
+            let slotFinRango = new Date(Date.UTC(
+                fecha.getUTCFullYear(),
+                fecha.getUTCMonth(),
+                fecha.getUTCDate(),
+                endHour,
+                endMinute,
+                0,
+                0
+            ));
+
+            // Ajustar correctamente la medianoche
+            if (endHour === 0 && endMinute === 0) {
+                slotFinRango.setUTCDate(slotFinRango.getUTCDate() + 1);
+            }
 
 
             while (slotInicio < slotFinRango) {
@@ -1011,7 +1041,7 @@ async function buscarTodosLosSlotsDisponibles(fecha) {
                 if (slotFin > slotFinRango) break;
 
                 // Solo considerar slots futuros
-                if (slotInicio > new Date()) {
+                if (slotInicio > ahora) {
                     const eventos = await GoogleCalendarService.getEvents(
                         pista.id,
                         slotInicio.toISOString(),
