@@ -235,8 +235,8 @@ export default function ReservaEliminarJugador() {
                                 <p className="text-center text-danger">Esta acción no se puede deshacer.</p>
 
                                 <ul className="list-group mb-4">
-                                    <li className="list-group-item">📅 Fecha: {new Date(partida.inicio).toLocaleDateString("es-ES")}</li>
-                                    <li className="list-group-item">⏰ Hora: {new Date(partida.inicio).toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" })}</li>
+                                    <li className="list-group-item">📅 Fecha: {new Date(partida.inicio).toLocaleDateString("es-ES", { timeZone: 'Europe/Madrid' })}</li>
+                                    <li className="list-group-item">⏰ Hora: {new Date(partida.inicio).toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit", timeZone: 'Europe/Madrid' })}</li>
                                     <li className="list-group-item">🎾 Nivel: {partida.nivel || "No especificado"}</li>
                                     <li className="list-group-item">🏟️ Pista: {partida.pista}</li>
                                 </ul>
@@ -276,8 +276,8 @@ export default function ReservaEliminarJugador() {
 
                             {/* Detalles de la partida */}
                             <ul className="list-group mb-4">
-                                <li className="list-group-item">📅 Fecha: {new Date(partida.inicio).toLocaleDateString("es-ES")}</li>
-                                <li className="list-group-item">⏰ Hora: {new Date(partida.inicio).toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" })}</li>
+                                <li className="list-group-item">📅 Fecha: {new Date(partida.inicio).toLocaleDateString("es-ES", { timeZone: 'Europe/Madrid' })}</li>
+                                <li className="list-group-item">⏰ Hora: {new Date(partida.inicio).toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit", timeZone: 'Europe/Madrid' })}</li>
                                 <li className="list-group-item">🎾 Nivel: {partida.nivel || "No especificado"}</li>
                                 <li className="list-group-item">🏟️ Pista: {partida.pista}</li>
                                 <li className="list-group-item">👥 Organizador: {partida.organizador}</li>

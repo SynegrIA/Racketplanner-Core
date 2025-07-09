@@ -211,8 +211,8 @@ export default function ReservaUnirse() {
                                 <p className="lead text-center mb-4">¿Estás seguro que deseas unirte a esta partida?</p>
 
                                 <ul className="list-group mb-4">
-                                    <li className="list-group-item">📅 Fecha: {new Date(partida.inicio).toLocaleDateString("es-ES")}</li>
-                                    <li className="list-group-item">⏰ Hora: {new Date(partida.inicio).toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" })}</li>
+                                    <li className="list-group-item">📅 Fecha: {new Date(partida.inicio).toLocaleDateString("es-ES", { timeZone: 'Europe/Madrid' })}</li>
+                                    <li className="list-group-item">⏰ Hora: {new Date(partida.inicio).toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit", timeZone: 'Europe/Madrid' })}</li>
                                     <li className="list-group-item">🎾 Nivel: {partida.nivel || "No especificado"}</li>
                                     <li className="list-group-item">🏟️ Pista: {partida.pista}</li>
                                     <li className="list-group-item">👥 Nombre: {nombreInvitado}</li>
@@ -256,8 +256,8 @@ export default function ReservaUnirse() {
 
                             {/* Detalles de la partida */}
                             <ul className="list-group mb-4">
-                                <li className="list-group-item">📅 Fecha: {new Date(partida.inicio).toLocaleDateString("es-ES")}</li>
-                                <li className="list-group-item">⏰ Hora: {new Date(partida.inicio).toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" })}</li>
+                                <li className="list-group-item">📅 Fecha: {new Date(partida.inicio).toLocaleDateString("es-ES", { timeZone: 'Europe/Madrid' })}</li>
+                                <li className="list-group-item">⏰ Hora: {new Date(partida.inicio).toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit", timeZone: 'Europe/Madrid' })}</li>
                                 <li className="list-group-item">🎾 Nivel: {partida.nivel || "No especificado"}</li>
                                 <li className="list-group-item">🏟️ Pista: {partida.pista}</li>
                                 <li className="list-group-item">👥 Organizador: {organizador || partida.organizador}</li>

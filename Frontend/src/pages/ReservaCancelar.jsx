@@ -224,8 +224,8 @@ export default function CancelarReserva() {
                         <div className="card-body">
                             <h3 className="mb-4 text-center">🎮 Detalles de la Partida a Cancelar</h3>
                             <ul className="list-group mb-4">
-                                <li className="list-group-item">📅 Fecha: {new Date(reserva.inicio).toLocaleDateString("es-ES")}</li>
-                                <li className="list-group-item">⏰ Hora: {new Date(reserva.inicio).toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" })}</li>
+                                <li className="list-group-item">📅 Fecha: {new Date(reserva.inicio).toLocaleDateString("es-ES", { timeZone: 'Europe/Madrid' })}</li>
+                                <li className="list-group-item">⏰ Hora: {new Date(reserva.inicio).toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit", timeZone: 'Europe/Madrid' })}</li>
                                 <li className="list-group-item">🎾 Nivel: {reserva.nivel || "No especificado"}</li>
                                 <li className="list-group-item">🏟️ Pista: {reserva.pista}</li>
                                 <li className="list-group-item">👥 Organizador: {reserva.organizador}</li>

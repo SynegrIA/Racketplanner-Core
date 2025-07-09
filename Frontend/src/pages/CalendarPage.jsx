@@ -33,7 +33,7 @@ function TimeSlot({ slot, onSelect, nombre, numero }) {
                 <div className="card-body d-flex flex-column justify-content-between">
                     <h5 className="card-title">{slot.pista}</h5>
                     <p className="card-text fs-4 fw-bold">
-                        {new Date(slot.inicio).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
+                        {new Date(slot.inicio).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid' })}
                     </p>
                     <button className="btn btn-success" onClick={handleSelect}>
                         Seleccionar

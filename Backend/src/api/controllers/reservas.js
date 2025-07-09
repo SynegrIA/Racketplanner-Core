@@ -946,7 +946,7 @@ Jugador 4: ${jugador4}
                 });
             }
 
-            const startDate = new Date(fecha);
+            const startDate = new Date(`${fecha}T00:00:00.000+02:00`)
             if (isNaN(startDate.getTime())) {
                 return res.status(400).json({
                     status: "error",

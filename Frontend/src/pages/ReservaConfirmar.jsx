@@ -80,8 +80,8 @@ export default function ReservaConfirmar() {
                         <div className="card-body">
                             <h3 className="mb-4 text-center">🎮 Detalles de la Partida</h3>
                             <ul className="list-group mb-4">
-                                <li className="list-group-item">📅 Fecha: {new Date(partida.inicio).toLocaleDateString("es-ES")}</li>
-                                <li className="list-group-item">⏰ Hora: {new Date(partida.inicio).toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" })}</li>
+                                <li className="list-group-item">📅 Fecha: {new Date(partida.inicio).toLocaleDateString("es-ES", { timeZone: 'Europe/Madrid' })}</li>
+                                <li className="list-group-item">⏰ Hora: {new Date(partida.inicio).toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit", timeZone: 'Europe/Madrid' })}</li>
                                 <li className="list-group-item">🎾 Nivel: {partida.nivel || "No especificado"}</li>
                                 <li className="list-group-item">🏟️ Pista: {partida.pista}</li>
                                 <li className="list-group-item">👥 Jugadores faltantes: {partida.jugadores_faltan ?? "?"}</li>
