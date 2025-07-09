@@ -1,12 +1,9 @@
-#!/bin/bash
+set -e #Esta config detiene la ejecución del script si algo falla
 
-# Variables
-IMAGE_NAME="xesuspb/picketball-racketplanner-frontend:latest"
+cd "$(dirname "$0")"
 
-# Construir y hacer push multi-arquitectura
-docker buildx build --platform linux/amd64 \
-  -t $IMAGE_NAME \
-  --push \
-  ../.
+echo 'Vamos a construir la imagen del Frontend...'
 
-echo "Imagen frontend construida y enviada como $IMAGE_NAME"
+docker build --platform Linux/amd64 -t xesuspb/picketballplanner-frontend:latest --push ./
+
+echo 'Imagen construida correctamente'
