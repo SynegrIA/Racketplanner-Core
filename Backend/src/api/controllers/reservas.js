@@ -946,16 +946,7 @@ Jugador 4: ${jugador4}
                 });
             }
 
-            // Crear fecha con zona horaria explícita de Madrid
-            const fechaBase = new Date(fecha);
-            // Ajustar a la zona horaria de España
-            const startDate = new Date(
-                Date.UTC(
-                    fechaBase.getFullYear(),
-                    fechaBase.getMonth(),
-                    fechaBase.getDate()
-                )
-            );
+            const startDate = new Date(fecha);
 
             if (isNaN(startDate.getTime())) {
                 return res.status(400).json({
@@ -1010,29 +1001,16 @@ async function buscarTodosLosSlotsDisponibles(fecha) {
             const [startHour, startMinute] = rango.start.split(":").map(Number);
             const [endHour, endMinute] = rango.end.split(":").map(Number);
 
-            let slotInicio = new Date(Date.UTC(
-                fecha.getUTCFullYear(),
-                fecha.getUTCMonth(),
-                fecha.getUTCDate(),
-                startHour,
-                startMinute,
-                0,
-                0
-            ));
+            // Crear fechas consistentemente en la zona horaria local
+            let slotInicio = new Date(fecha);
+            slotInicio.setHours(startHour, startMinute, 0, 0);
 
-            let slotFinRango = new Date(Date.UTC(
-                fecha.getUTCFullYear(),
-                fecha.getUTCMonth(),
-                fecha.getUTCDate(),
-                endHour,
-                endMinute,
-                0,
-                0
-            ));
+            let slotFinRango = new Date(fecha);
+            slotFinRango.setHours(endHour, endMinute, 0, 0);
 
             // Ajustar correctamente la medianoche
             if (endHour === 0 && endMinute === 0) {
-                slotFinRango.setUTCDate(slotFinRango.getUTCDate() + 1);
+                slotFinRango.setDate(slotFinRango.getDate() + 1);
             }
 
 

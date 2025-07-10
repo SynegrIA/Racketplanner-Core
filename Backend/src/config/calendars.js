@@ -23,7 +23,7 @@ export const CALENDARS = [
                 { start: "15:00", end: "22:00" }
             ],
             weekends: [
-                { start: "08:30", end: "23:30" }
+                { start: "08:00", end: "23:00" }
             ]
         },
         slotDuration: 90
@@ -37,7 +37,7 @@ export const CALENDARS = [
                 { start: "15:00", end: "22:00" }
             ],
             weekends: [
-                { start: "09:00", end: "00:00" }
+                { start: "08:00", end: "23:00" }
             ]
         },
         slotDuration: 90
