@@ -4,29 +4,37 @@ import { DOMINIO_BACKEND } from "../../config"
 
 export default function ReservaConfirmar() {
     const [searchParams] = useSearchParams()
+    // Estado para almacenar la partida (datos estáticos)
+    const [partida, setPartida] = useState(null)
+    // Estados independientes para los campos de formulario
     const [nombre, setNombre] = useState("")
     const [numero, setNumero] = useState("")
     const [mensaje, setMensaje] = useState("")
     const [enviando, setEnviando] = useState(false)
-
-    // Leer y decodificar los datos de la partida desde la URL
-    let partida = null
-    try {
-        const data = searchParams.get("data")
-        if (data) {
-            partida = JSON.parse(decodeURIComponent(data))
-        }
-    } catch (e) {
-        partida = null
-    }
+    // Bandera para controlar la inicialización de datos
+    const [datosInicializados, setDatosInicializados] = useState(false)
 
     useEffect(() => {
-        // Solo intentar acceder a las propiedades si partida no es null
-        if (partida) {
-            setNombre(partida.nombre || '');
-            setNumero(partida.numero || '');
+        // Solo inicializar los datos una vez
+        if (!datosInicializados) {
+            try {
+                const data = searchParams.get("data");
+                if (data) {
+                    const partidaData = JSON.parse(decodeURIComponent(data));
+                    setPartida(partidaData);
+
+                    // Inicializa los valores del formulario solo una vez
+                    if (partidaData.nombre) setNombre(partidaData.nombre);
+                    if (partidaData.numero) setNumero(partidaData.numero);
+                }
+                // Marcar que ya se inicializaron los datos
+                setDatosInicializados(true);
+            } catch (e) {
+                console.error("Error al parsear datos:", e);
+                setDatosInicializados(true);
+            }
         }
-    }, [partida]); // Añadir partida como dependencia
+    }, [searchParams, datosInicializados]);
 
     const handleSubmit = async (e) => {
         e.preventDefault()
@@ -46,12 +54,6 @@ export default function ReservaConfirmar() {
                     numero
                 })
             })
-
-            console.log(JSON.stringify({
-                ...partida,
-                nombre,
-                numero
-            }))
 
             const data = await response.json()
 
@@ -90,11 +92,21 @@ export default function ReservaConfirmar() {
                             <form onSubmit={handleSubmit}>
                                 <div className="mb-3">
                                     <label className="form-label">Tu nombre</label>
-                                    <input className="form-control" value={nombre} onChange={e => setNombre(e.target.value)} required />
+                                    <input
+                                        className="form-control"
+                                        value={nombre}
+                                        onChange={(e) => setNombre(e.target.value)}
+                                        required
+                                    />
                                 </div>
                                 <div className="mb-3">
                                     <label className="form-label">Tu número de teléfono</label>
-                                    <input className="form-control" value={numero} onChange={e => setNumero(e.target.value)} required />
+                                    <input
+                                        className="form-control"
+                                        value={numero}
+                                        onChange={(e) => setNumero(e.target.value)}
+                                        required
+                                    />
                                     <div className="form-text">Recibirás notificaciones por WhatsApp</div>
                                 </div>
                                 <button className="btn btn-success w-100" disabled={enviando}>
