@@ -19,6 +19,9 @@ spec:
         image: xesuspb/picketballplanner-backend:latest
         ports:
         - containerPort: 3000
+        env:
+        - name: TZ
+          value: "Europe/Madrid"
 ---
 apiVersion: v1
 kind: Service
