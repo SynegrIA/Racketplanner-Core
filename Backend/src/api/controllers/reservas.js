@@ -935,7 +935,6 @@ Jugador 4: ${jugador4}
         }
     }
 
-    // NUEVO MÉTODO: Obtener slots disponibles para una fecha
     static async obtenerSlotsDisponibles(req, res) {
         try {
             const { fecha } = req.query;
@@ -956,17 +955,33 @@ Jugador 4: ${jugador4}
                 });
             }
 
-            const slotsDisponibles = await buscarTodosLosSlotsDisponibles(startDate);
+            // Obtener tanto los slots vacíos como las partidas abiertas
+            const [slotsDisponibles, partidasAbiertas] = await Promise.all([
+                buscarTodosLosSlotsDisponibles(startDate),
+                buscarPartidasAbiertas(startDate)
+            ]);
 
-            if (slotsDisponibles.length > 0) {
+            // Formatear los slots vacíos para incluir el tipo
+            const slotsFormateados = slotsDisponibles.map(slot => ({
+                ...slot,
+                tipo: 'disponible'  // Marca que es un slot vacío
+            }));
+
+            // Combinar ambos resultados
+            const todosLosSlots = [...slotsFormateados, ...partidasAbiertas];
+
+            // Ordenar por hora de inicio
+            todosLosSlots.sort((a, b) => new Date(a.inicio) - new Date(b.inicio));
+
+            if (todosLosSlots.length > 0) {
                 return res.json({
                     status: "success",
-                    data: slotsDisponibles
+                    data: todosLosSlots
                 });
             } else {
                 return res.json({
                     status: "nodisponible",
-                    message: "No hay horarios disponibles para la fecha seleccionada.",
+                    message: "No hay horarios disponibles ni partidas abiertas para la fecha seleccionada.",
                     data: []
                 });
             }
@@ -1216,4 +1231,60 @@ async function actualizarPartidaConNuevoJugador(eventId, calendarId, nombreInvit
         console.error("Error al actualizar partida con nuevo jugador:", error);
         throw error;
     }
+}
+
+// Añadir esta función helper para buscar partidas abiertas en una fecha
+async function buscarPartidasAbiertas(fecha) {
+    const partidas = [];
+    const dia = fecha.getDay();
+    const fechaInicio = new Date(fecha);
+    fechaInicio.setHours(0, 0, 0, 0);
+
+    const fechaFin = new Date(fecha);
+    fechaFin.setHours(23, 59, 59, 999);
+
+    // Buscar en todos los calendarios (todas las pistas)
+    for (const pista of CALENDARS) {
+        // Obtener todos los eventos del día para esta pista
+        const eventos = await GoogleCalendarService.getEvents(
+            pista.id,
+            fechaInicio.toISOString(),
+            fechaFin.toISOString()
+        );
+
+        if (eventos && eventos.length > 0) {
+            // Filtrar eventos que son partidas abiertas
+            for (const evento of eventos) {
+                const descripcion = evento.description || "";
+
+                // Extraer información del evento
+                const infoMap = {};
+                descripcion.split('\n').forEach(line => {
+                    if (line.includes(':')) {
+                        const [key, value] = line.split(':', 2);
+                        infoMap[key.trim()] = value.trim();
+                    }
+                });
+
+                // Verificar si es una partida abierta con jugadores faltantes
+                const jugadoresFaltan = parseInt(infoMap['Nº Faltantes'] || '0');
+                if (jugadoresFaltan > 0) {
+                    partidas.push({
+                        eventId: evento.id,
+                        calendarId: pista.id,
+                        pista: pista.name,
+                        inicio: evento.start.dateTime,
+                        fin: evento.end.dateTime,
+                        tipo: 'abierta',
+                        nivel: infoMap['Nivel'] || '',
+                        organizador: infoMap['Jugador Principal'] || '',
+                        jugadoresActuales: infoMap['Nº Actuales'] || '1',
+                        jugadoresFaltan: jugadoresFaltan
+                    });
+                }
+            }
+        }
+    }
+
+    return partidas;
 }
