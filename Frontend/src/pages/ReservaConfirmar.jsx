@@ -9,8 +9,12 @@ export default function ReservaConfirmar() {
     // Estados independientes para los campos de formulario
     const [nombre, setNombre] = useState("")
     const [numero, setNumero] = useState("")
+    const [nivel, setNivel] = useState("")
+    const [jugadoresFaltan, setJugadoresFaltan] = useState("")
     const [mensaje, setMensaje] = useState("")
     const [enviando, setEnviando] = useState(false)
+    // Estado para controlar modo de edición de campos adicionales
+    const [modoEdicion, setModoEdicion] = useState(false)
     // Bandera para controlar la inicialización de datos
     const [datosInicializados, setDatosInicializados] = useState(false)
 
@@ -26,6 +30,8 @@ export default function ReservaConfirmar() {
                     // Inicializa los valores del formulario solo una vez
                     if (partidaData.nombre) setNombre(partidaData.nombre);
                     if (partidaData.numero) setNumero(partidaData.numero);
+                    if (partidaData.nivel) setNivel(partidaData.nivel);
+                    if (partidaData.jugadores_faltan) setJugadoresFaltan(partidaData.jugadores_faltan);
                 }
                 // Marcar que ya se inicializaron los datos
                 setDatosInicializados(true);
@@ -34,12 +40,17 @@ export default function ReservaConfirmar() {
                 setDatosInicializados(true);
             }
         }
+        console.log(partida)
     }, [searchParams, datosInicializados]);
 
     const handleSubmit = async (e) => {
         e.preventDefault()
         setEnviando(true)
         setMensaje("")
+
+        const inicioDate = new Date(partida?.inicio)
+        const finDate = new Date(inicioDate.getTime() + 90 * 60000) // 90 minutos en ms
+        const fin = finDate.toISOString()
 
         try {
             // Enviamos los datos al backend
@@ -49,9 +60,14 @@ export default function ReservaConfirmar() {
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
-                    ...partida,
+                    pista: partida?.pista,
+                    inicio: partida?.inicio,
+                    fin,
                     nombre,
-                    numero
+                    numero,
+                    partida: partida?.partida,
+                    nivel,
+                    jugadores_faltan: jugadoresFaltan
                 })
             })
 
@@ -81,12 +97,62 @@ export default function ReservaConfirmar() {
                     <div className="card shadow">
                         <div className="card-body">
                             <h3 className="mb-4 text-center">🎮 Detalles de la Partida</h3>
+                            <div className="d-flex justify-content-end mb-2">
+                                <button
+                                    type="button"
+                                    className={`btn btn-sm ${modoEdicion ? 'btn-outline-secondary' : 'btn-outline-primary'}`}
+                                    onClick={() => setModoEdicion(!modoEdicion)}
+                                >
+                                    {modoEdicion ? '❌ Cancelar edición' : '✏️ Editar detalles'}
+                                </button>
+                            </div>
                             <ul className="list-group mb-4">
                                 <li className="list-group-item">📅 Fecha: {new Date(partida.inicio).toLocaleDateString("es-ES", { timeZone: 'Europe/Madrid' })}</li>
                                 <li className="list-group-item">⏰ Hora: {new Date(partida.inicio).toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit", timeZone: 'Europe/Madrid' })}</li>
-                                <li className="list-group-item">🎾 Nivel: {partida.nivel || "No especificado"}</li>
+
+                                {!modoEdicion ? (
+                                    <li className="list-group-item">🎾 Nivel: {nivel || "No especificado"}</li>
+                                ) : (
+                                    <li className="list-group-item">
+                                        <div className="input-group">
+                                            <span className="input-group-text">🎾 Nivel:</span>
+                                            <select
+                                                className="form-select"
+                                                value={nivel}
+                                                onChange={(e) => setNivel(e.target.value)}
+                                                required
+                                            >
+                                                <option value="">Selecciona nivel</option>
+                                                <option value="1">1 - Principiante</option>
+                                                <option value="2">2 - Intermedio</option>
+                                                <option value="3">3 - Avanzado</option>
+                                            </select>
+                                        </div>
+                                    </li>
+                                )}
+
                                 <li className="list-group-item">🏟️ Pista: {partida.pista}</li>
-                                <li className="list-group-item">👥 Jugadores faltantes: {partida.jugadores_faltan ?? "?"}</li>
+
+                                {!modoEdicion ? (
+                                    <li className="list-group-item">👥 Jugadores faltantes: {jugadoresFaltan || "?"}</li>
+                                ) : (
+                                    <li className="list-group-item">
+                                        <div className="input-group">
+                                            <span className="input-group-text">👥 Jugadores faltantes:</span>
+                                            <select
+                                                className="form-select"
+                                                value={jugadoresFaltan}
+                                                onChange={(e) => setJugadoresFaltan(e.target.value)}
+                                                required
+                                            >
+                                                <option value="">Selecciona cantidad</option>
+                                                <option value="1">1 jugador</option>
+                                                <option value="2">2 jugadores</option>
+                                                <option value="3">3 jugadores</option>
+                                            </select>
+                                        </div>
+                                    </li>
+                                )}
                             </ul>
 
                             <form onSubmit={handleSubmit}>

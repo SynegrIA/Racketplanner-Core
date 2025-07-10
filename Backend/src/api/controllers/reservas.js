@@ -189,13 +189,14 @@ export class ReservasController {
 
     static async confirmarReserva(req, res) {
         try {
+            console.log("Datos recibidos en confirmarReserva:", req.body);
             const { pista, inicio, fin, nombre, numero, partida, nivel, jugadores_faltan } = req.body;
 
             // 1. Validación básica
             if (!pista || !inicio || !fin || !nombre || !numero) {
                 return res.status(400).json({
                     status: "error",
-                    message: "Los campos 'pista', 'inicio', 'fin', 'nombre' y 'numero' son obligatorios."
+                    message: "Debes rellenar todos los campos para poder confirmar la reserva"
                 });
             }
 
