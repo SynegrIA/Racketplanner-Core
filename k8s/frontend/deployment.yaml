@@ -22,6 +22,8 @@ spec:
         env:
         - name: TZ
           value: "Europe/Madrid"
+        - name: NODE_ENV
+          value: production
 ---
 apiVersion: v1
 kind: Service

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { DOMINIO_BACKEND } from '../../config';
+import { DOMINIO_BACKEND, NODE_ENV } from '../../config';
 import { useNavigate } from 'react-router-dom';
 
 // Componente para mostrar cada tarjeta de horario

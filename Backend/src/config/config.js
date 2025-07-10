@@ -2,7 +2,9 @@ import dotenv from "dotenv";
 
 dotenv.config()
 
-export const DOMINIO_FRONTEND = process.env.NODE_ENV == 'production' ? process.env.DOMINIO_FRONTEND_PROD : process.env.DOMINIO_FRONTEND_DEV
+export const NODE_ENV = process.env.NODE_ENV || 'development'
+
+export const DOMINIO_FRONTEND = NODE_ENV == 'production' ? process.env.DOMINIO_FRONTEND_PROD : process.env.DOMINIO_FRONTEND_DEV
 
 export const SUPABASE_URL = process.env.SUPABASE_URL
 export const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY

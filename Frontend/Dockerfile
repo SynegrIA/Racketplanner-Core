@@ -10,6 +10,8 @@ RUN npm ci
 # Copiar el resto del código fuente
 COPY . .
 
+#ENV NODE_ENV=production
+
 # Compilar la aplicación (utilizará el archivo .env automáticamente)
 RUN npm run build
 
