@@ -36,12 +36,18 @@ export class ReservasModel {
 
             if (error) throw new Error(error.message);
 
+            let estado = "Abierta";
+            if (jugadoresFaltan == 0) {
+                estado = "Completa"
+            }
+
             // 2. Preparar datos para actualización
             const actualizaciones = {
                 "Nº Actuales": jugadoresActuales,
                 "Nº Faltantes": jugadoresFaltan,
                 "Fecha Actualización": new Date().toISOString(),
                 "Actualización": `${nombreInvitado} se unió a la partida`,
+                "Estado": estado,
                 [`Jugador ${posicionLibre}`]: nombreInvitado
             };
 
@@ -72,6 +78,7 @@ export class ReservasModel {
             const actualizaciones = {
                 "Nº Actuales": jugadoresActuales,
                 "Nº Faltantes": jugadoresFaltan,
+                "Estado": "Abierta",
                 "Fecha Actualización": new Date().toISOString(),
                 "Actualización": `Se eliminó al jugador ${nombreJugador}`,
                 [`Jugador ${posicionJugador}`]: null,
