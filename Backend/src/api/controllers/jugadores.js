@@ -4,7 +4,7 @@ import { JugadoresModel } from "../../models/jugadores.js";
 export class JugadoresController {
 
     static async eliminarJugador(req, res) {
-        const { telefono } = req.body;
+        const { telefono } = req.params;
 
         if (!telefono) {
             return res.status(400).json({
