@@ -1,9 +1,10 @@
-import { enviarMensajeWhatsApp } from "../services/builderBot";
+import { enviarMensajeWhatsApp } from "../services/builderBot.js";
+import { JugadoresModel } from "../../models/jugadores.js";
 
 export class JugadoresController {
 
     static async eliminarJugador(req, res) {
-        const { telefono } = req.params;
+        const { telefono } = req.body;
 
         if (!telefono) {
             return res.status(400).json({
