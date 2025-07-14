@@ -12,6 +12,7 @@ export default function ReservaConfirmar() {
     const [nivel, setNivel] = useState("")
     const [jugadoresFaltan, setJugadoresFaltan] = useState("")
     const [mensaje, setMensaje] = useState("")
+    const [tipoMensaje, setTipoMensaje] = useState("success");
     const [enviando, setEnviando] = useState(false)
     // Estado para controlar modo de edición de campos adicionales
     const [modoEdicion, setModoEdicion] = useState(false)
@@ -46,11 +47,16 @@ export default function ReservaConfirmar() {
     const handleSubmit = async (e) => {
         e.preventDefault()
 
-        if (nivel == "No especificado") {
+        if (!nivel || nivel === "No especificado" || nivel === "") {
             setMensaje("Debe especificar el nivel de la partida")
+            setTipoMensaje("danger")
+            return // Detener la ejecución si hay error
         }
-        if (jugadoresFaltan == "?") {
+
+        if (!jugadoresFaltan || jugadoresFaltan === "?" || jugadoresFaltan === "") {
             setMensaje("Debe especificar los jugadores que faltan para completar la partida")
+            setTipoMensaje("danger")
+            return // Detener la ejecución si hay error
         }
 
         setEnviando(true)
