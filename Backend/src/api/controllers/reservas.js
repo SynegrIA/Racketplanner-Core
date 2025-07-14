@@ -300,8 +300,21 @@ Jugador 4: ${jugador4}
                 const fechaSoloISO = fechaInicio.toISOString().split('T')[0];
 
                 // Extraer solo la hora
-                const horaInicio = fechaInicio.toISOString().split('T')[1].substring(0, 8);
-                const horaFin = fechaFin.toISOString().split('T')[1].substring(0, 8);
+                const horaInicio = fechaInicio.toLocaleTimeString('es-ES', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hour12: false,
+                    timeZone: 'Europe/Madrid'
+                }).replace(/:/g, ':');
+
+                const horaFin = fechaFin.toLocaleTimeString('es-ES', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hour12: false,
+                    timeZone: 'Europe/Madrid'
+                }).replace(/:/g, ':');
 
                 // Crear objeto para la base de datos
                 const reservaObj = {

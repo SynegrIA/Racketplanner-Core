@@ -15,13 +15,14 @@ export default function ReservaUnirse() {
     const [nombreInvitado, setNombreInvitado] = useState("");
     const [numeroInvitado, setNumeroInvitado] = useState("");
     const [codigoPais, setCodigoPais] = useState("34"); // Por defecto España
-    const [tipoUnion, setTipoUnion] = useState("new"); // "new" = con notificaciones, "guest" = sin notificaciones
+    // Se elimina la opción de tipo de unión, solo permitimos con notificaciones
+    const tipoUnion = "new"; // Fijo a "new" = con notificaciones
 
     // Obtener parámetros de la URL
     const eventId = searchParams.get("eventId");
     const organizador = searchParams.get("nombre");
     const numeroOrganizador = searchParams.get("numero");
-    const calendarId = searchParams.get("calendarId"); // Añadir esta línea
+    const calendarId = searchParams.get("calendarId");
 
     // Modificar la función cargarDetallesPartida dentro del useEffect
     useEffect(() => {
@@ -87,7 +88,7 @@ export default function ReservaUnirse() {
                     eventId,
                     calendarId,
                     nombreInvitado,
-                    numeroInvitado: tipoUnion === "new" ? numeroCompleto : "",
+                    numeroInvitado: numeroCompleto,
                     organizador,
                     numeroOrganizador,
                     tipoUnion
@@ -160,9 +161,7 @@ export default function ReservaUnirse() {
                                 <div className="display-1 mb-4">✅</div>
                                 <h3 className="text-success mb-3">¡Te has unido a la partida!</h3>
                                 <p className="lead">{mensaje}</p>
-                                {tipoUnion === "new" && (
-                                    <p>Se ha enviado una confirmación a tu número de WhatsApp.</p>
-                                )}
+                                <p>Se ha enviado una confirmación a tu número de WhatsApp.</p>
                                 <button onClick={() => window.close()} className="btn btn-primary mt-3">
                                     Cerrar
                                 </button>
@@ -216,9 +215,7 @@ export default function ReservaUnirse() {
                                     <li className="list-group-item">🎾 Nivel: {partida.nivel || "No especificado"}</li>
                                     <li className="list-group-item">🏟️ Pista: {partida.pista}</li>
                                     <li className="list-group-item">👥 Nombre: {nombreInvitado}</li>
-                                    {tipoUnion === "new" && (
-                                        <li className="list-group-item">📱 Teléfono: +{codigoPais} {numeroInvitado}</li>
-                                    )}
+                                    <li className="list-group-item">📱 Teléfono: +{codigoPais} {numeroInvitado}</li>
                                 </ul>
 
                                 <div className="d-grid gap-2">
@@ -281,84 +278,47 @@ export default function ReservaUnirse() {
                                 </div>
 
                                 <div className="mb-4">
-                                    <div className="form-check mb-2">
+                                    <label htmlFor="numeroInvitado" className="form-label">Tu número de teléfono:</label>
+                                    <div className="input-group">
+                                        <select
+                                            className="form-select"
+                                            value={codigoPais}
+                                            onChange={(e) => setCodigoPais(e.target.value)}
+                                            style={{ maxWidth: "130px" }}
+                                        >
+                                            <option value="34">🇪🇸 +34</option>
+                                            <option value="54">🇦🇷 +54</option>
+                                            <option value="1">🇺🇸 +1</option>
+                                            <option value="44">🇬🇧 +44</option>
+                                            <option value="49">🇩🇪 +49</option>
+                                            <option value="33">🇫🇷 +33</option>
+                                            <option value="351">🇵🇹 +351</option>
+                                            <option value="52">🇲🇽 +52</option>
+                                            <option value="55">🇧🇷 +55</option>
+                                            <option value="56">🇨🇱 +56</option>
+                                            <option value="57">🇨🇴 +57</option>
+                                            <option value="58">🇻🇪 +58</option>
+                                        </select>
                                         <input
-                                            className="form-check-input"
-                                            type="radio"
-                                            name="tipoUnion"
-                                            id="unionCompleta"
-                                            value="new"
-                                            checked={tipoUnion === "new"}
-                                            onChange={() => setTipoUnion("new")}
+                                            type="tel"
+                                            className="form-control"
+                                            id="numeroInvitado"
+                                            value={numeroInvitado}
+                                            onChange={(e) => setNumeroInvitado(e.target.value)}
+                                            placeholder="612345678"
+                                            pattern="[0-9]*"
+                                            minLength={9}
+                                            maxLength={9}
+                                            required
                                         />
-                                        <label className="form-check-label" htmlFor="unionCompleta">
-                                            Unirme con notificaciones
-                                        </label>
-                                        <div className="form-text">Recibirás actualizaciones por WhatsApp</div>
                                     </div>
-
-                                    <div className="form-check">
-                                        <input
-                                            className="form-check-input"
-                                            type="radio"
-                                            name="tipoUnion"
-                                            id="unionInvitado"
-                                            value="guest"
-                                            checked={tipoUnion === "guest"}
-                                            onChange={() => setTipoUnion("guest")}
-                                        />
-                                        <label className="form-check-label" htmlFor="unionInvitado">
-                                            Unirme como invitado (sin notificaciones)
-                                        </label>
-                                        <div className="form-text">Las notificaciones se enviarán al organizador</div>
-                                    </div>
+                                    <div className="form-text">Recibirás confirmación por WhatsApp</div>
                                 </div>
-
-                                {/* Mostrar campos de teléfono solo si el tipo de unión es "new" */}
-                                {tipoUnion === "new" && (
-                                    <div className="mb-4">
-                                        <label htmlFor="numeroInvitado" className="form-label">Tu número de teléfono:</label>
-                                        <div className="input-group">
-                                            <select
-                                                className="form-select"
-                                                value={codigoPais}
-                                                onChange={(e) => setCodigoPais(e.target.value)}
-                                                style={{ maxWidth: "130px" }}
-                                            >
-                                                <option value="34">🇪🇸 +34</option>
-                                                <option value="54">🇦🇷 +54</option>
-                                                <option value="1">🇺🇸 +1</option>
-                                                <option value="44">🇬🇧 +44</option>
-                                                <option value="49">🇩🇪 +49</option>
-                                                <option value="33">🇫🇷 +33</option>
-                                                <option value="351">🇵🇹 +351</option>
-                                                <option value="52">🇲🇽 +52</option>
-                                                <option value="55">🇧🇷 +55</option>
-                                                <option value="56">🇨🇱 +56</option>
-                                                <option value="57">🇨🇴 +57</option>
-                                                <option value="58">🇻🇪 +58</option>
-                                            </select>
-                                            <input
-                                                type="tel"
-                                                className="form-control"
-                                                id="numeroInvitado"
-                                                value={numeroInvitado}
-                                                onChange={(e) => setNumeroInvitado(e.target.value)}
-                                                placeholder="612345678"
-                                                pattern="[0-9]*"
-                                                minLength={9}
-                                                maxLength={9}
-                                                required={tipoUnion === "new"}
-                                            />
-                                        </div>
-                                        <div className="form-text">Recibirás confirmación por WhatsApp</div>
-                                    </div>
-                                )}
 
                                 <button
                                     type="submit"
                                     className="btn btn-success w-100"
-                                    disabled={tipoUnion === "new" && (!nombreInvitado || !numeroInvitado) || tipoUnion === "guest" && !nombreInvitado}
+                                    disabled={!nombreInvitado || !numeroInvitado}
                                 >
                                     Unirme a la Partida
                                 </button>

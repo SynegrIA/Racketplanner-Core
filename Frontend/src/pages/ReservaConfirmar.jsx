@@ -146,6 +146,7 @@ export default function ReservaConfirmar() {
                                                 required
                                             >
                                                 <option value="">Selecciona cantidad</option>
+                                                <option value="0">0 jugadores</option>
                                                 <option value="1">1 jugador</option>
                                                 <option value="2">2 jugadores</option>
                                                 <option value="3">3 jugadores</option>
