@@ -23,6 +23,8 @@ export class JugadoresController {
                     message: 'Jugador eliminado correctamente'
                 });
             } else {
+                await enviarMensajeWhatsApp("Ha habido un error eliminando tus datos del sistema, vuelva a intentarlo más tarde", telefono)
+
                 return res.status(404).json({
                     success: false,
                     message: 'Error al eliminar el jugador',
@@ -30,6 +32,8 @@ export class JugadoresController {
                 });
             }
         } catch (error) {
+            await enviarMensajeWhatsApp("Ha habido un error eliminando tus datos del sistema, vuelva a intentarlo más tarde", telefono)
+
             return res.status(500).json({
                 success: false,
                 message: 'Error del servidor',
