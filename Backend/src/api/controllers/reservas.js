@@ -351,9 +351,15 @@ Jugador 4: ${jugador4}
                 console.log("Reserva guardada en la base de datos:", reservaGuardada);
             } catch (dbError) {
                 console.error("Error al guardar la reserva en la base de datos:", dbError);
-                throw new Error(dbError.message)
-                // Nota: No devolvemos error al cliente, ya que el evento de calendario ya se creó
-                // Pero registramos el error para seguimiento
+                // Si ocurre un error al guardar en base de datos, eliminar el evento del calendario
+                try {
+                    await GoogleCalendarService.deleteEvent(pistaConfig.id, evento.id);
+                    console.log("Evento eliminado del calendario debido a error en base de datos.");
+                } catch (deleteError) {
+                    console.error("Error al eliminar el evento del calendario tras fallo en base de datos:", deleteError);
+                }
+                // Lanzar el error para que el flujo principal lo capture y devuelva error al cliente
+                throw new Error("Necesita estar registrado en el sistema para reservar una pista.");
             }
 
             // 11. Formatear fecha para el mensaje
