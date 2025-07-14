@@ -46,10 +46,10 @@ export default function ReservaConfirmar() {
     const handleSubmit = async (e) => {
         e.preventDefault()
 
-        if (!nivel) {
+        if (nivel == "No especificado") {
             setMensaje("Debe especificar el nivel de la partida")
         }
-        if (!jugadoresFaltan) {
+        if (jugadoresFaltan == "?") {
             setMensaje("Debe especificar los jugadores que faltan para completar la partida")
         }
 
