@@ -25,7 +25,6 @@ export default function Header() {
             <header
                 className="navbar navbar-light bg-white shadow-sm"
                 style={{
-                    // El borde ahora está en la parte inferior
                     borderBottom: `4px solid ${currentTheme.primaryColor}`
                 }}
             >

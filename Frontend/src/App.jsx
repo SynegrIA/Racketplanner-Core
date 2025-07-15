@@ -14,8 +14,8 @@ function App() {
     <ThemeProvider>
       <BrowserRouter>
         <Header />
-        <div>
-          <main>
+        <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+          <main style={{ flex: '1' }}>
             <Routes>
               <Route path="/" element={<CalendarPage />} />
               <Route path="/confirmar-reserva" element={<ReservaConfirmar />} />

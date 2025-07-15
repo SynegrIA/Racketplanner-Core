@@ -10,7 +10,6 @@ const themes = {
         logoUrl: '../../public/RacketPlannerLogo.png',
         isPremium: false
     },
-    // Puedes añadir más temas en el futuro
     dark: {
         id: 'dark',
         nombre: 'PadelPlanner Dark',
