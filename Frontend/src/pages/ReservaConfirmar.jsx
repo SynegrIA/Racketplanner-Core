@@ -18,6 +18,10 @@ export default function ReservaConfirmar() {
     const [modoEdicion, setModoEdicion] = useState(false)
     // Bandera para controlar la inicialización de datos
     const [datosInicializados, setDatosInicializados] = useState(false)
+    // Estado para controlar si la reserva fue confirmada exitosamente
+    const [reservaConfirmada, setReservaConfirmada] = useState(false)
+    // Estado para almacenar los datos de la reserva confirmada
+    const [reservaData, setReservaData] = useState(null)
 
     useEffect(() => {
         // Solo inicializar los datos una vez
@@ -41,7 +45,6 @@ export default function ReservaConfirmar() {
                 setDatosInicializados(true);
             }
         }
-        console.log(partida)
     }, [searchParams, datosInicializados]);
 
     const handleSubmit = async (e) => {
@@ -88,12 +91,16 @@ export default function ReservaConfirmar() {
             const data = await response.json()
 
             if (data.status === "success") {
+                setReservaConfirmada(true)
                 setMensaje("¡Tu reserva ha sido confirmada! Hemos enviado los detalles a tu WhatsApp.")
+                setReservaData(data.data) // Guardar los datos de la reserva confirmada
             } else {
                 setMensaje(`Error: ${data.message}`)
+                setTipoMensaje("danger")
             }
         } catch (err) {
             setMensaje("Error al confirmar la reserva. Por favor, inténtalo de nuevo.")
+            setTipoMensaje("danger")
             console.error(err)
         } finally {
             setEnviando(false)
@@ -101,9 +108,60 @@ export default function ReservaConfirmar() {
     }
 
     if (!partida) {
-        return <div className="container mt-5 text-danger">No se han recibido datos de la partida.</div>
+        return (
+            <div className="container min-vh-100 d-flex align-items-center">
+                <div className="row w-100">
+                    <div className="col-12 col-md-8 col-lg-6 mx-auto">
+                        <div className="card shadow">
+                            <div className="card-body text-center">
+                                <div className="display-1 mb-4">⚠️</div>
+                                <h3 className="text-warning mb-3">Información no disponible</h3>
+                                <p className="lead">No se han recibido datos de la partida.</p>
+                                <button onClick={() => window.close()} className="btn btn-primary mt-3">
+                                    Cerrar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
     }
 
+    // Pantalla de reserva confirmada exitosamente
+    if (reservaConfirmada) {
+        return (
+            <div className="container min-vh-100 d-flex align-items-center">
+                <div className="row w-100">
+                    <div className="col-12 col-md-8 col-lg-6 mx-auto">
+                        <div className="card shadow">
+                            <div className="card-body text-center">
+                                <div className="display-1 mb-4">✅</div>
+                                <h3 className="text-success mb-3">Reserva Confirmada</h3>
+                                <p className="lead">{mensaje}</p>
+                                <ul className="list-group mb-4 text-start">
+                                    <li className="list-group-item">📅 Fecha: {new Date(partida.inicio).toLocaleDateString("es-ES", { timeZone: 'Europe/Madrid' })}</li>
+                                    <li className="list-group-item">⏰ Hora: {new Date(partida.inicio).toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit", timeZone: 'Europe/Madrid' })}</li>
+                                    <li className="list-group-item">🎾 Nivel: {nivel}</li>
+                                    <li className="list-group-item">🏟️ Pista: {partida.pista}</li>
+                                    <li className="list-group-item">👤 A tu nombre: {nombre}</li>
+                                    <li className="list-group-item">👥 Jugadores que faltan: {jugadoresFaltan}</li>
+                                </ul>
+                                <div className="alert alert-info mb-4">
+                                    <p className="mb-0">Se ha enviado una confirmación a tu número de WhatsApp.</p>
+                                </div>
+                                <button onClick={() => window.close()} className="btn btn-primary mt-3">
+                                    Cerrar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    // Formulario de confirmación de reserva
     return (
         <div className="container min-vh-100 d-flex align-items-center">
             <div className="row w-100">
@@ -190,12 +248,15 @@ export default function ReservaConfirmar() {
                                     />
                                     <div className="form-text">Recibirás notificaciones por WhatsApp</div>
                                 </div>
+
+                                {mensaje && tipoMensaje === "danger" && (
+                                    <div className={`alert alert-${tipoMensaje} mb-3`}>{mensaje}</div>
+                                )}
+
                                 <button className="btn btn-success w-100" disabled={enviando}>
                                     {enviando ? "Enviando..." : "Confirmar reserva"}
                                 </button>
                             </form>
-
-                            {mensaje && <div className="alert alert-success mt-3">{mensaje}</div>}
                         </div>
                     </div>
                 </div>
