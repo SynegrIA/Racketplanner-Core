@@ -380,6 +380,8 @@ Jugador 4: ${jugador4}
                     `🎾 Pista: ${pista}\n\n` +
                     `📱 Puedes cancelar tu reserva aquí: \n` +
                     `👉🏼 [Cancelar Reserva](${urlCancelarCorta})\n\n` +
+                    `🔄 Número de jugadores que faltan: ${jugadores_faltan}\n` +
+                    `📈 Estado de la partida: cerrada\n\n` +
                     `🚫 Si deseas eliminar a algún invitado, pulsa aquí: [Eliminar Jugador sin Cancelar](${urlEliminarCorta}).`;
             } else {
                 mensaje = `✅ ¡Tu reserva para ${nombre} ha sido confirmada!\n` +
