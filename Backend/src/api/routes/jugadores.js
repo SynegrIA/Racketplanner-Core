@@ -4,6 +4,6 @@ import { JugadoresController } from '../controllers/jugadores.js'
 const jugadoresRouter = express.Router();
 
 jugadoresRouter.delete("/:telefono", JugadoresController.eliminarJugador)
-jugadoresRouter.patch("/modificar-preferencias", JugadoresController.modificarPreferenciasJugador)
+jugadoresRouter.patch("/preferencias-invitaciones", JugadoresController.modificarPreferenciasJugador)
 
 export default jugadoresRouter;
