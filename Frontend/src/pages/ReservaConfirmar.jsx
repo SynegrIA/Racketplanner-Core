@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { useSearchParams } from "react-router-dom"
-import { DOMINIO_BACKEND } from "../../config"
+import { DOMINIO_BACKEND } from "../config/config.js";
 
 export default function ReservaConfirmar() {
     const [searchParams] = useSearchParams()

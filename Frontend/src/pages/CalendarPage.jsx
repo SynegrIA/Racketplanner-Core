@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
-import { DOMINIO_BACKEND } from '../../config';
+import { DOMINIO_BACKEND } from '../config/config.js';
 import { useNavigate } from 'react-router-dom';
+import { useTheme } from '../context/ThemeContext.jsx';
 
 // Formatear la hora consistentemente
 const formatearHora = (isoString) => {
@@ -14,6 +15,7 @@ const formatearHora = (isoString) => {
 // Componente para mostrar cada tarjeta de horario individual
 function TimeSlot({ slot, nombre, numero }) {
     const navigate = useNavigate();
+    const { currentTheme } = useTheme();
 
     const handleSelect = () => {
         // Si es un slot disponible, redirigir a crear reserva
@@ -44,7 +46,9 @@ function TimeSlot({ slot, nombre, numero }) {
                 <span>Pista: <strong>{slot.pista}</strong></span>
                 {slot.tipo === 'abierta' && (
                     <>
-                        <span className="ms-3 badge bg-warning">Partida abierta</span>
+                        <span className="ms-3 badge" style={{ backgroundColor: currentTheme.accentColor }}>
+                            Partida abierta
+                        </span>
                         <div className="small text-muted">
                             Organizador: {slot.organizador} |
                             Nivel: {slot.nivel || 'No especificado'} |
@@ -54,7 +58,13 @@ function TimeSlot({ slot, nombre, numero }) {
                 )}
             </div>
             <button
-                className={`btn btn-sm ${slot.tipo === 'disponible' ? 'btn-success' : 'btn-warning'}`}
+                className={`btn btn-sm`}
+                style={{
+                    backgroundColor: slot.tipo === 'disponible'
+                        ? currentTheme.primaryColor
+                        : currentTheme.accentColor,
+                    color: '#FFFFFF'
+                }}
                 onClick={handleSelect}
             >
                 {slot.tipo === 'disponible' ? 'Seleccionar' : 'Unirse'}
@@ -65,6 +75,7 @@ function TimeSlot({ slot, nombre, numero }) {
 
 // Componente para agrupar los slots por hora
 function TimeGroup({ time, slots, onSelect, nombre, numero, isExpanded, onToggle }) {
+    const { currentTheme } = useTheme();
     // Contar cuántas pistas son disponibles y cuántas son abiertas
     const disponibles = slots.filter(slot => slot.tipo === 'disponible').length;
     const abiertas = slots.filter(slot => slot.tipo === 'abierta').length;
@@ -81,10 +92,23 @@ function TimeGroup({ time, slots, onSelect, nombre, numero, isExpanded, onToggle
 
     return (
         <div className="card mb-3">
-            <div className="card-header" onClick={onToggle} style={{ cursor: 'pointer' }}>
+            <div
+                className="card-header"
+                onClick={onToggle}
+                style={{
+                    cursor: 'pointer',
+                    backgroundColor: isExpanded ? currentTheme.secondaryColor : '#f8f9fa',
+                    color: isExpanded ? '#fff' : 'inherit'
+                }}
+            >
                 <h5 className="mb-0 d-flex justify-content-between align-items-center">
                     <span className="fw-bold fs-4">{time}</span>
-                    <span className="badge bg-primary rounded-pill">{contadorTexto}</span>
+                    <span
+                        className="badge rounded-pill"
+                        style={{ backgroundColor: currentTheme.primaryColor }}
+                    >
+                        {contadorTexto}
+                    </span>
                 </h5>
             </div>
             {isExpanded && (
@@ -115,8 +139,8 @@ export default function CalendarPage() {
     const [nombre, setNombre] = useState('');
     const [numero, setNumero] = useState('');
     const [expandedTime, setExpandedTime] = useState(null);
-    // Añadimos un ref para controlar las peticiones
     const requestIdRef = useRef(0);
+    const { currentTheme } = useTheme();
 
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
@@ -226,7 +250,13 @@ export default function CalendarPage() {
     return (
         <div className="container mt-5">
             <div className="card shadow">
-                <div className="card-header text-center">
+                <div
+                    className="card-header text-center"
+                    style={{
+                        backgroundColor: currentTheme.primaryColor,
+                        color: '#FFFFFF'
+                    }}
+                >
                     <h2>Calendario de Reservas</h2>
                 </div>
                 <div className="card-body">
@@ -240,6 +270,7 @@ export default function CalendarPage() {
                                 value={selectedDate}
                                 onChange={handleDateChange}
                                 min={new Date().toISOString().split('T')[0]}
+                                style={{ borderColor: currentTheme.secondaryColor }}
                             />
                         </div>
                     </div>
@@ -248,7 +279,7 @@ export default function CalendarPage() {
 
                     {loading && (
                         <div className="text-center">
-                            <div className="spinner-border text-primary" role="status">
+                            <div className="spinner-border" role="status" style={{ color: currentTheme.primaryColor }}>
                                 <span className="visually-hidden">Cargando...</span>
                             </div>
                         </div>

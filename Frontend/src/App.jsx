@@ -5,18 +5,21 @@ import CancelarReserva from './pages/ReservaCancelar.jsx';
 import ReservaUnirse from './pages/ReservaUnirse.jsx';
 import ReservaEliminarJugador from './pages/ReservaEliminarJugador.jsx';
 import CalendarPage from './pages/CalendarPage.jsx';
+import { ThemeProvider } from './context/ThemeContext.jsx';
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<CalendarPage />} />
-        <Route path="/confirmar-reserva" element={<ReservaConfirmar />} />
-        <Route path="/cancelar-reserva" element={<CancelarReserva />} />
-        <Route path="/unir-jugador-reserva" element={<ReservaUnirse />} />
-        <Route path="/eliminar-jugador-reserva" element={<ReservaEliminarJugador />} />
-      </Routes>
-    </BrowserRouter>
+    <ThemeProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<CalendarPage />} />
+          <Route path="/confirmar-reserva" element={<ReservaConfirmar />} />
+          <Route path="/cancelar-reserva" element={<CancelarReserva />} />
+          <Route path="/unir-jugador-reserva" element={<ReservaUnirse />} />
+          <Route path="/eliminar-jugador-reserva" element={<ReservaEliminarJugador />} />
+        </Routes>
+      </BrowserRouter>
+    </ThemeProvider>
   )
 }
 
