@@ -648,7 +648,45 @@ Jugador 4: ${jugador4}
 
             // Notificar al organizador
             if (numeroOrganizador) {
-                const mensajeOrganizador = `${nombreInvitado} se ha unido a tu partida.`;
+                // Formatear fecha y hora para mejor legibilidad
+                const fechaEvento = new Date(evento.start.dateTime);
+                const fechaFormateada = fechaEvento.toLocaleDateString('es-ES', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    timeZone: 'Europe/Madrid'
+                });
+
+                const horaInicio = fechaEvento.toLocaleTimeString('es-ES', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    timeZone: 'Europe/Madrid'
+                });
+
+                const horaFin = new Date(evento.end.dateTime).toLocaleTimeString('es-ES', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    timeZone: 'Europe/Madrid'
+                });
+
+                // Calcular jugadores actuales después de la unión
+                const jugadoresActuales = parseInt(infoMap['Nº Actuales'] || '1') + 1;
+                const jugadoresFaltantesActualizados = jugadoresFaltan - 1;
+
+                // Construir mensaje detallado
+                const mensajeOrganizador = `✅ *¡Nuevo jugador en tu partida!*\n\n` +
+                    `👤 *${nombreInvitado}* se ha unido a tu partida con los siguientes detalles:\n\n` +
+                    `🆔 ID Partida: ${infoMap['ID'] || 'No disponible'}\n` +
+                    `📅 Fecha: ${fechaFormateada}\n` +
+                    `⏰ Horario: ${horaInicio} - ${horaFin}\n` +
+                    `🎾 Pista: ${infoMap['Pista'] || evento.summary || 'No especificada'}\n` +
+                    `🏆 Nivel: ${infoMap['Nivel'] || 'No especificado'}\n` +
+                    `👥 Jugadores actuales: ${jugadoresActuales}/4\n` +
+                    (jugadoresFaltantesActualizados > 0 ?
+                        `⚠️ Aún faltan ${jugadoresFaltantesActualizados} jugador(es)\n` :
+                        `✅ ¡Partida completa!\n`);
+
                 await enviarMensajeWhatsApp(mensajeOrganizador, numeroOrganizador);
             }
 
