@@ -239,6 +239,13 @@ export class ReservasController {
             // 4. Calcular número de jugadores actuales
             const jugadoresActuales = jugadores_faltan ? (4 - parseInt(jugadores_faltan)) : 4;
 
+            let estado;
+            if (parseInt(jugadores_faltan) === 0) {
+                estado = "Completa";
+            } else {
+                estado = "Abierta";
+            }
+
             // 5. Preparar nombres de invitados
             let jugador2 = "", jugador3 = "", jugador4 = "";
             const nombreBase = `Invitado de ${nombre}`;
@@ -304,13 +311,6 @@ Jugador 4: ${jugador4}
 
             // Guardar la reserva en la base de datos
             try {
-
-                let estado;
-                if (parseInt(jugadores_faltan) === 0) {
-                    estado = "Completa";
-                } else {
-                    estado = "Abierta";
-                }
                 // Extraer solo la fecha del ISO
                 const fechaSoloISO = fechaInicio.toISOString().split('T')[0];
 
