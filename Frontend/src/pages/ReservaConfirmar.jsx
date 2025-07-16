@@ -118,7 +118,7 @@ export default function ReservaConfirmar() {
                                 <div className="display-1 mb-4">⚠️</div>
                                 <h3 className="text-warning mb-3">Información no disponible</h3>
                                 <p className="lead">No se han recibido datos de la partida.</p>
-                                <button onClick={() => navigate("/")} className="btn btn-primary mt-3">
+                                <button onClick={() => navigate('/home')} className="btn btn-primary mt-3">
                                     Cerrar
                                 </button>
                             </div>
@@ -151,7 +151,7 @@ export default function ReservaConfirmar() {
                                 <div className="alert alert-info mb-4">
                                     <p className="mb-0">Se ha enviado una confirmación a tu número de WhatsApp.</p>
                                 </div>
-                                <button onClick={() => navigate("/")} className="btn btn-primary mt-3">
+                                <button onClick={() => navigate('/home')} className="btn btn-primary mt-3">
                                     Cerrar
                                 </button>
                             </div>

@@ -140,7 +140,7 @@ export default function ReservaUnirse() {
                                 <div className="display-1 mb-4">❌</div>
                                 <h3 className="text-danger mb-3">Error</h3>
                                 <p className="lead">{error}</p>
-                                <button onClick={() => navigate("/")} className="btn btn-primary mt-3">
+                                <button onClick={() => navigate('/home')} className="btn btn-primary mt-3">
                                     Cerrar
                                 </button>
                             </div>
@@ -163,7 +163,7 @@ export default function ReservaUnirse() {
                                 <h3 className="text-success mb-3">¡Te has unido a la partida!</h3>
                                 <p className="lead">{mensaje}</p>
                                 <p>Se ha enviado una confirmación a tu número de WhatsApp.</p>
-                                <button onClick={() => navigate("/")} className="btn btn-primary mt-3">
+                                <button onClick={() => navigate('/home')} className="btn btn-primary mt-3">
                                     Cerrar
                                 </button>
                             </div>
@@ -185,7 +185,7 @@ export default function ReservaUnirse() {
                                 <div className="display-1 mb-4">⚠️</div>
                                 <h3 className="text-warning mb-3">Información no disponible</h3>
                                 <p className="lead">No se encontraron datos de la partida.</p>
-                                <button onClick={() => navigate("/")} className="btn btn-primary mt-3">
+                                <button onClick={() => navigate('/home')} className="btn btn-primary mt-3">
                                     Cerrar
                                 </button>
                             </div>

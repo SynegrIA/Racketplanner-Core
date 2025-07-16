@@ -18,6 +18,7 @@ function App() {
           <main style={{ flex: '1' }}>
             <Routes>
               <Route path="/" element={<CalendarPage />} />
+              <Route path="/home" element={<CalendarPage />} />
               <Route path="/confirmar-reserva" element={<ReservaConfirmar />} />
               <Route path="/cancelar-reserva" element={<CancelarReserva />} />
               <Route path="/unir-jugador-reserva" element={<ReservaUnirse />} />
