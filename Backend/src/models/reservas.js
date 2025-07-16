@@ -12,6 +12,30 @@ export class ReservasModel {
         return data[0]
     }
 
+    static async markAsCancelled(eventId, motivo) {
+        try {
+            // Preparar datos de actualización
+            const actualizaciones = {
+                "Estado": "Cancelada",
+                "Fecha Actualización": new Date().toISOString(),
+                "Actualización": `Reserva cancelada${motivo ? `. Motivo: ${motivo}` : ""}`,
+            };
+
+            // Actualizar el registro en Supabase
+            const { data, error } = await supabase
+                .from('Reservas')
+                .update(actualizaciones)
+                .eq('ID Event', eventId)
+                .select();
+
+            if (error) throw new Error(error.message);
+            return data[0];
+        } catch (error) {
+            console.error("Error al marcar reserva como cancelada:", error);
+            throw error;
+        }
+    }
+
     static async delete(eventId) {
         // Buscar y eliminar la reserva por su ID de evento de Google Calendar
         const { data, error } = await supabase

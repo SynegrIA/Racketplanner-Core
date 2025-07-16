@@ -478,8 +478,6 @@ Jugador 4: ${jugador4}
             const eventId = req.params.eventId;
             const { calendarId, numero, motivo } = req.query;
 
-            //console.log(`Solicitud para cancelar reserva: eventId=${eventId}, calendarId=${calendarId}`);
-
             // Validación básica
             if (!eventId || !calendarId) {
                 return res.status(400).json({
@@ -528,7 +526,6 @@ Jugador 4: ${jugador4}
             try {
                 console.log(`Eliminando evento ${eventId} del calendario ${calendarId}...`);
                 const resultado = await GoogleCalendarService.deleteEvent(calendarId, eventId);
-                //console.log("Resultado de eliminación:", resultado);
 
                 if (resultado.alreadyDeleted) {
                     console.log("El evento ya había sido eliminado previamente.");
@@ -545,13 +542,12 @@ Jugador 4: ${jugador4}
                 });
             }
 
-
-            // 4. Eliminar el registro de la base de datos
-            let reservaEliminada;
+            // 4. Marcar el registro como cancelado en la base de datos (en lugar de eliminarlo)
+            let reservaCancelada;
             try {
-                reservaEliminada = await ReservasModel.delete(eventId);
+                reservaCancelada = await ReservasModel.markAsCancelled(eventId, motivo);
             } catch (dbError) {
-                console.error("Error al eliminar registro de la base de datos:", dbError);
+                console.error("Error al marcar registro como cancelado en la base de datos:", dbError);
                 // No devolvemos error porque el evento ya se eliminó del calendario
             }
 
@@ -612,7 +608,7 @@ Jugador 4: ${jugador4}
                 message: "La reserva ha sido cancelada exitosamente.",
                 data: {
                     eventoId: eventId,
-                    reservaEliminada
+                    reservaCancelada
                 }
             });
 
