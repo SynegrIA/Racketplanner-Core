@@ -8,6 +8,7 @@ import CalendarPage from './pages/CalendarPage.jsx';
 import { ThemeProvider } from './context/ThemeContext.jsx';
 import Header from './components/header.jsx';
 import Footer from './components/footer.jsx';
+import RegisterPage from './pages/RegisterPage.jsx';
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
             <Routes>
               <Route path="/" element={<CalendarPage />} />
               <Route path="/home" element={<CalendarPage />} />
+              <Route path='/signup' element={<RegisterPage />} />
               <Route path="/confirmar-reserva" element={<ReservaConfirmar />} />
               <Route path="/cancelar-reserva" element={<CancelarReserva />} />
               <Route path="/unir-jugador-reserva" element={<ReservaUnirse />} />
