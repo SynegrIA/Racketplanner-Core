@@ -304,9 +304,13 @@ Jugador 4: ${jugador4}
 
             // Guardar la reserva en la base de datos
             try {
-                // Convertir el tipo de partida al formato de estado_enum
-                const estado = partida === "completa" ? "Completa" : "Abierta";
 
+                let estado;
+                if (parseInt(jugadores_faltan) === 0) {
+                    estado = "Completa";
+                } else {
+                    estado = "Abierta";
+                }
                 // Extraer solo la fecha del ISO
                 const fechaSoloISO = fechaInicio.toISOString().split('T')[0];
 
@@ -384,7 +388,7 @@ Jugador 4: ${jugador4}
 
             // 12. Preparar mensaje de confirmación según tipo de partida
             let mensaje;
-            if (partida === "completa") {
+            if (estado == "Completa") {
                 mensaje = `✅ ¡Tu reserva para ${nombre} ha sido confirmada!\n` +
                     `📅 Fecha: ${fechaFormateada}\n` +
                     `🕒 Hora: ${fechaInicio.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid' })} - ${fechaFin.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid' })}\n` +
@@ -392,7 +396,7 @@ Jugador 4: ${jugador4}
                     `📱 Puedes cancelar tu reserva aquí: \n` +
                     `👉🏼 [Cancelar Reserva](${urlCancelarCorta})\n\n` +
                     `🔄 Número de jugadores que faltan: ${jugadores_faltan}\n` +
-                    `📈 Estado de la partida: cerrada\n\n` +
+                    `📈 Estado de la partida: completa\n\n` +
                     `🚫 Si deseas eliminar a algún invitado, pulsa aquí: [Eliminar Jugador sin Cancelar](${urlEliminarCorta}).`;
             } else {
                 mensaje = `✅ ¡Tu reserva para ${nombre} ha sido confirmada!\n` +
