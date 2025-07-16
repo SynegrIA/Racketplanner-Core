@@ -9,6 +9,7 @@ export default function ReservaConfirmar() {
     // Estados independientes para los campos de formulario
     const [nombre, setNombre] = useState("")
     const [numero, setNumero] = useState("")
+    const [codigoPais, setCodigoPais] = useState("34")
     const [nivel, setNivel] = useState("")
     const [jugadoresFaltan, setJugadoresFaltan] = useState("")
     const [mensaje, setMensaje] = useState("")
@@ -63,6 +64,8 @@ export default function ReservaConfirmar() {
             return // Detener la ejecución si hay error
         }
 
+        const numeroCompleto = `${codigoPais}${numero}`;
+
         setEnviando(true)
         setMensaje("")
 
@@ -82,7 +85,7 @@ export default function ReservaConfirmar() {
                     inicio: partida?.inicio,
                     fin,
                     nombre,
-                    numero,
+                    numero: numeroCompleto,
                     partida: partida?.partida,
                     nivel,
                     jugadores_faltan: jugadoresFaltan
@@ -241,12 +244,35 @@ export default function ReservaConfirmar() {
                                 </div>
                                 <div className="mb-3">
                                     <label className="form-label">Tu número de teléfono</label>
-                                    <input
-                                        className="form-control"
-                                        value={numero}
-                                        onChange={(e) => setNumero(e.target.value)}
-                                        required
-                                    />
+                                    <div className="input-group">
+                                        <select
+                                            className="form-select"
+                                            value={codigoPais}
+                                            onChange={(e) => setCodigoPais(e.target.value)}
+                                            style={{ maxWidth: "130px" }}
+                                        >
+                                            <option value="34">🇪🇸 +34</option>
+                                            <option value="54">🇦🇷 +54</option>
+                                            <option value="1">🇺🇸 +1</option>
+                                            <option value="44">🇬🇧 +44</option>
+                                            <option value="49">🇩🇪 +49</option>
+                                            <option value="33">🇫🇷 +33</option>
+                                            <option value="351">🇵🇹 +351</option>
+                                            <option value="52">🇲🇽 +52</option>
+                                            <option value="55">🇧🇷 +55</option>
+                                            <option value="56">🇨🇱 +56</option>
+                                            <option value="57">🇨🇴 +57</option>
+                                            <option value="58">🇻🇪 +58</option>
+                                        </select>
+                                        <input
+                                            type="tel"
+                                            className="form-control"
+                                            value={numero}
+                                            onChange={(e) => setNumero(e.target.value)}
+                                            placeholder="612345678"
+                                            required
+                                        />
+                                    </div>
                                     <div className="form-text">Recibirás notificaciones por WhatsApp</div>
                                 </div>
 
