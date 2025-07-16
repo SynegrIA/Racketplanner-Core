@@ -110,27 +110,27 @@ export class ReservasController {
 
     static async agendar(req, res) {
         try {
-            const { fecha_ISO, nombre, numero, partida, nivel, jugadores_faltan } = req.body
+            const { fecha_ISO, nombre, numero, partida, nivel, jugadores_faltan } = req.body;
 
-            // 1. Validación básica
+            // Validación básica
             if (!fecha_ISO || !nombre || !numero) {
                 return res.status(400).json({
                     status: "error",
                     message: "Los campos 'fecha_ISO', 'nombre' y 'numero' son obligatorios."
-                })
+                });
             }
 
-            // 2. Parsear fecha_ISO y validar
-            const startDate = new Date(fecha_ISO)
+            // Parsear fecha_ISO y validar
+            const startDate = new Date(fecha_ISO);
             if (isNaN(startDate.getTime())) {
                 return res.status(400).json({
                     status: "error",
                     message: "La fecha_ISO proporcionada no es válida."
-                })
+                });
             }
 
-            // 3. Buscar slot exacto y disponibilidad
-            const slotInfo = await buscarSlotDisponibleExacto(startDate)
+            // 1. Buscar slot exacto en la pista solicitada
+            const slotInfo = await buscarSlotDisponibleExacto(startDate);
             if (slotInfo && slotInfo.disponible) {
                 // Generar enlace de confirmación para ese slot
                 const reservaPayload = {
@@ -142,54 +142,79 @@ export class ReservasController {
                     partida,
                     nivel,
                     jugadores_faltan
-                }
+                };
 
-                const urlReserva = `${DOMINIO_FRONTEND}/confirmar-reserva?data=${encodeURIComponent(JSON.stringify(reservaPayload))}`
+                const urlReserva = `${DOMINIO_FRONTEND}/confirmar-reserva?data=${encodeURIComponent(JSON.stringify(reservaPayload))}`;
 
                 let enlace;
-                if (NODE_ENV == 'production') { enlace = await shortenUrl(urlReserva) } else { enlace = urlReserva }
+                if (NODE_ENV == 'production') {
+                    enlace = await shortenUrl(urlReserva);
+                } else {
+                    enlace = urlReserva;
+                }
 
-                const mensaje = `✅ Hay disponibilidad para reservar el ${slotInfo.pista.name} el ${slotInfo.slotInicio.toLocaleString('es-ES', { timeZone: 'Europe/Madrid' })}.\n\n[Haz clic aquí para confirmar la reserva](${enlace})`
-                await enviarMensajeWhatsApp(mensaje, numero)
+                const mensaje = `✅ Hay disponibilidad para reservar el ${slotInfo.pista.name} el ${slotInfo.slotInicio.toLocaleString('es-ES', { timeZone: 'Europe/Madrid' })}.\n\n[Haz clic aquí para confirmar la reserva](${enlace})`;
+                await enviarMensajeWhatsApp(mensaje, numero);
                 return res.json({
                     status: "enlace_confirmacion",
                     message: mensaje,
                     enlace
-                })
+                });
             }
 
-            // 4. Si no hay disponibilidad exacta, buscar alternativas
-            const alternativas = await buscarAlternativasSlots(startDate, nombre, numero, partida, nivel, jugadores_faltan)
+            // 2. Buscar alternativas en el MISMO horario pero en otras pistas
+            const alternativasMismoHorario = await buscarAlternativasMismoHorario(startDate, nombre, numero, partida, nivel, jugadores_faltan);
+            if (alternativasMismoHorario.length > 0) {
+                const listaHorarios = alternativasMismoHorario.map(horario => {
+                    const inicio = new Date(horario.inicio);
+                    const fin = new Date(horario.fin);
+                    const fechaInicioFormateada = inicio.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Europe/Madrid' });
+                    const horaInicio = inicio.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid' });
+                    const horaFin = fin.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid' });
+                    return `👉🏼 *El ${fechaInicioFormateada} de ${horaInicio} a ${horaFin} en ${horario.pista}*: [Haz clic para reservar](${horario.enlace})`;
+                }).join(' \n');
+
+                const mensaje = `😊 Hay otras pistas disponibles en la misma hora:\n${listaHorarios}`;
+                await enviarMensajeWhatsApp(mensaje, numero);
+                return res.json({
+                    status: "alternativas_mismo_horario",
+                    message: mensaje,
+                    alternativas: alternativasMismoHorario
+                });
+            }
+
+            // 3. Si no hay nada en el mismo horario, buscar alternativas en otros horarios
+            const alternativas = await buscarAlternativasSlots(startDate, nombre, numero, partida, nivel, jugadores_faltan);
             if (alternativas.length > 0) {
                 const listaHorarios = alternativas.map(horario => {
-                    const inicio = new Date(horario.inicio)
-                    const fin = new Date(horario.fin)
-                    const fechaInicioFormateada = inicio.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Europe/Madrid' })
-                    const horaInicio = inicio.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid' })
-                    const horaFin = fin.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid' })
-                    return `👉🏼 *El ${fechaInicioFormateada} de ${horaInicio} a ${horaFin} en ${horario.pista}*: [Haz clic para reservar](${horario.enlace})`
-                }).join(' \n')
+                    const inicio = new Date(horario.inicio);
+                    const fin = new Date(horario.fin);
+                    const fechaInicioFormateada = inicio.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Europe/Madrid' });
+                    const horaInicio = inicio.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid' });
+                    const horaFin = fin.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid' });
+                    return `👉🏼 *El ${fechaInicioFormateada} de ${horaInicio} a ${horaFin} en ${horario.pista}*: [Haz clic para reservar](${horario.enlace})`;
+                }).join(' \n');
 
-                const mensaje = `😔 No hay disponibilidad exacta en la hora seleccionada. Opciones alternativas:\n${listaHorarios}`
-                await enviarMensajeWhatsApp(mensaje, numero)
+                const mensaje = `😔 No hay disponibilidad en la hora seleccionada. Opciones alternativas:\n${listaHorarios}`;
+                await enviarMensajeWhatsApp(mensaje, numero);
                 return res.json({
                     status: "alternativas",
                     message: mensaje,
                     alternativas
-                })
+                });
             } else {
-                const mensaje = "😔 Lo sentimos, no hay disponibilidad ni alternativas cercanas."
-                await enviarMensajeWhatsApp(mensaje, numero)
+                const mensaje = "😔 Lo sentimos, no hay disponibilidad ni alternativas cercanas.";
+                await enviarMensajeWhatsApp(mensaje, numero);
                 return res.json({
                     status: "nodisponible",
                     message: mensaje
-                })
+                });
             }
         } catch (error) {
             return res.status(500).json({
                 status: "error",
                 message: error.message
-            })
+            });
         }
     }
 
@@ -1155,9 +1180,12 @@ async function buscarTodosLosSlotsDisponibles(fecha) {
 async function buscarSlotDisponibleExacto(startDate) {
     const dia = startDate.getDay()
     const isWeekend = dia === 0 || dia === 6
+
+    // Para cada pista, comprobar si el horario solicitado está disponible
     for (const pista of CALENDARS) {
         const horarios = isWeekend ? pista.businessHours.weekends : pista.businessHours.weekdays
         if (!horarios || horarios.length === 0) continue
+
         for (const rango of horarios) {
             const [startHour, startMinute] = rango.start.split(":").map(Number)
             const [endHour, endMinute] = rango.end.split(":").map(Number)
@@ -1170,6 +1198,7 @@ async function buscarSlotDisponibleExacto(startDate) {
             while (slotInicio < slotFinRango) {
                 let slotFin = new Date(slotInicio.getTime() + pista.slotDuration * 60000)
                 if (slotFin > slotFinRango) break
+
                 // ¿La hora solicitada coincide exactamente con el inicio del slot?
                 if (Math.abs(slotInicio.getTime() - startDate.getTime()) < 60000) {
                     // Comprobar si está libre
@@ -1180,47 +1209,49 @@ async function buscarSlotDisponibleExacto(startDate) {
                     )
                     if (!eventos || eventos.length === 0) {
                         return { pista, slotInicio, slotFin, disponible: true }
-                    } else {
-                        return { pista, slotInicio, slotFin, disponible: false }
                     }
+                    // NO devolvemos si está ocupada, seguimos buscando en otras pistas
+                    break; // Salimos del bucle while para esta pista y rango
                 }
                 slotInicio = new Date(slotInicio.getTime() + pista.slotDuration * 60000)
             }
         }
     }
-    return null
+    return null // Solo si ninguna pista está disponible en el horario exacto
 }
+// Añadir esta nueva función después de buscarSlotDisponibleExacto
+async function buscarAlternativasMismoHorario(startDate, nombre, numero, partida, nivel, jugadores_faltan) {
+    const alternativas = [];
+    const dia = startDate.getDay();
+    const isWeekend = dia === 0 || dia === 6;
 
-// Helper: Busca los dos siguientes slots libres más cercanos a la intención del usuario
-async function buscarAlternativasSlots(startDate, nombre, numero, partida, nivel, jugadores_faltan) {
-    const alternativas = []
-    const fechaBase = new Date(startDate)
-    fechaBase.setSeconds(0, 0)
-    const dia = fechaBase.getDay()
-    const isWeekend = dia === 0 || dia === 6
-
+    // Para cada pista, comprobar si el horario solicitado está disponible
     for (const pista of CALENDARS) {
-        const horarios = isWeekend ? pista.businessHours.weekends : pista.businessHours.weekdays
-        if (!horarios || horarios.length === 0) continue
+        const horarios = isWeekend ? pista.businessHours.weekends : pista.businessHours.weekdays;
+        if (!horarios || horarios.length === 0) continue;
 
         for (const rango of horarios) {
-            const [startHour, startMinute] = rango.start.split(":").map(Number)
-            const [endHour, endMinute] = rango.end.split(":").map(Number)
-            let slotInicio = new Date(fechaBase)
-            slotInicio.setHours(startHour, startMinute, 0, 0)
-            let slotFinRango = new Date(fechaBase)
-            slotFinRango.setHours(endHour, endMinute, 0, 0)
-            if (endHour === 0 && endMinute === 0) slotFinRango.setHours(24, 0, 0, 0)
+            const [startHour, startMinute] = rango.start.split(":").map(Number);
+            const [endHour, endMinute] = rango.end.split(":").map(Number);
+            let slotInicio = new Date(startDate);
+            slotInicio.setHours(startHour, startMinute, 0, 0);
+            let slotFinRango = new Date(startDate);
+            slotFinRango.setHours(endHour, endMinute, 0, 0);
+            if (endHour === 0 && endMinute === 0) slotFinRango.setHours(24, 0, 0, 0);
 
             while (slotInicio < slotFinRango) {
-                let slotFin = new Date(slotInicio.getTime() + pista.slotDuration * 60000)
-                if (slotFin > slotFinRango) break
-                if (slotInicio > startDate) {
+                let slotFin = new Date(slotInicio.getTime() + pista.slotDuration * 60000);
+                if (slotFin > slotFinRango) break;
+
+                // ¿La hora solicitada coincide exactamente con el inicio del slot?
+                if (Math.abs(slotInicio.getTime() - startDate.getTime()) < 60000) {
+                    // Comprobar si está libre
                     const eventos = await GoogleCalendarService.getEvents(
                         pista.id,
                         slotInicio.toISOString(),
                         slotFin.toISOString()
-                    )
+                    );
+
                     if (!eventos || eventos.length === 0) {
                         const reservaPayload = {
                             pista: pista.name,
@@ -1231,24 +1262,101 @@ async function buscarAlternativasSlots(startDate, nombre, numero, partida, nivel
                             partida,
                             nivel,
                             jugadores_faltan
+                        };
+
+                        const urlReserva = `${DOMINIO_FRONTEND}/confirmar-reserva?data=${encodeURIComponent(JSON.stringify(reservaPayload))}`;
+                        let enlace;
+                        if (NODE_ENV == 'production') {
+                            enlace = await shortenUrl(urlReserva);
+                        } else {
+                            enlace = urlReserva;
                         }
-                        const urlReserva = `${DOMINIO_FRONTEND}/confirmar-reserva?data=${encodeURIComponent(JSON.stringify(reservaPayload))}`
-                        const enlace = await shortenUrl(urlReserva)
+
                         alternativas.push({
                             pista: pista.name,
                             inicio: slotInicio.toISOString(),
                             fin: slotFin.toISOString(),
                             enlace
-                        })
+                        });
                     }
+                    break; // Ya revisamos esta hora para esta pista
                 }
-                slotInicio = new Date(slotInicio.getTime() + pista.slotDuration * 60000)
+                slotInicio = new Date(slotInicio.getTime() + pista.slotDuration * 60000);
             }
         }
     }
-    // Ordenar por cercanía temporal y limitar a 2
-    alternativas.sort((a, b) => new Date(a.inicio) - new Date(b.inicio))
-    return alternativas.slice(0, 2)
+
+    return alternativas;
+}
+// Helper: Busca los dos siguientes slots libres más cercanos a la intención del usuario
+async function buscarAlternativasSlots(startDate, nombre, numero, partida, nivel, jugadores_faltan) {
+    const alternativas = [];
+    const fechaBase = new Date(startDate);
+    fechaBase.setSeconds(0, 0);
+    const dia = fechaBase.getDay();
+    const isWeekend = dia === 0 || dia === 6;
+
+    for (const pista of CALENDARS) {
+        const horarios = isWeekend ? pista.businessHours.weekends : pista.businessHours.weekdays;
+        if (!horarios || horarios.length === 0) continue;
+
+        for (const rango of horarios) {
+            const [startHour, startMinute] = rango.start.split(":").map(Number);
+            const [endHour, endMinute] = rango.end.split(":").map(Number);
+            let slotInicio = new Date(fechaBase);
+            slotInicio.setHours(startHour, startMinute, 0, 0);
+            let slotFinRango = new Date(fechaBase);
+            slotFinRango.setHours(endHour, endMinute, 0, 0);
+            if (endHour === 0 && endMinute === 0) slotFinRango.setHours(24, 0, 0, 0);
+
+            while (slotInicio < slotFinRango) {
+                let slotFin = new Date(slotInicio.getTime() + pista.slotDuration * 60000);
+                if (slotFin > slotFinRango) break;
+
+                // Solo buscar en horarios diferentes al solicitado
+                if (slotInicio > startDate && Math.abs(slotInicio.getTime() - startDate.getTime()) > 60000) {
+                    const eventos = await GoogleCalendarService.getEvents(
+                        pista.id,
+                        slotInicio.toISOString(),
+                        slotFin.toISOString()
+                    );
+
+                    if (!eventos || eventos.length === 0) {
+                        const reservaPayload = {
+                            pista: pista.name,
+                            inicio: slotInicio.toISOString(),
+                            fin: slotFin.toISOString(),
+                            nombre,
+                            numero,
+                            partida,
+                            nivel,
+                            jugadores_faltan
+                        };
+
+                        const urlReserva = `${DOMINIO_FRONTEND}/confirmar-reserva?data=${encodeURIComponent(JSON.stringify(reservaPayload))}`;
+                        let enlace;
+                        if (NODE_ENV == 'production') {
+                            enlace = await shortenUrl(urlReserva);
+                        } else {
+                            enlace = urlReserva;
+                        }
+
+                        alternativas.push({
+                            pista: pista.name,
+                            inicio: slotInicio.toISOString(),
+                            fin: slotFin.toISOString(),
+                            enlace
+                        });
+                    }
+                }
+                slotInicio = new Date(slotInicio.getTime() + pista.slotDuration * 60000);
+            }
+        }
+    }
+
+    // Ordenar por cercanía temporal y limitar a 3 (aumentamos a 3 para mostrar más opciones)
+    alternativas.sort((a, b) => new Date(a.inicio) - new Date(b.inicio));
+    return alternativas.slice(0, 3);
 }
 
 async function actualizarPartidaConNuevoJugador(eventId, calendarId, nombreInvitado, numeroInvitado, tipoUnion) {
