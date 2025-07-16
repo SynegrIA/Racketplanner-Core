@@ -697,8 +697,64 @@ Jugador 4: ${jugador4}
 
             // Enviar notificaciones según el tipo de unión
             if (tipoUnion === "new" && numeroInvitado) {
-                // Notificar al nuevo jugador
-                await enviarMensajeWhatsApp("¡Te has unido a la partida exitosamente!", numeroInvitado);
+                // Preparar datos para el mensaje
+                const fechaEvento = new Date(evento.start.dateTime);
+                const fechaFormateada = fechaEvento.toLocaleDateString('es-ES', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    timeZone: 'Europe/Madrid'
+                });
+
+                const horaInicio = fechaEvento.toLocaleTimeString('es-ES', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    timeZone: 'Europe/Madrid'
+                });
+
+                const horaFin = new Date(evento.end.dateTime).toLocaleTimeString('es-ES', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    timeZone: 'Europe/Madrid'
+                });
+
+                // Calcular jugadores actuales después de la unión
+                const jugadoresActuales = parseInt(infoMap['Nº Actuales'] || '1') + 1;
+                const jugadoresFaltantesActualizados = jugadoresFaltan - 1;
+
+                // Crear URL para que el jugador pueda eliminarse
+                const urlEliminar = `${DOMINIO_FRONTEND}/eliminar-jugador-reserva?eventId=${encodeURIComponent(eventId)}&numero=${encodeURIComponent(numeroInvitado)}&nombreJugador=${encodeURIComponent(nombreInvitado)}&calendarId=${encodeURIComponent(calendarId)}`;
+
+                // Acortar URL si estamos en producción
+                let urlEliminarCorta;
+                if (NODE_ENV == 'production') {
+                    urlEliminarCorta = await shortenUrl(urlEliminar);
+                } else {
+                    urlEliminarCorta = urlEliminar;
+                }
+
+                // Construir mensaje detallado para el nuevo jugador
+                const mensajeJugador = `✅ *¡Te has unido a la partida exitosamente!*\n\n` +
+                    `📋 *Detalles de la partida*:\n` +
+                    `🆔 ID Partida: ${infoMap['ID'] || 'No disponible'}\n` +
+                    `📅 Fecha: ${fechaFormateada}\n` +
+                    `⏰ Horario: ${horaInicio} - ${horaFin}\n` +
+                    `🎾 Pista: ${infoMap['Pista'] || evento.summary || 'No especificada'}\n` +
+                    `🏆 Nivel: ${infoMap['Nivel'] || 'No especificado'}\n` +
+                    `👑 Organizador: ${infoMap['Jugador Principal'] || organizador || 'No especificado'}\n\n` +
+                    `👥 *Jugadores* (${jugadoresActuales}/4):\n` +
+                    `1. ${infoMap['Jugador Principal'] || 'Organizador'}\n` +
+                    (infoMap['Jugador 2'] ? `2. ${infoMap['Jugador 2']}\n` : '') +
+                    (infoMap['Jugador 3'] ? `3. ${infoMap['Jugador 3']}\n` : '') +
+                    (infoMap['Jugador 4'] ? `4. ${infoMap['Jugador 4']}\n` : '') +
+                    (jugadoresFaltantesActualizados > 0 ?
+                        `\n⚠️ Aún faltan ${jugadoresFaltantesActualizados} jugador(es)\n` :
+                        `\n✅ ¡La partida está completa!\n`) +
+                    `\n🚫 Si necesitas cancelar tu participación: [Eliminarme de esta partida](${urlEliminarCorta})`;
+
+                // Notificar al nuevo jugador con el mensaje detallado
+                await enviarMensajeWhatsApp(mensajeJugador, numeroInvitado);
             }
 
             const telefono = numeroOrganizador || infoMap['Teléfono'];
@@ -739,7 +795,6 @@ Jugador 4: ${jugador4}
                     `⏰ Horario: ${horaInicio} - ${horaFin}\n` +
                     `🎾 Pista: ${infoMap['Pista'] || evento.summary || 'No especificada'}\n` +
                     `🏆 Nivel: ${infoMap['Nivel'] || 'No especificado'}\n` +
-                    `👥 Jugadores actuales: ${jugadoresActuales}/4\n` +
                     (jugadoresFaltantesActualizados > 0 ?
                         `⚠️ Aún faltan ${jugadoresFaltantesActualizados} jugador(es)\n` :
                         `✅ ¡Partida completa!\n`);
