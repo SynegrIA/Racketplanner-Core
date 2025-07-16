@@ -188,6 +188,9 @@ export class ReservasController {
     }
 
     static async confirmarReserva(req, res) {
+
+        const N8N_WEBHOOK_URL = "https://n8n.synergiapro.es/webhook/picketball-planner-partida-abierta"
+
         try {
             console.log("Datos recibidos en confirmarReserva:", req.body);
             const { pista, inicio, fin, nombre, numero, partida, nivel, jugadores_faltan } = req.body;
@@ -399,13 +402,10 @@ Jugador 4: ${jugador4}
             await enviarMensajeWhatsApp(mensaje, numero);
 
             // 14. Enviar mensaje adicional con enlace para invitar si es partida abierta
-            if (partida === "abierta") {
-                const mensajeInvitacion = `👉🏼 Si deseas invitar a un jugador, envía este mensaje a la persona: [Unirse a Partida](${urlInvitarCorta})`;
-                await enviarMensajeWhatsApp(mensajeInvitacion, numero);
+            const mensajeInvitacion = `👉🏼 Si deseas invitar a un jugador, envía este mensaje a la persona: [Unirse a Partida](${urlInvitarCorta})`;
+            await enviarMensajeWhatsApp(mensajeInvitacion, numero);
 
-                // Opcionalmente, aquí podríamos activar un flujo en n8n para buscar jugadores
-                // Ejemplo: await fetch(N8N_WEBHOOK_URL, { method: 'POST', body: JSON.stringify({ idPartida, ...datos }) });
-            }
+            await fetch(N8N_WEBHOOK_URL, { method: 'POST', body: evento.id });
 
             // 15. Devolver respuesta al frontend
             return res.json({
