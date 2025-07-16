@@ -24,7 +24,6 @@ export default function ReservaConfirmar() {
     // Estado para almacenar los datos de la reserva confirmada
     const [reservaData, setReservaData] = useState(null)
     const navigate = useNavigate()
-
     useEffect(() => {
         // Solo inicializar los datos una vez
         if (!datosInicializados) {
@@ -36,7 +35,53 @@ export default function ReservaConfirmar() {
 
                     // Inicializa los valores del formulario solo una vez
                     if (partidaData.nombre) setNombre(partidaData.nombre);
-                    if (partidaData.numero) setNumero(partidaData.numero);
+
+                    // Procesar el número de teléfono para separar prefijo si existe
+                    if (partidaData.numero) {
+                        const numStr = partidaData.numero.toString();
+                        // Si el número comienza con algún prefijo conocido
+                        if (numStr.startsWith("34")) {
+                            setCodigoPais("34");
+                            setNumero(numStr.substring(2));
+                        } else if (numStr.startsWith("54")) {
+                            setCodigoPais("54");
+                            setNumero(numStr.substring(2));
+                        } else if (numStr.startsWith("1")) {
+                            setCodigoPais("1");
+                            setNumero(numStr.substring(1));
+                        } else if (numStr.startsWith("44")) {
+                            setCodigoPais("44");
+                            setNumero(numStr.substring(2));
+                        } else if (numStr.startsWith("49")) {
+                            setCodigoPais("49");
+                            setNumero(numStr.substring(2));
+                        } else if (numStr.startsWith("33")) {
+                            setCodigoPais("33");
+                            setNumero(numStr.substring(2));
+                        } else if (numStr.startsWith("351")) {
+                            setCodigoPais("351");
+                            setNumero(numStr.substring(3));
+                        } else if (numStr.startsWith("52")) {
+                            setCodigoPais("52");
+                            setNumero(numStr.substring(2));
+                        } else if (numStr.startsWith("55")) {
+                            setCodigoPais("55");
+                            setNumero(numStr.substring(2));
+                        } else if (numStr.startsWith("56")) {
+                            setCodigoPais("56");
+                            setNumero(numStr.substring(2));
+                        } else if (numStr.startsWith("57")) {
+                            setCodigoPais("57");
+                            setNumero(numStr.substring(2));
+                        } else if (numStr.startsWith("58")) {
+                            setCodigoPais("58");
+                            setNumero(numStr.substring(2));
+                        } else {
+                            // Si no hay prefijo reconocido, establecer el número completo
+                            setNumero(numStr);
+                        }
+                    }
+
                     if (partidaData.nivel) setNivel(partidaData.nivel);
                     if (partidaData.jugadores_faltan) setJugadoresFaltan(partidaData.jugadores_faltan);
                 }
