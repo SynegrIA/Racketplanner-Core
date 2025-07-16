@@ -1,7 +1,7 @@
 import { validateInvitacion } from '../../schemas/invitacion.js';
 import { shortenUrl } from '../services/acortarURL.js';
 import { enviarMensajeWhatsApp } from '../services/builderBot.js';
-import { DOMINIO_FRONTEND } from '../../config/config.js';
+import { DOMINIO_FRONTEND, NODE_ENV } from '../../config/config.js';
 
 export class InvitacionesController {
     static async testing(req, res) {
@@ -36,7 +36,8 @@ export class InvitacionesController {
                 `&action=new`;
 
             // 3. Acortar la URL usando el servicio existente
-            const urlCorta = await shortenUrl(urlLarga);
+            let urlCorta;
+            if (NODE_ENV == 'production') { urlCorta = await shortenUrl(urlLarga) } else { urlCorta = urlLarga }
 
             // 4. Formatear la fecha para mostrar en el mensaje
             let fechaObj;
