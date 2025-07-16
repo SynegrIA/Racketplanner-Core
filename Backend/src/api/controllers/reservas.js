@@ -4,6 +4,7 @@ import { enviarMensajeWhatsApp } from '../../api/services/builderBot.js'
 import { shortenUrl } from '../../api/services/acortarURL.js' // No se usa por el momento, no permite acortar rutas de "Localhost"
 import { DOMINIO_FRONTEND } from '../../config/config.js'
 import { ReservasModel } from '../../models/reservas.js'
+import { JugadoresModel } from '../../models/jugadores.js'
 
 export class ReservasController {
 
@@ -600,6 +601,26 @@ Jugador 4: ${jugador4}
                 });
             }
 
+            // Si es una unión de tipo "new" (con número de teléfono), verificar si el usuario está registrado
+            if (tipoUnion === "new" && numeroInvitado) {
+                try {
+                    // Verificar si el usuario está registrado en el sistema
+                    const usuarioExiste = await JugadoresModel.getJugador(numeroInvitado)
+                    if (!usuarioExiste) {
+                        return res.status(401).json({
+                            status: "unauthorized",
+                            message: "Necesitas estar registrado en el sistema para unirte a una partida."
+                        });
+                    }
+                } catch (error) {
+                    console.error("Error al verificar si el usuario existe:", error);
+                    return res.status(401).json({
+                        status: "unauthorized",
+                        message: "Necesitas estar registrado en el sistema para unirte a una partida."
+                    });
+                }
+            }
+
             // Obtener detalles de la reserva desde Google Calendar
             let evento;
             try {
@@ -648,8 +669,10 @@ Jugador 4: ${jugador4}
                 await enviarMensajeWhatsApp("¡Te has unido a la partida exitosamente!", numeroInvitado);
             }
 
+            const telefono = numeroOrganizador || infoMap['Teléfono'];
+
             // Notificar al organizador
-            if (numeroOrganizador) {
+            if (telefono) {
                 // Formatear fecha y hora para mejor legibilidad
                 const fechaEvento = new Date(evento.start.dateTime);
                 const fechaFormateada = fechaEvento.toLocaleDateString('es-ES', {
@@ -689,7 +712,7 @@ Jugador 4: ${jugador4}
                         `⚠️ Aún faltan ${jugadoresFaltantesActualizados} jugador(es)\n` :
                         `✅ ¡Partida completa!\n`);
 
-                await enviarMensajeWhatsApp(mensajeOrganizador, numeroOrganizador);
+                await enviarMensajeWhatsApp(mensajeOrganizador, telefono);
             }
 
             return res.json({

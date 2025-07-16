@@ -2,6 +2,30 @@ import { supabase } from '../api/services/supabase.js'
 
 export class JugadoresModel {
 
+    static async getJugador(telefono) {
+        try {
+            // Limpieza básica del número de teléfono para garantizar formato consistente
+            const telefonoNormalizado = telefono.trim().replace(/\s+/g, '');
+
+            const { data, error } = await supabase
+                .from('Jugadores')
+                .select('id')
+                .eq('Teléfono', telefonoNormalizado)
+                .limit(1);
+
+            if (error) {
+                console.error('Error al verificar si existe el jugador:', error);
+                throw error;
+            }
+
+            // Si hay datos y al menos un registro, el usuario existe
+            return data && data.length > 0;
+        } catch (error) {
+            console.error('Error al verificar si existe el jugador:', error);
+            throw error;
+        }
+    }
+
     static async updatePreferences(telefono, preferences) {
         try {
             const { data, error } = await supabase

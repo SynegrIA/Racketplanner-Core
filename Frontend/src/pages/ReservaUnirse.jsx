@@ -49,6 +49,10 @@ export default function ReservaUnirse() {
                     throw new Error("Error al obtener detalles de la partida");
                 }
 
+                if (response.status == 401) {
+                    throw new Error("Para unirse a una partida debe estar registrado en el sistema")
+                }
+
                 const data = await response.json();
 
                 if (data.status === "success") {
