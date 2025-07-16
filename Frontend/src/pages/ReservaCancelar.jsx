@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { DOMINIO_BACKEND } from "../config/config.js";
 
 export default function CancelarReserva() {
@@ -11,6 +11,7 @@ export default function CancelarReserva() {
     const [confirmando, setConfirmando] = useState(false);
     const [cancelando, setCancelando] = useState(false);
     const [motivoCancelacion, setMotivoCancelacion] = useState("");
+    const navigate = useNavigate();
 
     // Obtener los parámetros de la URL
     const eventId = searchParams.get("eventId");
@@ -110,7 +111,7 @@ export default function CancelarReserva() {
                                 <div className="display-1 mb-4">❌</div>
                                 <h3 className="text-danger mb-3">Error</h3>
                                 <p className="lead">{error}</p>
-                                <button onClick={() => window.close()} className="btn btn-primary mt-3">
+                                <button onClick={() => navigate("/")} className="btn btn-primary mt-3">
                                     Cerrar
                                 </button>
                             </div>
@@ -133,7 +134,7 @@ export default function CancelarReserva() {
                                 <h3 className="text-success mb-3">Reserva Cancelada</h3>
                                 <p className="lead">{mensaje}</p>
                                 <p>Se ha enviado una confirmación a tu número de WhatsApp.</p>
-                                <button onClick={() => window.close()} className="btn btn-primary mt-3">
+                                <button onClick={() => navigate("/")} className="btn btn-primary mt-3">
                                     Cerrar
                                 </button>
                             </div>
@@ -155,7 +156,7 @@ export default function CancelarReserva() {
                                 <div className="display-1 mb-4">⚠️</div>
                                 <h3 className="text-warning mb-3">Información no disponible</h3>
                                 <p className="lead">No se encontraron datos de la reserva.</p>
-                                <button onClick={() => window.close()} className="btn btn-primary mt-3">
+                                <button onClick={() => navigate("/")} className="btn btn-primary mt-3">
                                     Cerrar
                                 </button>
                             </div>

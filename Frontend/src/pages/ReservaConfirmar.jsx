@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { useSearchParams } from "react-router-dom"
+import { useSearchParams, useNavigate } from "react-router-dom"
 import { DOMINIO_BACKEND } from "../config/config.js";
 
 export default function ReservaConfirmar() {
@@ -22,6 +22,7 @@ export default function ReservaConfirmar() {
     const [reservaConfirmada, setReservaConfirmada] = useState(false)
     // Estado para almacenar los datos de la reserva confirmada
     const [reservaData, setReservaData] = useState(null)
+    const navigate = useNavigate()
 
     useEffect(() => {
         // Solo inicializar los datos una vez
@@ -117,7 +118,7 @@ export default function ReservaConfirmar() {
                                 <div className="display-1 mb-4">⚠️</div>
                                 <h3 className="text-warning mb-3">Información no disponible</h3>
                                 <p className="lead">No se han recibido datos de la partida.</p>
-                                <button onClick={() => window.close()} className="btn btn-primary mt-3">
+                                <button onClick={() => navigate("/")} className="btn btn-primary mt-3">
                                     Cerrar
                                 </button>
                             </div>
@@ -150,7 +151,7 @@ export default function ReservaConfirmar() {
                                 <div className="alert alert-info mb-4">
                                     <p className="mb-0">Se ha enviado una confirmación a tu número de WhatsApp.</p>
                                 </div>
-                                <button onClick={() => window.close()} className="btn btn-primary mt-3">
+                                <button onClick={() => navigate("/")} className="btn btn-primary mt-3">
                                     Cerrar
                                 </button>
                             </div>
