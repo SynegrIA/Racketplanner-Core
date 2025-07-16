@@ -3,6 +3,10 @@ import { JugadoresModel } from "../../models/jugadores.js";
 
 export class JugadoresController {
 
+    static async registrarJugador(req, res) {
+
+    }
+
     static async modificarPreferenciasJugador(req, res) {
         const { telefono, notificaciones, frecuenciaSemanal, preferenciaHoraria } = req.body;
 
