@@ -5,6 +5,7 @@ import jugadoresRouter from './src/api/routes/jugadores.js';
 import invitacionesRouter from './src/api/routes/invitaciones.js';
 import pagosRouter from './src/api/routes/pagos.js';
 import utilsRouter from './src/api/routes/utils.js';
+import { DOMINIO_FRONTEND } from './src/config/config.js';
 
 const app = express();
 app.disable("x-powered-by")
@@ -12,7 +13,9 @@ app.disable("x-powered-by")
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+    origin: DOMINIO_FRONTEND
+}));
 
 // Rutas
 app.use("/jugadores", jugadoresRouter);
