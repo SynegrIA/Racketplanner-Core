@@ -23,6 +23,7 @@ export default function ReservaConfirmar() {
     const [reservaConfirmada, setReservaConfirmada] = useState(false)
     // Estado para almacenar los datos de la reserva confirmada
     const [reservaData, setReservaData] = useState(null)
+    const [needsRegistration, setNeedsRegistration] = useState(false)
     const navigate = useNavigate()
     useEffect(() => {
         // Solo inicializar los datos una vez
@@ -149,6 +150,25 @@ export default function ReservaConfirmar() {
                 setReservaConfirmada(true)
                 setMensaje("¡Tu reserva ha sido confirmada! Hemos enviado los detalles a tu WhatsApp.")
                 setReservaData(data.data) // Guardar los datos de la reserva confirmada
+            } else if (data.status === "error" && data.message.includes("estar registrado")) {
+                // Detectar específicamente el error de usuario no registrado
+                setMensaje("Para reservar pistas debes estar registrado en el sistema.")
+                setTipoMensaje("warning")
+
+                // Guardar los datos del intento de reserva en localStorage para recuperarlos después
+                localStorage.setItem("reservaPendiente", JSON.stringify({
+                    pista: partida?.pista,
+                    inicio: partida?.inicio,
+                    fin,
+                    nombre,
+                    numero: numeroCompleto,
+                    partida: tipoPartida,
+                    nivel,
+                    jugadores_faltan: jugadoresFaltan
+                }))
+
+                // Establecer estado para mostrar botón de registro
+                setNeedsRegistration(true)
             } else {
                 setMensaje(`Error: ${data.message}`)
                 setTipoMensaje("danger")
@@ -329,6 +349,21 @@ export default function ReservaConfirmar() {
 
                                 {mensaje && tipoMensaje === "danger" && (
                                     <div className={`alert alert-${tipoMensaje} mb-3`}>{mensaje}</div>
+                                )}
+
+                                {mensaje && tipoMensaje === "warning" && needsRegistration && (
+                                    <div className="alert alert-warning mb-3">
+                                        <p>{mensaje}</p>
+                                        <div className="d-flex justify-content-center">
+                                            <button
+                                                type="button"
+                                                className="btn btn-outline-primary mt-2"
+                                                onClick={() => navigate("/signup")}
+                                            >
+                                                Ir a la página de registro
+                                            </button>
+                                        </div>
+                                    </div>
                                 )}
 
                                 <button className="btn btn-success w-100" disabled={enviando}>

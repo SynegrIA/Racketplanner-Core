@@ -10,6 +10,8 @@ export default function ReservaUnirse() {
     const [mensaje, setMensaje] = useState("");
     const [confirmando, setConfirmando] = useState(false);
     const [enviando, setEnviando] = useState(false);
+    // Nuevo estado para controlar si el usuario necesita registrarse
+    const [needsRegistration, setNeedsRegistration] = useState(false);
     const navigate = useNavigate();
 
     // Datos del formulario
@@ -105,6 +107,24 @@ export default function ReservaUnirse() {
             if (data.status === "success") {
                 setMensaje(data.message || "Te has unido a la partida exitosamente.");
                 setConfirmando(false);
+            } else if (data.status === "unauthorized") {
+                // Detectar específicamente el error de usuario no registrado
+                setError("Para unirte a una partida debes estar registrado en el sistema.");
+
+                // Guardar los datos del intento de unión en localStorage para recuperarlos después
+                localStorage.setItem("unionPendiente", JSON.stringify({
+                    eventId,
+                    calendarId,
+                    nombreInvitado,
+                    numeroInvitado: numeroCompleto,
+                    organizador,
+                    numeroOrganizador,
+                    tipoUnion
+                }));
+
+                // Establecer estado para mostrar botón de registro
+                setNeedsRegistration(true);
+                setConfirmando(false);
             } else {
                 throw new Error(data.message || "Ocurrió un error al unirte a la partida.");
             }
@@ -133,7 +153,7 @@ export default function ReservaUnirse() {
         );
     }
 
-    // Renderizar mensaje de error
+    // Renderizar mensaje de error con opción de registro si es necesario
     if (error) {
         return (
             <div className="container min-vh-100 d-flex align-items-center">
@@ -144,6 +164,18 @@ export default function ReservaUnirse() {
                                 <div className="display-1 mb-4">❌</div>
                                 <h3 className="text-danger mb-3">Error</h3>
                                 <p className="lead">{error}</p>
+
+                                {needsRegistration ? (
+                                    <div className="alert alert-warning mb-3">
+                                        <button
+                                            onClick={() => navigate('/signup')}
+                                            className="btn btn-outline-primary mt-2"
+                                        >
+                                            Ir a la página de registro
+                                        </button>
+                                    </div>
+                                ) : null}
+
                                 <button onClick={() => navigate('/home')} className="btn btn-primary mt-3">
                                     Cerrar
                                 </button>
