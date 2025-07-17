@@ -86,21 +86,35 @@ export default function ReservaUnirse() {
         try {
             const numeroCompleto = `${codigoPais}${numeroInvitado}`;
 
-            const response = await fetch(`${DOMINIO_BACKEND}/reservas/unirse`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    eventId,
-                    calendarId,
-                    nombreInvitado,
-                    numeroInvitado: numeroCompleto,
-                    organizador,
-                    numeroOrganizador,
-                    tipoUnion
-                })
-            });
+            // Intentar hacer la solicitud al backend
+            let response;
+            try {
+                response = await fetch(`${DOMINIO_BACKEND}/reservas/unirse`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        eventId,
+                        calendarId,
+                        nombreInvitado,
+                        numeroInvitado: numeroCompleto,
+                        organizador,
+                        numeroOrganizador,
+                        tipoUnion
+                    })
+                });
+            } catch (networkError) {
+                // Error específico para problemas de red (incluidos CORS)
+                console.error("Error de red al conectar con el servidor:", networkError);
+                setError("Error de conexión: No se pudo conectar con el servidor. Si es la primera vez que usas la aplicación, debes registrarte primero.");
+
+                // Establecer estado para mostrar botón de registro
+                setNeedsRegistration(true);
+                setConfirmando(false);
+                setEnviando(false);
+                return;
+            }
 
             const data = await response.json();
 
