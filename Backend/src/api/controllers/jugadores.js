@@ -47,7 +47,7 @@ export class JugadoresController {
             if (resultado.success) {
                 // 5. Enviar mensaje de confirmación por WhatsApp
                 await enviarMensajeWhatsApp(
-                    `¡Hola ${nombre}! Te has registrado correctamente en Picketball Planner. Pronto recibirás notificaciones sobre partidas disponibles.`,
+                    `¡Hola ${nombre}! Te has registrado correctamente en Picketball Planner. Pronto recibirás notificaciones sobre partidas disponibles.\n\nSi has recibido este mensaje por error y quieres que eliminemos tus datos házmelo saber y borraré tu número del sistema.`,
                     telefono
                 );
 

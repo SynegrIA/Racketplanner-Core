@@ -13,6 +13,22 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+@keyframes pulse {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+
+  50% {
+    transform: scale(1.1);
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
 .navbar-brand span {
   color: #333;
   transition: color 0.2s ease;
