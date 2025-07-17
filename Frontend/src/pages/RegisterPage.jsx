@@ -11,11 +11,12 @@ export default function RegisterPage() {
     const [nombre, setNombre] = useState("");
     const [codigoPais, setCodigoPais] = useState("34"); // Por defecto España
     const [numero, setNumero] = useState("");
+    const [nivel, setNivel] = useState(1)
     const [notificacionesActivas, setNotificacionesActivas] = useState(true);
     const [frecuenciaSemanal, setFrecuenciaSemanal] = useState(3);
     const [preferencias, setPreferencias] = useState({
         mañana: false,
-        tarde: true,
+        tarde: false,
         noche: false
     });
 
@@ -28,7 +29,7 @@ export default function RegisterPage() {
     const ajustarFrecuencia = (incremento) => {
         setFrecuenciaSemanal(prev => {
             const nuevoValor = prev + incremento;
-            if (nuevoValor < 0) return 0;
+            if (nuevoValor < 1) return 1;
             if (nuevoValor > 10) return 10;
             return nuevoValor;
         });
@@ -71,6 +72,7 @@ export default function RegisterPage() {
             const datosRegistro = {
                 nombre,
                 telefono: `${codigoPais}${numero}`,
+                nivel,
                 notificaciones: notificacionesActivas,
                 frecuenciaSemanal: notificacionesActivas ? frecuenciaSemanal : 0,
                 preferencias: notificacionesActivas ? preferencias : { mañana: false, tarde: false, noche: false }
@@ -129,7 +131,7 @@ export default function RegisterPage() {
                             }}>
                             <h2 className="mb-0 fw-bold">
                                 <i className="bi bi-person-plus-fill me-2"></i>
-                                Registro de Usuario
+                                Registro de jugador
                             </h2>
                         </div>
 
@@ -200,12 +202,32 @@ export default function RegisterPage() {
                                     <div className="form-text">Recibirás confirmaciones por WhatsApp</div>
                                 </div>
 
+                                {/* Selector de Nivel - NUEVO */}
+                                <div className="mb-4">
+                                    <label htmlFor="nivel" className="form-label fw-medium">
+                                        <i className="bi bi-bar-chart me-2"></i>
+                                        Nivel de juego
+                                    </label>
+                                    <select
+                                        className="form-select"
+                                        id="nivel"
+                                        value={nivel}
+                                        onChange={(e) => setNivel(parseInt(e.target.value))}
+                                        required
+                                    >
+                                        <option value="1">Nivel 1 - Principiante</option>
+                                        <option value="2">Nivel 2 - Intermedio</option>
+                                        <option value="3">Nivel 3 - Avanzado</option>
+                                    </select>
+                                    <div className="form-text">Selecciona tu nivel actual de juego</div>
+                                </div>
+
                                 {/* Activar/desactivar notificaciones */}
                                 <div className="mb-4">
                                     <div className="d-flex justify-content-between align-items-center">
                                         <label htmlFor="notificaciones" className="form-label fw-medium mb-0">
                                             <i className="bi bi-bell me-2"></i>
-                                            Recibir notificaciones
+                                            Notificaciones (invitaciones partidas abiertas)
                                         </label>
                                         <div className="form-check form-switch">
                                             <input
