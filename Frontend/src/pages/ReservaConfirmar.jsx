@@ -118,6 +118,12 @@ export default function ReservaConfirmar() {
         const finDate = new Date(inicioDate.getTime() + 90 * 60000) // 90 minutos en ms
         const fin = finDate.toISOString()
 
+        // Determinar el tipo de partida basado en jugadores faltantes
+        let tipoPartida = partida?.partida || "abierta";
+        if (jugadoresFaltan === "0") {
+            tipoPartida = "completa";
+        }
+
         try {
             // Enviamos los datos al backend
             const response = await fetch(`${DOMINIO_BACKEND}/reservas/confirmar`, {
@@ -131,7 +137,7 @@ export default function ReservaConfirmar() {
                     fin,
                     nombre,
                     numero: numeroCompleto,
-                    partida: partida?.partida,
+                    partida: tipoPartida,
                     nivel,
                     jugadores_faltan: jugadoresFaltan
                 })
