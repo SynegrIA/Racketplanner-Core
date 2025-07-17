@@ -79,8 +79,8 @@ export default function RegisterPage() {
             };
 
             // Ejemplo de llamada al backend (descomenta y ajusta según tu API)
-            /*
-            const response = await fetch(`${DOMINIO_BACKEND}/usuarios/registro`, {
+
+            const response = await fetch(`${DOMINIO_BACKEND}/jugadores/new`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -98,7 +98,7 @@ export default function RegisterPage() {
             } else {
                 throw new Error(data.message || "Error en el registro");
             }
-            */
+
 
             // Simulación de éxito (elimina esto cuando implementes la API real)
             console.log("Datos de registro:", datosRegistro);
