@@ -33,8 +33,11 @@ export default function Header() {
                 left: 50%;
                 transform: translateX(-50%);
             }
-            .btn-text {
+            .btn-text-full {
                 display: inline;
+            }
+            .btn-text-short {
+                display: none;
             }
         }
         
@@ -45,8 +48,11 @@ export default function Header() {
             .btn-registro {
                 padding: 6px 8px !important;
             }
-            .btn-text {
+            .btn-text-full {
                 display: none;
+            }
+            .btn-text-short {
+                display: inline;
             }
         }
     `;
@@ -72,7 +78,7 @@ export default function Header() {
                         <span className="fw-bold fs-5">RacketPlanner</span>
                     </Link>
 
-                    {/* Botón de registro a la derecha - versión completa en desktop, solo icono en móvil */}
+                    {/* Botón de registro a la derecha */}
                     <div className="ms-auto">
                         <Link
                             to="/signup"
@@ -84,8 +90,9 @@ export default function Header() {
                                 padding: '6px 10px'
                             }}
                         >
-                            <i className="bi bi-person-plus"></i>
-                            <span className="btn-text ms-1">Registrar jugador</span>
+                            <i className="bi bi-person-plus me-1"></i>
+                            <span className="btn-text-short">Registrarse</span>
+                            <span className="btn-text-full">Registrar jugador</span>
                         </Link>
                     </div>
                 </div>
