@@ -27,7 +27,7 @@ export class JugadoresController {
             updateData['Máximo de invitaciones semanales'] = frecuenciaSemanal;
         }
         if (preferenciaHoraria) {
-            updateData['Horario preferencia'] = preferenciaHoraria;
+            updateData['Horario Preferencia'] = preferenciaHoraria;
         }
 
         // Si no se proporciona ningún dato para actualizar, no hacemos nada.
