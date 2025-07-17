@@ -99,12 +99,6 @@ export default function RegisterPage() {
                 throw new Error(data.message || "Error en el registro");
             }
 
-
-            // Simulación de éxito (elimina esto cuando implementes la API real)
-            console.log("Datos de registro:", datosRegistro);
-            setMensaje("¡Registro simulado completado con éxito!");
-            setTipoMensaje("success");
-
         } catch (err) {
             console.error("Error en el registro:", err);
             setMensaje(err.message || "Error en el proceso de registro");

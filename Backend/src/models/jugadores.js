@@ -26,6 +26,25 @@ export class JugadoresModel {
         }
     }
 
+    static async create(jugadorData) {
+        try {
+            const { data, error } = await supabase
+                .from('Jugadores')
+                .insert([jugadorData])
+                .select();
+
+            if (error) {
+                console.error('Error al crear jugador:', error);
+                return { success: false, error: error.message };
+            }
+
+            return { success: true, data: data[0] };
+        } catch (error) {
+            console.error('Error al crear jugador:', error);
+            return { success: false, error: error.message };
+        }
+    }
+
     static async updatePreferences(telefono, preferences) {
         try {
             const { data, error } = await supabase

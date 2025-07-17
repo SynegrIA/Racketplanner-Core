@@ -4,7 +4,75 @@ import { JugadoresModel } from "../../models/jugadores.js";
 export class JugadoresController {
 
     static async registrarJugador(req, res) {
+        const { nombre, telefono, nivel, notificaciones, frecuenciaSemanal, preferencias } = req.body;
 
+        // 1. Validación de datos de entrada
+        if (!nombre || !telefono || nivel === undefined) {
+            return res.status(400).json({
+                success: false,
+                message: 'Faltan campos obligatorios: nombre, teléfono y nivel son requeridos'
+            });
+        }
+
+        try {
+            // 2. Verificar si el jugador ya existe
+            const jugadorExistente = await JugadoresModel.getJugador(telefono);
+
+            if (jugadorExistente) {
+                return res.status(409).json({
+                    success: false,
+                    message: 'Ya existe un jugador registrado con este número de teléfono'
+                });
+            }
+
+            // 3. Preparar datos para la base de datos
+            const horarioPreferencias = [];
+            if (notificaciones && preferencias) {
+                if (preferencias.mañana) horarioPreferencias.push("mañana");
+                if (preferencias.tarde) horarioPreferencias.push("tarde");
+                if (preferencias.noche) horarioPreferencias.push("noche");
+            }
+            const datosJugador = {
+                'Nombre Real': nombre,
+                'Teléfono': telefono,
+                'Nivel': nivel,
+                'Notificaciones': notificaciones !== undefined ? notificaciones : true,
+                'Máximo de invitaciones semanales': notificaciones ? frecuenciaSemanal || 3 : 0,
+                'Horario Preferencia': horarioPreferencias
+            };
+
+            // 4. Crear el jugador en la base de datos
+            const resultado = await JugadoresModel.create(datosJugador);
+
+            if (resultado.success) {
+                // 5. Enviar mensaje de confirmación por WhatsApp
+                await enviarMensajeWhatsApp(
+                    `¡Hola ${nombre}! Te has registrado correctamente en Picketball Planner. Pronto recibirás notificaciones sobre partidas disponibles.`,
+                    telefono
+                );
+
+                return res.status(201).json({
+                    status: "success",
+                    message: 'Jugador registrado correctamente',
+                    data: resultado.data
+                });
+            } else {
+                return res.status(500).json({
+                    success: false,
+                    message: 'Error al registrar el jugador',
+                    error: resultado.error
+                });
+            }
+
+        } catch (error) {
+            console.error('Error en el registro de jugador:', error);
+
+            return res.status(500).json({
+                success: false,
+                message: 'Error del servidor',
+                error: error.message
+            });
+        }
     }
 
     static async modificarPreferenciasJugador(req, res) {
