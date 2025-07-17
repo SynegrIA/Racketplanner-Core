@@ -352,8 +352,8 @@ export default function ReservaConfirmar() {
                                 )}
 
                                 {mensaje && tipoMensaje === "warning" && needsRegistration && (
-                                    <div className="alert alert-warning mb-3">
-                                        <p className="justify-content-center">{mensaje}</p>
+                                    <div className="alert alert-warning mb-3 text-center">
+                                        <p>{mensaje}</p>
                                         <div className="d-flex justify-content-center">
                                             <button
                                                 type="button"
