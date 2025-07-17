@@ -24,7 +24,9 @@ export default function ReservaUnirse() {
     // Obtener parámetros de la URL
     const eventId = searchParams.get("eventId");
     const organizador = searchParams.get("nombre");
+    const invitado = searchParams.get("nombreinvitado")
     const numeroOrganizador = searchParams.get("numero");
+    const invitadoNumero = searchParams.get("numeroinvitado")
     const calendarId = searchParams.get("calendarId");
 
     // Modificar la función cargarDetallesPartida dentro del useEffect
@@ -41,6 +43,31 @@ export default function ReservaUnirse() {
                 setError("Falta el identificador del calendario.");
                 setCargando(false);
                 return;
+            }
+
+            if (invitado) {
+                setNombreInvitado(invitado);
+
+                // Procesamiento del número de teléfono para separar prefijo y número
+                if (invitadoNumero) {
+                    // Prefijos comunes ordenados por longitud (de más largo a más corto)
+                    const prefijosPaises = ["351", "44", "34", "54", "49", "33", "52", "55", "56", "57", "58", "1"];
+                    let prefijo = "34"; // Por defecto España
+                    let numero = invitadoNumero;
+
+                    // Intentar detectar el prefijo
+                    for (const posiblePrefijo of prefijosPaises) {
+                        if (invitadoNumero.startsWith(posiblePrefijo)) {
+                            prefijo = posiblePrefijo;
+                            numero = invitadoNumero.substring(posiblePrefijo.length);
+                            break;
+                        }
+                    }
+
+                    // Actualizar estados
+                    setCodigoPais(prefijo);
+                    setNumeroInvitado(numero);
+                }
             }
 
             try {

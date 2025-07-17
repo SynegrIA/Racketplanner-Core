@@ -2,6 +2,7 @@ import { validateInvitacion } from '../../schemas/invitacion.js';
 import { shortenUrl } from '../services/acortarURL.js';
 import { enviarMensajeWhatsApp } from '../services/builderBot.js';
 import { DOMINIO_FRONTEND, NODE_ENV } from '../../config/config.js';
+import { GoogleCalendarService } from '../services/googleCalendar.js'; // Importar el servicio
 
 export class InvitacionesController {
     static async testing(req, res) {
@@ -27,11 +28,13 @@ export class InvitacionesController {
 
             const data = validacion.data;
 
-            // 2. Generar URL de invitación
+            // 2. Generar URL de invitación con los datos correctos
             const urlLarga = `${DOMINIO_FRONTEND}/unir-jugador-reserva` +
                 `?eventId=${encodeURIComponent(data.eventId)}` +
-                `&nombre=${encodeURIComponent(data.nombre)}` +
-                `&numero=${encodeURIComponent(data.numero)}` +
+                `&nombre=${encodeURIComponent(data.jugadorCrea)}` +
+                `&nombreinvitado=${encodeURIComponent(data.nombre)}` +
+                `&numero=${encodeURIComponent(data.jugadorCreaNumero || '')}` +
+                `&numeroinvitado=${encodeURIComponent(data.numero || '')}` +
                 `&calendarId=${encodeURIComponent(data.calendarId)}` +
                 `&action=new`;
 
