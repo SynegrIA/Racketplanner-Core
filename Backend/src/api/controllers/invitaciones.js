@@ -2,7 +2,8 @@ import { validateInvitacion } from '../../schemas/invitacion.js';
 import { shortenUrl } from '../services/acortarURL.js';
 import { enviarMensajeWhatsApp } from '../services/builderBot.js';
 import { DOMINIO_FRONTEND, NODE_ENV } from '../../config/config.js';
-import { GoogleCalendarService } from '../services/googleCalendar.js'; // Importar el servicio
+import { InvitacionesModel } from '../../models/invitaciones.js';
+import { GoogleCalendarService } from '../services/googleCalendar.js';
 
 export class InvitacionesController {
     static async testing(req, res) {
@@ -74,10 +75,19 @@ export class InvitacionesController {
                 `👉 ${urlCorta} \r\r` +
                 `¡Te esperamos!`;
 
-            // 6. Enviar mensaje usando el servicio de WhatsApp existente
+            // 6. Guardar la invitación en la base de datos
+            await InvitacionesModel.create({
+                partidaId: data.partidaId,
+                nombre: data.nombre,
+                fecha: fechaObj.toISOString().split('T')[0], // Formato YYYY-MM-DD
+                numero: data.numero,
+                clubId: req.body.clubId // Si existe un club_id en la solicitud
+            });
+
+            // 7. Enviar mensaje usando el servicio de WhatsApp existente
             await enviarMensajeWhatsApp(mensaje, data.numero);
 
-            // 7. Devolver respuesta exitosa
+            // 8. Devolver respuesta exitosa
             return res.status(200).json({
                 success: true,
                 message: `Invitación enviada a ${data.nombre} (${data.numero}).`
