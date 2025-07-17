@@ -5,13 +5,11 @@ import { useTheme } from '../context/ThemeContext.jsx';
 export default function Header() {
     const { currentTheme } = useTheme();
 
-    // Estilos para el hover y posicionamiento
+    // Estilos para el hover y posicionamiento con responsive
     const styleTag = `
         .navbar-brand-custom {
             text-decoration: none;
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
+            transition: all 0.3s ease;
         }
         .navbar-brand-custom span {
             color: #333;
@@ -27,6 +25,30 @@ export default function Header() {
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
+        
+        /* Estilos responsive */
+        @media (min-width: 768px) {
+            .navbar-brand-custom {
+                position: absolute;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+            .btn-text {
+                display: inline;
+            }
+        }
+        
+        @media (max-width: 767px) {
+            .navbar-container {
+                justify-content: space-between !important;
+            }
+            .btn-registro {
+                padding: 6px 8px !important;
+            }
+            .btn-text {
+                display: none;
+            }
+        }
     `;
 
     return (
@@ -38,9 +60,9 @@ export default function Header() {
                     borderBottom: `4px solid ${currentTheme.primaryColor}`
                 }}
             >
-                <div className="container position-relative" style={{ height: "60px" }}>
-                    {/* Logo centrado con posición absoluta */}
-                    <Link className="navbar-brand-custom d-flex align-items-center justify-content-center" to="/">
+                <div className="container navbar-container position-relative d-flex align-items-center" style={{ height: "60px" }}>
+                    {/* Logo - centrado en desktop, izquierda en móvil */}
+                    <Link className="navbar-brand-custom d-flex align-items-center" to="/">
                         <img
                             src="/RacketPlannerLogo.png"
                             alt="RacketPlanner Logo"
@@ -50,7 +72,7 @@ export default function Header() {
                         <span className="fw-bold fs-5">RacketPlanner</span>
                     </Link>
 
-                    {/* Botón de registro a la derecha */}
+                    {/* Botón de registro a la derecha - versión completa en desktop, solo icono en móvil */}
                     <div className="ms-auto">
                         <Link
                             to="/signup"
@@ -62,7 +84,8 @@ export default function Header() {
                                 padding: '6px 10px'
                             }}
                         >
-                            <i className="bi bi-person-plus me-1"></i> Registrar jugador
+                            <i className="bi bi-person-plus"></i>
+                            <span className="btn-text ms-1">Registrar jugador</span>
                         </Link>
                     </div>
                 </div>
