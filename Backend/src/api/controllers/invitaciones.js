@@ -42,9 +42,27 @@ export class InvitacionesController {
             // 3. Acortar la URL usando el servicio existente
             let urlCorta;
             if (NODE_ENV == 'production') { urlCorta = await shortenUrl(urlLarga) } else { urlCorta = urlLarga }
-            // 4. Formatear la fecha para mostrar en el mensaje
+
+            // 4. Obtener detalles completos del evento desde Google Calendar
             let fechaObj;
-            if (typeof data.fecha === 'string' && data.fecha.includes('/')) {
+
+            // Si tenemos eventId y calendarId, obtener la información precisa del evento
+            if (data.eventId && data.calendarId) {
+                try {
+                    const evento = await GoogleCalendarService.getEvent(data.calendarId, data.eventId);
+                    if (evento && evento.start && evento.start.dateTime) {
+                        // Usar la fecha y hora del evento de Google Calendar
+                        fechaObj = new Date(evento.start.dateTime);
+                    } else {
+                        // Fallback: parsear la fecha proporcionada
+                        fechaObj = new Date(data.fecha);
+                    }
+                } catch (error) {
+                    console.error("Error al obtener evento de Google Calendar:", error);
+                    // Fallback: parsear la fecha proporcionada
+                    fechaObj = new Date(data.fecha);
+                }
+            } else if (typeof data.fecha === 'string' && data.fecha.includes('/')) {
                 // Convertir fecha en formato DD/MM/YYYY HH:MM:SS
                 const [datePart, timePart] = data.fecha.split(' ');
                 const [day, month, year] = datePart.split('/');
