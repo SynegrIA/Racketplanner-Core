@@ -93,8 +93,8 @@ export default function RegisterConfirmPage() {
                                 <div className="display-1 mb-4">❌</div>
                                 <h3 className="text-danger mb-3">Error</h3>
                                 <p className="lead">{error}</p>
-                                <button onClick={() => navigate('/')} className="btn btn-primary mt-3">
-                                    Volver al inicio
+                                <button onClick={() => window.close()} className="btn btn-primary mt-3">
+                                    Cerrar
                                 </button>
                             </div>
                         </div>
@@ -116,8 +116,8 @@ export default function RegisterConfirmPage() {
                                 <h3 className="text-success mb-3">¡Registro Confirmado!</h3>
                                 <p className="lead">{mensaje}</p>
                                 <p>Ya puedes comenzar a recibir invitaciones para partidas según tus preferencias.</p>
-                                <button onClick={() => navigate('/')} className="btn btn-primary mt-3">
-                                    Ir al inicio
+                                <button onClick={() => window.close()} className="btn btn-primary mt-3">
+                                    Cerrar
                                 </button>
                             </div>
                         </div>

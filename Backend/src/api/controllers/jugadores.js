@@ -87,7 +87,7 @@ export class JugadoresController {
 
                 // 6. Enviar mensaje de confirmación por WhatsApp con la URL acortada
                 await enviarMensajeWhatsApp(
-                    `¡Hola ${nombre}! Tu número se ha registrado en Picketball Planner.\n\n🔵 Por favor, confirma tu registro haciendo clic en el siguiente enlace:\n${urlAcortada}\n\n⚠️ *IMPORTANTE*: Si no confirmas tu registro en los próximos 7 días, tus datos serán eliminados automáticamente del sistema.\n\nSi has recibido este mensaje por error o deseas eliminar tus datos, solo debes darme la orden y los eliminaré en un momento.`,
+                    `¡Hola ${nombre}! Tu número se ha registrado en Racket Planner.\n\n🔵 Por favor, confirma tu registro haciendo clic en el siguiente enlace:\n${urlAcortada}\n\n⚠️ *IMPORTANTE*: Si no confirmas tu registro en los próximos 7 días, tus datos serán eliminados automáticamente del sistema.\n\nSi has recibido este mensaje por error o deseas eliminar tus datos, solo debes darme la orden y los eliminaré en un momento.`,
                     telefono
                 );
 
