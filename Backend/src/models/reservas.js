@@ -185,4 +185,19 @@ export class ReservasModel {
         }
     }
 
+    static async getAllOpenReservas() {
+        try {
+            const { data, error } = await supabase
+                .from('Reservas')
+                .select('"ID Event", "calendarID"')
+                .eq('Estado', 'Abierta');
+
+            if (error) throw new Error(error.message);
+            return data;
+        } catch (error) {
+            console.error("Error al obtener reservas abiertas:", error);
+            throw error;
+        }
+    }
+
 }

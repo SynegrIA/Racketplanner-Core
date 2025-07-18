@@ -443,13 +443,14 @@ Jugador 4: ${jugador4}
             const mensajeInvitacion = `👉🏼 Si deseas invitar a un jugador, envía este mensaje a la persona: [Unirse a Partida](${urlInvitarCorta})`;
             await enviarMensajeWhatsApp(mensajeInvitacion, numero);
 
-            await fetch(N8N_WEBHOOK_URL, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ eventId: evento.id, calendarId: pistaConfig.id })
-            });
+            // Intentar cerrar la partida según se crea?
+            // await fetch(N8N_WEBHOOK_URL, {
+            //     method: 'POST',
+            //     headers: {
+            //         'Content-Type': 'application/json'
+            //     },
+            //     body: JSON.stringify({ eventId: evento.id, calendarId: pistaConfig.id })
+            // });
 
             // 15. Devolver respuesta al frontend
             return res.json({
