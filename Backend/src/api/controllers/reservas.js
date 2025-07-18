@@ -367,6 +367,7 @@ Jugador 4: ${jugador4}
                     "Nº Faltantes": parseInt(jugadores_faltan) || 0,
                     "Estado": estado,
                     "ID Event": evento.id,
+                    "calendarID": pistaConfig.id,
                     "Fecha Creación": new Date().toISOString(),
                     "Fecha Actualización": new Date().toISOString(),
                     "1º Contacto": numero,
