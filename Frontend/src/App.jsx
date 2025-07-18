@@ -9,6 +9,7 @@ import { ThemeProvider } from './context/ThemeContext.jsx';
 import Header from './components/header.jsx';
 import Footer from './components/footer.jsx';
 import RegisterPage from './pages/RegisterPage.jsx';
+import RegisterConfirmPage from './pages/RegisterConfirmPage.jsx';
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
               <Route path="/" element={<CalendarPage />} />
               <Route path="/home" element={<CalendarPage />} />
               <Route path='/signup' element={<RegisterPage />} />
+              <Route path='/confirmar-numero/:telefono' element={<RegisterConfirmPage />} />
               <Route path="/confirmar-reserva" element={<ReservaConfirmar />} />
               <Route path="/cancelar-reserva" element={<CancelarReserva />} />
               <Route path="/unir-jugador-reserva" element={<ReservaUnirse />} />

@@ -1,9 +1,12 @@
 import fetch from 'node-fetch'
+import { NODE_ENV } from '../../config/config.js'
 
 const TINYURL_API = 'https://tinyurl.com/api-create.php'
 
 export async function shortenUrl(longUrl) {
     if (!longUrl) throw new Error('No se proporcionó una URL para acortar.')
+
+    if (NODE_ENV == "development") { return longUrl }
 
     const urlPattern = /^(https?:\/\/)?([\w\-]+(\.[\w\-]+)+)([\w.,@?^=%&:/~+#\-]*[\w@?^=%&/~+#\-])?$/
     if (!urlPattern.test(longUrl)) throw new Error('La URL proporcionada no es válida.')
