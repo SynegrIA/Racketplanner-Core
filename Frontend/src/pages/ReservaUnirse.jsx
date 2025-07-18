@@ -115,6 +115,8 @@ export default function ReservaUnirse() {
 
             // Intentar hacer la solicitud al backend
             let response;
+            let responseData; // Variable para almacenar los datos de la respuesta
+
             try {
                 response = await fetch(`${DOMINIO_BACKEND}/reservas/unirse`, {
                     method: "POST",
@@ -131,6 +133,15 @@ export default function ReservaUnirse() {
                         tipoUnion
                     })
                 });
+
+                // Leer el cuerpo de la respuesta UNA SOLA VEZ
+                responseData = await response.json();
+
+                // Actualizar el nombre si está disponible en la respuesta
+                if (responseData.nombre) {
+                    setNombreInvitado(responseData.nombre);
+                }
+
             } catch (networkError) {
                 // Error específico para problemas de red (incluidos CORS)
                 console.error("Error de red al conectar con el servidor:", networkError);
@@ -143,16 +154,15 @@ export default function ReservaUnirse() {
                 return;
             }
 
-            const data = await response.json();
-
-            if (data.status === "success") {
-                setMensaje(data.message || "Te has unido a la partida exitosamente.");
+            // Usar los datos ya leídos en lugar de volver a llamar a response.json()
+            if (responseData.status === "success") {
+                setMensaje(responseData.message || "Te has unido a la partida exitosamente.");
                 setConfirmando(false);
-            } else if (data.status === "unauthorized") {
+            } else if (responseData.status === "unauthorized") {
                 // Detectar específicamente el error de usuario no registrado
                 setError("Para unirte a una partida debes estar registrado en el sistema.");
 
-                // Guardar los datos del intento de unión en localStorage para recuperarlos después
+                // Guardar los datos del intento de unión en localStorage
                 localStorage.setItem("unionPendiente", JSON.stringify({
                     eventId,
                     calendarId,
@@ -167,7 +177,7 @@ export default function ReservaUnirse() {
                 setNeedsRegistration(true);
                 setConfirmando(false);
             } else {
-                throw new Error(data.message || "Ocurrió un error al unirte a la partida.");
+                throw new Error(responseData.message || "Ocurrió un error al unirte a la partida.");
             }
         } catch (err) {
             console.error("Error al unirse a la partida:", err);
@@ -292,7 +302,7 @@ export default function ReservaUnirse() {
                                     <li className="list-group-item">⏰ Hora: {new Date(partida.inicio).toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit", timeZone: 'Europe/Madrid' })}</li>
                                     <li className="list-group-item">🎾 Nivel: {partida.nivel || "No especificado"}</li>
                                     <li className="list-group-item">🏟️ Pista: {partida.pista}</li>
-                                    <li className="list-group-item">👥 Nombre: {nombreInvitado}</li>
+                                    {/* <li className="list-group-item">👥 Nombre: {nombreInvitado}</li> */}
                                     <li className="list-group-item">📱 Teléfono: +{codigoPais} {numeroInvitado}</li>
                                 </ul>
 
@@ -342,7 +352,7 @@ export default function ReservaUnirse() {
 
                             {/* Formulario para unirse */}
                             <form onSubmit={handleSubmit}>
-                                <div className="mb-3">
+                                {invitado && <div className="mb-3">
                                     <label htmlFor="nombreInvitado" className="form-label">Tu nombre:</label>
                                     <input
                                         type="text"
@@ -353,7 +363,7 @@ export default function ReservaUnirse() {
                                         placeholder="Tu nombre completo"
                                         required
                                     />
-                                </div>
+                                </div>}
 
                                 <div className="mb-4">
                                     <label htmlFor="numeroInvitado" className="form-label">Tu número de teléfono:</label>
@@ -396,7 +406,7 @@ export default function ReservaUnirse() {
                                 <button
                                     type="submit"
                                     className="btn btn-success w-100"
-                                    disabled={!nombreInvitado || !numeroInvitado}
+                                    disabled={!numeroInvitado}
                                 >
                                     Unirme a la Partida
                                 </button>

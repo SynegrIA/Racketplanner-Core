@@ -136,7 +136,6 @@ export default function ReservaConfirmar() {
                     pista: partida?.pista,
                     inicio: partida?.inicio,
                     fin,
-                    nombre,
                     numero: numeroCompleto,
                     partida: tipoPartida,
                     nivel,
@@ -147,6 +146,7 @@ export default function ReservaConfirmar() {
             const data = await response.json()
 
             if (data.status === "success") {
+                setNombre(data.data.nombre)
                 setReservaConfirmada(true)
                 setMensaje("¡Tu reserva ha sido confirmada! Hemos enviado los detalles a tu WhatsApp.")
                 setReservaData(data.data) // Guardar los datos de la reserva confirmada
@@ -304,7 +304,7 @@ export default function ReservaConfirmar() {
                             </ul>
 
                             <form onSubmit={handleSubmit}>
-                                <div className="mb-3">
+                                {/* <div className="mb-3">
                                     <label className="form-label">Tu nombre</label>
                                     <input
                                         className="form-control"
@@ -312,7 +312,7 @@ export default function ReservaConfirmar() {
                                         onChange={(e) => setNombre(e.target.value)}
                                         required
                                     />
-                                </div>
+                                </div> */}
                                 <div className="mb-3">
                                     <label className="form-label">Tu número de teléfono</label>
                                     <div className="input-group">

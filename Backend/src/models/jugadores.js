@@ -19,7 +19,7 @@ export class JugadoresModel {
             }
 
             // Si hay datos y al menos un registro, el usuario existe
-            return data && data.length > 0;
+            return data[0]
         } catch (error) {
             console.error('Error al recuperar el jugador:', error);
             throw error;

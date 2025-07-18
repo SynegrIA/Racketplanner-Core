@@ -227,7 +227,7 @@ export class ReservasController {
             const { pista, inicio, fin, nombre, numero, partida, nivel, jugadores_faltan } = req.body;
 
             // 1. Validación básica
-            if (!pista || !inicio || !fin || !nombre || !numero) {
+            if (!pista || !inicio || !fin || !numero) {
                 return res.status(400).json({
                     status: "error",
                     message: "Debes rellenar todos los campos para poder confirmar la reserva"
@@ -819,7 +819,8 @@ Jugador 4: ${jugador4}
                 status: "success",
                 message: tipoUnion === "new"
                     ? "Te has unido a la partida. Recibirás notificaciones por WhatsApp."
-                    : "Te has unido a la partida como invitado."
+                    : "Te has unido a la partida como invitado.",
+                nombre: nombreInvitado
             });
         } catch (error) {
             console.error("Error al unirse a la reserva:", error);
