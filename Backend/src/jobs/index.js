@@ -13,11 +13,11 @@ export const initializeJobs = () => {
         () => cierraPartidas()
     );
 
-    cronManager.register(
-        'jugadoresSinConfirmar',
-        '0 * * * *',
-        () => jugadoresSinConfirmar()
-    )
+    // cronManager.register(
+    //     'jugadoresSinConfirmar',
+    //     '0 * * * *',
+    //     () => jugadoresSinConfirmar()
+    // )
 
     // Inicia todas las tareas
     cronManager.startAll();
