@@ -26,6 +26,27 @@ export class JugadoresModel {
         }
     }
 
+    static async getJugadoresSinConfirmar() {
+        try {
+
+            const { data, error } = await supabase
+                .from('Jugadores')
+                .select('*')
+                .eq('Número confirmado?', false)
+
+            if (error) {
+                console.error('Error recuperando jugadores sin confirmar', error)
+                throw error
+            }
+
+            return data
+
+        } catch (error) {
+            console.error('Error al recuperar el jugador:', error);
+            throw error;
+        }
+    }
+
     static async create(jugadorData) {
         try {
             const { data, error } = await supabase
