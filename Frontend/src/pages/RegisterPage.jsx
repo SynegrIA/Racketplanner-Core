@@ -307,7 +307,7 @@ export default function RegisterPage() {
                                                                 onClick={() => ajustarFrecuencia(-1)}
                                                                 disabled={frecuenciaSemanal <= 0}
                                                             >
-                                                                <i className="bi bi-dash"></i>
+                                                                <i className="bi bi-dash"></i> -
                                                             </button>
                                                             <div
                                                                 className="px-4 py-2 mx-2 rounded-2 text-center fw-bold fs-5"
@@ -325,7 +325,7 @@ export default function RegisterPage() {
                                                                 onClick={() => ajustarFrecuencia(1)}
                                                                 disabled={frecuenciaSemanal >= 10}
                                                             >
-                                                                <i className="bi bi-plus"></i>
+                                                                <i className="bi bi-plus"></i> +
                                                             </button>
                                                             <span className="text-muted ms-3">invitaciones/semana</span>
                                                         </div>
@@ -350,7 +350,7 @@ export default function RegisterPage() {
                                                                 }}
                                                             >
                                                                 <i className={`bi bi-sunrise${preferencias.mañana ? '-fill' : ''} me-2`}></i>
-                                                                Mañana
+                                                                Mañana (09:00-14:00)
                                                             </button>
                                                             <button
                                                                 type="button"
@@ -363,7 +363,7 @@ export default function RegisterPage() {
                                                                 }}
                                                             >
                                                                 <i className={`bi bi-sun${preferencias.tarde ? '-fill' : ''} me-2`}></i>
-                                                                Tarde
+                                                                Tarde (15:00-19:00)
                                                             </button>
                                                             <button
                                                                 type="button"
@@ -376,7 +376,7 @@ export default function RegisterPage() {
                                                                 }}
                                                             >
                                                                 <i className={`bi bi-moon${preferencias.noche ? '-fill' : ''} me-2`}></i>
-                                                                Noche
+                                                                Noche (19:00-23:00)
                                                             </button>
                                                         </div>
                                                         <div className="form-text">Selecciona los momentos del día en los que prefieres jugar</div>
