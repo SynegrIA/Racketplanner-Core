@@ -14,14 +14,14 @@ export class JugadoresModel {
                 .limit(1);
 
             if (error) {
-                console.error('Error al verificar si existe el jugador:', error);
+                console.error('Error al recuperar el jugador:', error);
                 throw error;
             }
 
             // Si hay datos y al menos un registro, el usuario existe
             return data && data.length > 0;
         } catch (error) {
-            console.error('Error al verificar si existe el jugador:', error);
+            console.error('Error al recuperar el jugador:', error);
             throw error;
         }
     }

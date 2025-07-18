@@ -42,7 +42,6 @@ export class InvitacionesController {
             // 3. Acortar la URL usando el servicio existente
             let urlCorta;
             if (NODE_ENV == 'production') { urlCorta = await shortenUrl(urlLarga) } else { urlCorta = urlLarga }
-
             // 4. Formatear la fecha para mostrar en el mensaje
             let fechaObj;
             if (typeof data.fecha === 'string' && data.fecha.includes('/')) {
@@ -56,21 +55,27 @@ export class InvitacionesController {
                 fechaObj = new Date(data.fecha);
             }
 
-            const fechaLegible = fechaObj.toLocaleString('es-ES', {
+            // Separar fecha y hora con zona horaria específica
+            const fechaFormateada = fechaObj.toLocaleDateString('es-ES', {
                 weekday: 'long',
                 year: 'numeric',
                 month: 'long',
                 day: 'numeric',
+                timeZone: 'Europe/Madrid'
+            });
+
+            const horaFormateada = fechaObj.toLocaleTimeString('es-ES', {
                 hour: '2-digit',
                 minute: '2-digit',
-                hour12: false
+                timeZone: 'Europe/Madrid'
             });
 
             // 5. Crear mensaje de invitación
             const mensaje = `¡Hola *${data.nombre}*! \r\r` +
                 `Te invitamos a unirte a la partida (Nivel: *${data.nivel}*) ` +
                 `que ha creado *${data.jugadorCrea}*.` +
-                `\rFecha y hora: *${fechaLegible}* \r\r` +
+                `\rFecha: *${fechaFormateada}* \r` +
+                `\rHora: *${horaFormateada}* \r\r` +
                 `Para confirmar tu participación, haz clic en el siguiente enlace:\r` +
                 `👉 ${urlCorta} \r\r` +
                 `¡Te esperamos!`;
