@@ -9,7 +9,7 @@ export class JugadoresModel {
 
             const { data, error } = await supabase
                 .from('Jugadores')
-                .select('ID')
+                .select('*')
                 .eq('Teléfono', telefonoNormalizado)
                 .limit(1);
 

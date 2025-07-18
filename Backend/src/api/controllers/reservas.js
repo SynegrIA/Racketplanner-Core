@@ -233,6 +233,8 @@ export class ReservasController {
                     message: "Debes rellenar todos los campos para poder confirmar la reserva"
                 });
             }
+            //Recuperamos los datos del organizador en base al número
+            const organizador = await JugadoresModel.getJugador(numero)
 
             // 2. Buscar el calendario de la pista
             const pistaConfig = CALENDARS.find(c => c.name === pista);
@@ -304,7 +306,7 @@ Pista: ${pista}
 Nivel: ${nivel}
 Nº Actuales: ${jugadoresActuales}
 Nº Faltantes: ${jugadores_faltan}
-Jugador Principal: ${nombre}
+Jugador Principal: ${organizador["Nombre Real"]}
 Teléfono: ${numero}
 Jugador 2: ${jugador2}
 Jugador 3: ${jugador3}
@@ -326,12 +328,12 @@ Jugador 4: ${jugador4}
             if (NODE_ENV == 'production') { urlCancelarCorta = await shortenUrl(urlCancelar) } else { urlCancelarCorta = urlCancelar }
 
             let urlEliminarCorta;
-            const urlEliminar = `${DOMINIO_FRONTEND}/eliminar-jugador-reserva?eventId=${encodeURIComponent(evento.id)}&numero=${encodeURIComponent(numero)}&nombreJugador=${encodeURIComponent(nombre)}&calendarId=${encodeURIComponent(pistaConfig.id)}`;
+            const urlEliminar = `${DOMINIO_FRONTEND}/eliminar-jugador-reserva?eventId=${encodeURIComponent(evento.id)}&numero=${encodeURIComponent(numero)}&nombreJugador=${encodeURIComponent(organizador["Nombre Real"])}&calendarId=${encodeURIComponent(pistaConfig.id)}`;
             if (NODE_ENV == 'production') { urlEliminarCorta = await shortenUrl(urlEliminar) } else { urlEliminarCorta = urlEliminar }
 
             // En el método confirmarReserva, modificar la creación de la URL
             let urlInvitarCorta;
-            const urlInvitar = `${DOMINIO_FRONTEND}/unir-jugador-reserva?eventId=${encodeURIComponent(evento.id)}&nombre=${encodeURIComponent(nombre)}&numero=${encodeURIComponent(numero)}&calendarId=${encodeURIComponent(pistaConfig.id)}`;
+            const urlInvitar = `${DOMINIO_FRONTEND}/unir-jugador-reserva?eventId=${encodeURIComponent(evento.id)}&nombre=${encodeURIComponent(organizador["Nombre Real"])}&numero=${encodeURIComponent(numero)}&calendarId=${encodeURIComponent(pistaConfig.id)}`;
             if (NODE_ENV == 'production') { urlInvitarCorta = await shortenUrl(urlInvitar) } else { urlInvitarCorta = urlInvitar }
 
             // Guardar la reserva en la base de datos
@@ -373,7 +375,7 @@ Jugador 4: ${jugador4}
                     "1º Contacto": numero,
                     "Último Contacto": numero,
                     "Actualización": "Creación de la reserva",
-                    "Jugador 1": nombre,
+                    "Jugador 1": organizador["Nombre Real"],
                     "Jugador 2": jugador2 || null,
                     "Jugador 3": jugador3 || null,
                     "Jugador 4": jugador4 || null,
@@ -415,7 +417,7 @@ Jugador 4: ${jugador4}
             // 12. Preparar mensaje de confirmación según tipo de partida
             let mensaje;
             if (estado == "Completa") {
-                mensaje = `✅ ¡Tu reserva para ${nombre} ha sido confirmada!\n` +
+                mensaje = `✅ ¡Tu reserva para ${organizador["Nombre Real"]} ha sido confirmada!\n` +
                     `📅 Fecha: ${fechaFormateada}\n` +
                     `🕒 Hora: ${fechaInicio.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid' })} - ${fechaFin.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid' })}\n` +
                     `🎾 Pista: ${pista}\n\n` +
@@ -425,7 +427,7 @@ Jugador 4: ${jugador4}
                     `📈 Estado de la partida: completa\n\n` +
                     `🚫 Si deseas eliminar a algún invitado, pulsa aquí: [Eliminar Jugador sin Cancelar](${urlEliminarCorta}).`;
             } else {
-                mensaje = `✅ ¡Tu reserva para ${nombre} ha sido confirmada!\n` +
+                mensaje = `✅ ¡Tu reserva para ${organizador["Nombre Real"]} ha sido confirmada!\n` +
                     `📅 Fecha: ${fechaFormateada}\n` +
                     `🕒 Hora: ${fechaInicio.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid' })} - ${fechaFin.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid' })}\n` +
                     `🎾 Pista: ${pista}\n\n` +
@@ -462,7 +464,7 @@ Jugador 4: ${jugador4}
                     pista,
                     fechaInicio: fechaInicio.toISOString(),
                     fechaFin: fechaFin.toISOString(),
-                    nombre,
+                    nombre: organizador["Nombre Real"],
                     enlaces: {
                         cancelar: urlCancelarCorta,
                         eliminar: urlEliminarCorta,
@@ -631,7 +633,7 @@ Jugador 4: ${jugador4}
 
     static async unirseReserva(req, res) {
         try {
-            const { eventId, nombreInvitado, numeroInvitado, organizador, numeroOrganizador, tipoUnion, calendarId } = req.body;
+            const { eventId, numeroInvitado, organizador, numeroOrganizador, tipoUnion, calendarId } = req.body;
 
             // Validación básica
             if (!eventId || !calendarId) {
@@ -640,6 +642,9 @@ Jugador 4: ${jugador4}
                     message: "Los parámetros eventId y calendarId son obligatorios."
                 });
             }
+
+            const datosInvitado = await JugadoresModel.getJugador(numeroInvitado)
+            const nombreInvitado = datosInvitado["Nombre Real"]
 
             // Si es una unión de tipo "new" (con número de teléfono), verificar si el usuario está registrado
             if (tipoUnion === "new" && numeroInvitado) {
