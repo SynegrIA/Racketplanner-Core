@@ -101,55 +101,86 @@ export default function ReservaConfirmar() {
         if (!nivel || nivel === "No especificado" || nivel === "") {
             setMensaje("Debe especificar el nivel de la partida")
             setTipoMensaje("danger")
-            return // Detener la ejecución si hay error
+            return
         }
 
         if (!jugadoresFaltan || jugadoresFaltan === "?" || jugadoresFaltan === "") {
             setMensaje("Debe especificar los jugadores que faltan para completar la partida")
             setTipoMensaje("danger")
-            return // Detener la ejecución si hay error
+            return
         }
 
         const numeroCompleto = `${codigoPais}${numero}`;
-
         setEnviando(true)
         setMensaje("")
 
         const inicioDate = new Date(partida?.inicio)
-        const finDate = new Date(inicioDate.getTime() + 90 * 60000) // 90 minutos en ms
+        const finDate = new Date(inicioDate.getTime() + 90 * 60000)
         const fin = finDate.toISOString()
 
-        // Determinar el tipo de partida basado en jugadores faltantes
         let tipoPartida = partida?.partida || "abierta";
         if (jugadoresFaltan === "0") {
             tipoPartida = "completa";
         }
 
         try {
+            // Crear objeto de datos para la reserva (lo usaremos tanto para la solicitud como para localStorage)
+            const reservaData = {
+                pista: partida?.pista,
+                inicio: partida?.inicio,
+                fin,
+                nombre,
+                numero: numeroCompleto,
+                partida: tipoPartida,
+                nivel,
+                jugadores_faltan: jugadoresFaltan
+            };
+
             // Enviamos los datos al backend
             const response = await fetch(`${DOMINIO_BACKEND}/reservas/confirmar`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify({
-                    pista: partida?.pista,
-                    inicio: partida?.inicio,
-                    fin,
-                    numero: numeroCompleto,
-                    partida: tipoPartida,
-                    nivel,
-                    jugadores_faltan: jugadoresFaltan
-                })
-            })
+                body: JSON.stringify(reservaData)
+            });
 
-            const data = await response.json()
+            // Comprobamos el código de estado primero
             if (response.status === 401) {
                 // Detectar específicamente el error de usuario no registrado
-                setMensaje("Para reservar pistas debes estar registrado en el sistema.")
-                setTipoMensaje("warning")
+                setMensaje("Para reservar pistas debes estar registrado en el sistema.");
+                setTipoMensaje("warning");
 
-                // Guardar los datos del intento de reserva en localStorage para recuperarlos después
+                // Guardar los datos del intento de reserva
+                localStorage.setItem("reservaPendiente", JSON.stringify(reservaData));
+
+                // Establecer estado para mostrar botón de registro
+                setNeedsRegistration(true);
+                return;
+            }
+
+            // Si llegamos aquí, es porque no es un 401, procesamos normalmente
+            const data = await response.json();
+
+            if (data.status === "success") {
+                setNombre(data.data.nombre);
+                setReservaConfirmada(true);
+                setMensaje("¡Tu reserva ha sido confirmada! Hemos enviado los detalles a tu WhatsApp.");
+                setReservaData(data.data);
+            } else {
+                setMensaje(`Error: ${data.message}`);
+                setTipoMensaje("danger");
+            }
+        } catch (err) {
+            console.error("Error en la solicitud:", err);
+
+            // Aquí manejamos los errores de red, incluyendo CORS
+            // Para estos casos, asumimos que podría ser un 401, especialmente en producción
+            if (window.location.hostname !== 'localhost') {
+                setMensaje("No pudimos verificar tu registro. Por favor, regístrate antes de reservar.");
+                setTipoMensaje("warning");
+
+                // Guardar los datos del intento de reserva
                 localStorage.setItem("reservaPendiente", JSON.stringify({
                     pista: partida?.pista,
                     inicio: partida?.inicio,
@@ -159,29 +190,18 @@ export default function ReservaConfirmar() {
                     partida: tipoPartida,
                     nivel,
                     jugadores_faltan: jugadoresFaltan
-                }))
+                }));
 
-                // Establecer estado para mostrar botón de registro
-                setNeedsRegistration(true)
+                // Mostrar botón de registro
+                setNeedsRegistration(true);
             } else {
-                setMensaje(`Error: ${data.message}`)
-                setTipoMensaje("danger")
+                // Para desarrollo local, mostramos el error técnico
+                setMensaje("Error al confirmar la reserva. Por favor, inténtalo de nuevo.");
+                setTipoMensaje("danger");
             }
-
-            if (data.status === "success") {
-                setNombre(data.data.nombre)
-                setReservaConfirmada(true)
-                setMensaje("¡Tu reserva ha sido confirmada! Hemos enviado los detalles a tu WhatsApp.")
-                setReservaData(data.data) // Guardar los datos de la reserva confirmada
-            }
-        } catch (err) {
-            setMensaje("Error al confirmar la reserva. Por favor, inténtalo de nuevo.")
-            setTipoMensaje("danger")
-            console.error(err)
         } finally {
-            setEnviando(false)
+            setEnviando(false);
         }
-
     }
 
     if (!partida) {

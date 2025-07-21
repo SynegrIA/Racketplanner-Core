@@ -648,6 +648,12 @@ Jugador 4: ${jugador4}
             }
 
             const datosInvitado = await JugadoresModel.getJugador(numeroInvitado)
+            if (!datosInvitado || !datosInvitado["Nombre Real"]) {
+                return res.status(401).json({
+                    status: "unauthorized",
+                    message: "Necesitas estar registrado en el sistema para unirte a una partida."
+                });
+            }
             const nombreInvitado = datosInvitado["Nombre Real"]
 
             // Si es una unión de tipo "new" (con número de teléfono), verificar si el usuario está registrado
