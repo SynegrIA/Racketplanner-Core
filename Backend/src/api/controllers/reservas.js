@@ -230,8 +230,15 @@ export class ReservasController {
                     message: "Debes rellenar todos los campos para poder confirmar la reserva"
                 });
             }
+
             //Recuperamos los datos del organizador en base al número
             const organizador = await JugadoresModel.getJugador(numero)
+            if (!organizador || !organizador["Nombre Real"]) {
+                return res.status(401).json({
+                    status: "unauthorized",
+                    message: "Necesitas estar registrado en el sistema para reservar una pista."
+                });
+            }
 
             // 2. Buscar el calendario de la pista
             const pistaConfig = CALENDARS.find(c => c.name === pista);

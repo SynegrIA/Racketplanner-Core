@@ -150,7 +150,7 @@ export default function ReservaConfirmar() {
                 setReservaConfirmada(true)
                 setMensaje("¡Tu reserva ha sido confirmada! Hemos enviado los detalles a tu WhatsApp.")
                 setReservaData(data.data) // Guardar los datos de la reserva confirmada
-            } else if (data.status === "error" && data.message.includes("estar registrado")) {
+            } else if (response.status === 401) {
                 // Detectar específicamente el error de usuario no registrado
                 setMensaje("Para reservar pistas debes estar registrado en el sistema.")
                 setTipoMensaje("warning")
