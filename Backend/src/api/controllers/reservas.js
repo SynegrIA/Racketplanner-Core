@@ -146,12 +146,9 @@ export class ReservasController {
 
                 const urlReserva = `${DOMINIO_FRONTEND}/confirmar-reserva?data=${encodeURIComponent(JSON.stringify(reservaPayload))}`;
 
-                let enlace;
-                if (NODE_ENV == 'production') {
-                    enlace = await shortenUrl(urlReserva);
-                } else {
-                    enlace = urlReserva;
-                }
+
+                const enlace = await shortenUrl(urlReserva);
+
 
                 const mensaje = `✅ Hay disponibilidad para reservar el ${slotInfo.pista.name} el ${slotInfo.slotInicio.toLocaleString('es-ES', { timeZone: 'Europe/Madrid' })}.\n\n[Haz clic aquí para confirmar la reserva](${enlace})`;
                 await enviarMensajeWhatsApp(mensaje, numero);

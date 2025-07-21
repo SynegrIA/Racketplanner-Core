@@ -18,6 +18,9 @@ function TimeSlot({ slot, nombre, numero }) {
     const { currentTheme } = useTheme();
 
     const handleSelect = () => {
+        if (slot.tipo === 'abierta') {
+            navigate(`/unir-jugador-reserva?eventId=${slot.eventId}&nombre=${slot.organizador}&numero=${numero || ''}&calendarId=${slot.calendarId}`);
+        }
         // Si es un slot disponible, redirigir a crear reserva
         if (slot.tipo === 'disponible') {
             const reservaData = {
@@ -33,10 +36,6 @@ function TimeSlot({ slot, nombre, numero }) {
             const params = new URLSearchParams();
             params.append('data', encodeURIComponent(JSON.stringify(reservaData)));
             navigate(`/confirmar-reserva?${params.toString()}`);
-        }
-        // Si es una partida abierta, redirigir a unirse
-        else if (slot.tipo === 'abierta') {
-            navigate(`/unir-jugador-reserva?eventId=${slot.eventId}&nombre=${slot.organizador}&numero=${numero || ''}&calendarId=${slot.calendarId}`);
         }
     };
 
