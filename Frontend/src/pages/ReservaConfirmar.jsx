@@ -144,13 +144,7 @@ export default function ReservaConfirmar() {
             })
 
             const data = await response.json()
-
-            if (data.status === "success") {
-                setNombre(data.data.nombre)
-                setReservaConfirmada(true)
-                setMensaje("¡Tu reserva ha sido confirmada! Hemos enviado los detalles a tu WhatsApp.")
-                setReservaData(data.data) // Guardar los datos de la reserva confirmada
-            } else if (response.status === 401) {
+            if (response.status === 401) {
                 // Detectar específicamente el error de usuario no registrado
                 setMensaje("Para reservar pistas debes estar registrado en el sistema.")
                 setTipoMensaje("warning")
@@ -173,6 +167,13 @@ export default function ReservaConfirmar() {
                 setMensaje(`Error: ${data.message}`)
                 setTipoMensaje("danger")
             }
+
+            if (data.status === "success") {
+                setNombre(data.data.nombre)
+                setReservaConfirmada(true)
+                setMensaje("¡Tu reserva ha sido confirmada! Hemos enviado los detalles a tu WhatsApp.")
+                setReservaData(data.data) // Guardar los datos de la reserva confirmada
+            }
         } catch (err) {
             setMensaje("Error al confirmar la reserva. Por favor, inténtalo de nuevo.")
             setTipoMensaje("danger")
@@ -180,6 +181,7 @@ export default function ReservaConfirmar() {
         } finally {
             setEnviando(false)
         }
+
     }
 
     if (!partida) {
