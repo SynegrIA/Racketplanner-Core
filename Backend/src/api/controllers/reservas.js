@@ -523,18 +523,18 @@ Jugador 4: ${jugador4}
             }
 
             // 2. Verificar si faltan más de 5 horas para el evento
-            if (evento && evento.start && evento.start.dateTime) {
-                const fechaEvento = new Date(evento.start.dateTime);
-                const ahora = new Date();
-                const diffHoras = (fechaEvento - ahora) / (1000 * 60 * 60);
+            // if (evento && evento.start && evento.start.dateTime) {
+            //     const fechaEvento = new Date(evento.start.dateTime);
+            //     const ahora = new Date();
+            //     const diffHoras = (fechaEvento - ahora) / (1000 * 60 * 60);
 
-                if (diffHoras < 5) {
-                    return res.status(400).json({
-                        status: "error",
-                        message: "Solo se pueden cancelar reservas con al menos 5 horas de antelación."
-                    });
-                }
-            }
+            //     if (diffHoras < 5) {
+            //         return res.status(400).json({
+            //             status: "error",
+            //             message: "Solo se pueden cancelar reservas con al menos 5 horas de antelación."
+            //         });
+            //     }
+            // }
 
             // 3. Eliminar el evento de Google Calendar
             try {
