@@ -209,5 +209,11 @@
   "no-hay-jugadores-invitados-en-esta-partida": "Pas de joueurs invités dans cette partie.",
   "estas-seguro-que-deseas-unirte-a-esta-partida": "Es‑tu sûr de vouloir rejoindre cette partie ?",
   "Registro de jugador": "Enregistrement du joueur",
-  "Registro completado": "Inscription terminée"
+  "Registro completado": "Inscription terminée",
+  "pista disponible": "court disponible",
+  "pistas disponibles": "courts disponibles",
+  "abierta": "ouverte",
+  "abiertas": "ouvertes",
+  "partida abierta": "partie ouverte",
+  "partidas abiertas": "parties ouvertes"
 }

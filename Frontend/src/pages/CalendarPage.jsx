@@ -99,11 +99,11 @@ function TimeGroup({
   // Crear el texto del contador según lo que haya disponible
   let contadorTexto = '';
   if (disponibles > 0 && abiertas > 0) {
-    contadorTexto = `${disponibles} ${disponibles === 1 ? 'pista disponible' : 'pistas disponibles'} y ${abiertas} ${abiertas === 1 ? 'abierta' : 'abiertas'}`;
+    contadorTexto = `${disponibles} ${disponibles === 1 ? t('pista disponible') : t('pistas disponibles')} y ${abiertas} ${abiertas === 1 ? t('abierta') : t('abiertas')}`;
   } else if (disponibles > 0) {
-    contadorTexto = `${disponibles} ${disponibles === 1 ? 'pista disponible' : 'pistas disponibles'}`;
+    contadorTexto = `${disponibles} ${disponibles === 1 ? t('pista disponible') : t('pistas disponibles')}`;
   } else if (abiertas > 0) {
-    contadorTexto = `${abiertas} ${abiertas === 1 ? 'partida abierta' : 'partidas abiertas'}`;
+    contadorTexto = `${abiertas} ${abiertas === 1 ? t('partida abierta') : t('partidas abiertas')}`;
   }
   return <div className="card mb-4" style={{
     borderRadius: '12px',

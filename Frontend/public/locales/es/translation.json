@@ -208,6 +208,12 @@
   "al-eliminar-un-jugador-se-actualizara-el-estado-d": "Al eliminar un jugador, se actualizará el estado de la partida y se enviarán notificaciones.",
   "no-hay-jugadores-invitados-en-esta-partida": "No hay jugadores invitados en esta partida.",
   "estas-seguro-que-deseas-unirte-a-esta-partida": "¿Estás seguro que deseas unirte a esta partida?",
-    "Registro de jugador": "Registro de jugador",
-  "Registro completado": "Registro completado"
+  "Registro de jugador": "Registro de jugador",
+  "Registro completado": "Registro completado",
+  "pista disponible": "pista disponible",
+  "pistas disponibles": "pistas disponibles",
+  "abierta": "abierta",
+  "abiertas": "abiertas",
+  "partida abierta": "partida abierta",
+  "partidas abiertas": "partidas abiertas"
 }
