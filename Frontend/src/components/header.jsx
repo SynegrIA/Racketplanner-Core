@@ -1,9 +1,13 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext.jsx';
+import { useTranslation } from 'react-i18next';
 
 export default function Header() {
-    const { currentTheme } = useTheme();
+    const { t } = useTranslation()
+    const {
+        currentTheme
+    } = useTheme();
 
     // Estilos para el hover y posicionamiento con responsive
     const styleTag = `
@@ -56,47 +60,34 @@ export default function Header() {
             }
         }
     `;
+    return <>
+        <style>{styleTag}</style>
+        <header className="navbar navbar-light bg-white shadow-sm" style={{
+            borderBottom: `4px solid ${currentTheme.primaryColor}`
+        }}>
+            <div className="container navbar-container position-relative d-flex align-items-center" style={{
+                height: "60px"
+            }}>
+                {/* Logo - centrado en desktop, izquierda en móvil */}
+                <Link className="navbar-brand-custom d-flex align-items-center" to="/">
+                    <img src={t("racketplannerlogopng")} alt={t("racketplanner-logo")} height={t("40")} className="me-2" />
+                    <span className="fw-bold fs-5">{t("racketplanner")}</span>
+                </Link>
 
-    return (
-        <>
-            <style>{styleTag}</style>
-            <header
-                className="navbar navbar-light bg-white shadow-sm"
-                style={{
-                    borderBottom: `4px solid ${currentTheme.primaryColor}`
-                }}
-            >
-                <div className="container navbar-container position-relative d-flex align-items-center" style={{ height: "60px" }}>
-                    {/* Logo - centrado en desktop, izquierda en móvil */}
-                    <Link className="navbar-brand-custom d-flex align-items-center" to="/">
-                        <img
-                            src="/RacketPlannerLogo.png"
-                            alt="RacketPlanner Logo"
-                            height="40"
-                            className="me-2"
-                        />
-                        <span className="fw-bold fs-5">RacketPlanner</span>
+                {/* Botón de registro a la derecha */}
+                <div className="ms-auto">
+                    <Link to="/signup" className="btn btn-registro" style={{
+                        backgroundColor: currentTheme.primaryColor,
+                        color: '#fff',
+                        borderRadius: '10px',
+                        padding: '6px 10px'
+                    }}>
+                        <i className="bi bi-person-plus me-1"></i>
+                        <span className="btn-text-short">{t("registrarse")}</span>
+                        <span className="btn-text-full">{t("registrar-jugador")}</span>
                     </Link>
-
-                    {/* Botón de registro a la derecha */}
-                    <div className="ms-auto">
-                        <Link
-                            to="/signup"
-                            className="btn btn-registro"
-                            style={{
-                                backgroundColor: currentTheme.primaryColor,
-                                color: '#fff',
-                                borderRadius: '10px',
-                                padding: '6px 10px'
-                            }}
-                        >
-                            <i className="bi bi-person-plus me-1"></i>
-                            <span className="btn-text-short">Registrarse</span>
-                            <span className="btn-text-full">Registrar jugador</span>
-                        </Link>
-                    </div>
                 </div>
-            </header>
-        </>
-    );
+            </div>
+        </header>
+    </>;
 }

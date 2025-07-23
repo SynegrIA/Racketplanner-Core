@@ -12,28 +12,31 @@ import RegisterPage from './pages/RegisterPage.jsx';
 import RegisterConfirmPage from './pages/RegisterConfirmPage.jsx';
 
 function App() {
-  return (
-    <ThemeProvider>
-      <BrowserRouter>
-        <Header />
-        <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-          <main style={{ flex: '1' }}>
-            <Routes>
-              <Route path="/" element={<CalendarPage />} />
-              <Route path="/home" element={<CalendarPage />} />
-              <Route path='/signup' element={<RegisterPage />} />
-              <Route path='/confirmar-numero/:telefono' element={<RegisterConfirmPage />} />
-              <Route path="/confirmar-reserva" element={<ReservaConfirmar />} />
-              <Route path="/cancelar-reserva" element={<CancelarReserva />} />
-              <Route path="/unir-jugador-reserva" element={<ReservaUnirse />} />
-              <Route path="/eliminar-jugador-reserva" element={<ReservaEliminarJugador />} />
-            </Routes>
-          </main>
-          <Footer />
-        </div>
-      </BrowserRouter>
-    </ThemeProvider>
-  )
+  return <ThemeProvider>
+    <BrowserRouter>
+      <Header />
+      <div style={{
+        display: 'flex',
+        flexDirection: 'column',
+        minHeight: '100vh'
+      }}>
+        <main style={{
+          flex: '1'
+        }}>
+          <Routes>
+            <Route path="/" element={<CalendarPage />} />
+            <Route path="/home" element={<CalendarPage />} />
+            <Route path="/signup" element={<RegisterPage />} />
+            <Route path="/confirmar-numerotelefono" element={<RegisterConfirmPage />} />
+            <Route path="/confirmar-reserva" element={<ReservaConfirmar />} />
+            <Route path="/cancelar-reserva" element={<CancelarReserva />} />
+            <Route path="/unir-jugador-reserva" element={<ReservaUnirse />} />
+            <Route path="/eliminar-jugador-reserva" element={<ReservaEliminarJugador />} />
+          </Routes>
+        </main>
+        <Footer />
+      </div>
+    </BrowserRouter>
+  </ThemeProvider>;
 }
-
-export default App
+export default App;
