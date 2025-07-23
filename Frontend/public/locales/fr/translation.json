@@ -207,5 +207,7 @@
   "se-ha-enviado-una-notificacion-a-los-jugadores-afe": "Une notification a été envoyée aux joueurs concernés.",
   "al-eliminar-un-jugador-se-actualizara-el-estado-d": "En supprimant un joueur, l'état de la partie sera mis à jour et des notifications seront envoyées.",
   "no-hay-jugadores-invitados-en-esta-partida": "Pas de joueurs invités dans cette partie.",
-  "estas-seguro-que-deseas-unirte-a-esta-partida": "Es‑tu sûr de vouloir rejoindre cette partie ?"
+  "estas-seguro-que-deseas-unirte-a-esta-partida": "Es‑tu sûr de vouloir rejoindre cette partie ?",
+  "Registro de jugador": "Enregistrement du joueur",
+  "Registro completado": "Inscription terminée"
 }

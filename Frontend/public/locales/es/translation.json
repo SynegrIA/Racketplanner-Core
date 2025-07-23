@@ -207,5 +207,7 @@
   "se-ha-enviado-una-notificacion-a-los-jugadores-afe": "Se ha enviado una notificación a los jugadores afectados.",
   "al-eliminar-un-jugador-se-actualizara-el-estado-d": "Al eliminar un jugador, se actualizará el estado de la partida y se enviarán notificaciones.",
   "no-hay-jugadores-invitados-en-esta-partida": "No hay jugadores invitados en esta partida.",
-  "estas-seguro-que-deseas-unirte-a-esta-partida": "¿Estás seguro que deseas unirte a esta partida?"
+  "estas-seguro-que-deseas-unirte-a-esta-partida": "¿Estás seguro que deseas unirte a esta partida?",
+    "Registro de jugador": "Registro de jugador",
+  "Registro completado": "Registro completado"
 }

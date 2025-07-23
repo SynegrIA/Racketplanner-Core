@@ -125,7 +125,7 @@ export default function RegisterPage() {
           }}>
             <h2 className="mb-0 fw-bold">
               <i className="bi bi-person-plus-fill me-2"></i>
-              {registroExitoso ? "Registro completado" : "Registro de jugador"}
+              {registroExitoso ? t("Registro completado") : t("Registro de jugador")}
             </h2>
           </div>
 
