@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { DOMINIO_BACKEND } from "../config/config.js";
+import { useTranslation } from 'react-i18next';
+
 export default function ReservaEliminarJugador() {
   const [searchParams] = useSearchParams();
   const [partida, setPartida] = useState(null);
@@ -11,6 +13,7 @@ export default function ReservaEliminarJugador() {
   const [confirmando, setConfirmando] = useState(false);
   const [eliminando, setEliminando] = useState(false);
   const [jugadorSeleccionado, setJugadorSeleccionado] = useState("");
+  const { t } = useTranslation()
 
   // Obtener parámetros de la URL
   const eventId = searchParams.get("eventId");
@@ -132,155 +135,155 @@ export default function ReservaEliminarJugador() {
   // Renderizar estado de carga
   if (cargando) {
     return <div className="container min-vh-100 d-flex align-items-center justify-content-center">
-                <div className="spinner-border text-primary" role={t("status")}>
-                    <span className="visually-hidden">{t("cargando")}</span>
-                </div>
-            </div>;
+      <div className="spinner-border text-primary" role={t("status")}>
+        <span className="visually-hidden">{t("cargando")}</span>
+      </div>
+    </div>;
   }
 
   // Renderizar mensaje de error
   if (error) {
     return <div className="container min-vh-100 d-flex align-items-center">
-                <div className="row w-100">
-                    <div className="col-12 col-md-8 col-lg-6 mx-auto">
-                        <div className="card shadow">
-                            <div className="card-body text-center">
-                                <div className="display-1 mb-4">{t("key_1")}</div>
-                                <h3 className="text-danger mb-3">{t("error")}</h3>
-                                <p className="lead">{error}</p>
-                                <button onClick={() => window.close()} className="btn btn-primary mt-3">{t("cerrar")}</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>;
+      <div className="row w-100">
+        <div className="col-12 col-md-8 col-lg-6 mx-auto">
+          <div className="card shadow">
+            <div className="card-body text-center">
+              <div className="display-1 mb-4">{t("key_1")}</div>
+              <h3 className="text-danger mb-3">{t("error")}</h3>
+              <p className="lead">{error}</p>
+              <button onClick={() => window.close()} className="btn btn-primary mt-3">{t("cerrar")}</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>;
   }
 
   // Renderizar mensaje de éxito
   if (mensaje) {
     return <div className="container min-vh-100 d-flex align-items-center">
-                <div className="row w-100">
-                    <div className="col-12 col-md-8 col-lg-6 mx-auto">
-                        <div className="card shadow">
-                            <div className="card-body text-center">
-                                <div className="display-1 mb-4">{t("key_2")}</div>
-                                <h3 className="text-success mb-3">{t("jugador-eliminado")}</h3>
-                                <p className="lead">{mensaje}</p>
-                                <p>{t("se-ha-enviado-una-notificacion-a-los-jugadores-afe")}</p>
-                                <button onClick={() => window.close()} className="btn btn-primary mt-3">{t("cerrar")}</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>;
+      <div className="row w-100">
+        <div className="col-12 col-md-8 col-lg-6 mx-auto">
+          <div className="card shadow">
+            <div className="card-body text-center">
+              <div className="display-1 mb-4">{t("key_2")}</div>
+              <h3 className="text-success mb-3">{t("jugador-eliminado")}</h3>
+              <p className="lead">{mensaje}</p>
+              <p>{t("se-ha-enviado-una-notificacion-a-los-jugadores-afe")}</p>
+              <button onClick={() => window.close()} className="btn btn-primary mt-3">{t("cerrar")}</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>;
   }
 
   // Validar si hay datos de partida
   if (!partida) {
     return <div className="container min-vh-100 d-flex align-items-center">
-                <div className="row w-100">
-                    <div className="col-12 col-md-8 col-lg-6 mx-auto">
-                        <div className="card shadow">
-                            <div className="card-body text-center">
-                                <div className="display-1 mb-4">{t("key_6")}</div>
-                                <h3 className="text-warning mb-3">{t("informacion-no-disponible")}</h3>
-                                <p className="lead">{t("no-se-encontraron-datos-de-la-partida")}</p>
-                                <button onClick={() => window.close()} className="btn btn-primary mt-3">{t("cerrar")}</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>;
+      <div className="row w-100">
+        <div className="col-12 col-md-8 col-lg-6 mx-auto">
+          <div className="card shadow">
+            <div className="card-body text-center">
+              <div className="display-1 mb-4">{t("key_6")}</div>
+              <h3 className="text-warning mb-3">{t("informacion-no-disponible")}</h3>
+              <p className="lead">{t("no-se-encontraron-datos-de-la-partida")}</p>
+              <button onClick={() => window.close()} className="btn btn-primary mt-3">{t("cerrar")}</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>;
   }
 
   // Pantalla de confirmación
   if (confirmando) {
     return <div className="container min-vh-100 d-flex align-items-center">
-                <div className="row w-100">
-                    <div className="col-12 col-md-8 col-lg-6 mx-auto">
-                        <div className="card shadow">
-                            <div className="card-body">
-                                <div className="text-center mb-4">
-                                    <div className="display-1">{t("key_6")}</div>
-                                    <h3 className="text-warning">{t("confirmar-eliminacion")}</h3>
-                                </div>
-                                <p className="lead text-center mb-4">{t("estas-seguro-que-deseas-eliminar-a")}<strong>{jugadorSeleccionado}</strong>{t("de-esta-partida")}</p>
-                                <p className="text-center text-danger">{t("esta-accion-no-se-puede-deshacer")}</p>
+      <div className="row w-100">
+        <div className="col-12 col-md-8 col-lg-6 mx-auto">
+          <div className="card shadow">
+            <div className="card-body">
+              <div className="text-center mb-4">
+                <div className="display-1">{t("key_6")}</div>
+                <h3 className="text-warning">{t("confirmar-eliminacion")}</h3>
+              </div>
+              <p className="lead text-center mb-4">{t("estas-seguro-que-deseas-eliminar-a")}<strong>{jugadorSeleccionado}</strong>{t("de-esta-partida")}</p>
+              <p className="text-center text-danger">{t("esta-accion-no-se-puede-deshacer")}</p>
 
-                                <ul className="list-group mb-4">
-                                    <li className="list-group-item">{t("fecha")}{new Date(partida.inicio).toLocaleDateString("es-ES", {
-                    timeZone: 'Europe/Madrid'
-                  })}</li>
-                                    <li className="list-group-item">{t("hora")}{new Date(partida.inicio).toLocaleTimeString("es-ES", {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                    timeZone: 'Europe/Madrid'
-                  })}</li>
-                                    <li className="list-group-item">{t("nivel_3")}{partida.nivel || "No especificado"}</li>
-                                    <li className="list-group-item">{t("pista_1")}{partida.pista}</li>
-                                </ul>
-
-                                <div className="d-grid gap-2">
-                                    <button className="btn btn-danger" onClick={confirmarEliminacion} disabled={eliminando}>
-                                        {eliminando ? "Procesando..." : "Confirmar eliminación"}
-                                    </button>
-                                    <button className="btn btn-secondary" onClick={cancelarConfirmacion} disabled={eliminando}>{t("volver")}</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>;
-  }
-
-  // Formulario principal para eliminar jugador
-  return <div className="container min-vh-100 d-flex align-items-center">
-            <div className="row w-100">
-                <div className="col-12 col-md-8 col-lg-6 mx-auto">
-                    <div className="card shadow">
-                        <div className="card-body">
-                            <h3 className="mb-4 text-center">{t("eliminar-jugador")}</h3>
-
-                            {/* Detalles de la partida */}
-                            <ul className="list-group mb-4">
-                                <li className="list-group-item">{t("fecha")}{new Date(partida.inicio).toLocaleDateString("es-ES", {
+              <ul className="list-group mb-4">
+                <li className="list-group-item">{t("fecha")}{new Date(partida.inicio).toLocaleDateString("es-ES", {
                   timeZone: 'Europe/Madrid'
                 })}</li>
-                                <li className="list-group-item">{t("hora")}{new Date(partida.inicio).toLocaleTimeString("es-ES", {
+                <li className="list-group-item">{t("hora")}{new Date(partida.inicio).toLocaleTimeString("es-ES", {
                   hour: "2-digit",
                   minute: "2-digit",
                   timeZone: 'Europe/Madrid'
                 })}</li>
-                                <li className="list-group-item">{t("nivel_3")}{partida.nivel || "No especificado"}</li>
-                                <li className="list-group-item">{t("pista_1")}{partida.pista}</li>
-                                <li className="list-group-item">{t("organizador")}{partida.organizador}</li>
-                                <li className="list-group-item">{t("jugadores-actuales")}{partida.jugadores_actuales}</li>
-                            </ul>
+                <li className="list-group-item">{t("nivel_3")}{partida.nivel || "No especificado"}</li>
+                <li className="list-group-item">{t("pista_1")}{partida.pista}</li>
+              </ul>
 
-                            {/* Formulario para eliminar jugador */}
-                            {jugadores.length > 0 ? <form onSubmit={handleSubmit}>
-                                    <div className="mb-4">
-                                        <label htmlFor={t("jugadorseleccionado")} className="form-label">{t("selecciona-el-jugador-a-eliminar")}</label>
-                                        <select className="form-select" id="jugadorSeleccionado" value={jugadorSeleccionado} onChange={e => setJugadorSeleccionado(e.target.value)} required>
-                                            <option value="">{t("seleccionar-jugador")}</option>
-                                            {jugadores.map((jugador, index) => <option key={index} value={jugador.nombre}>
-                                                    {jugador.nombre}
-                                                </option>)}
-                                        </select>
-                                    </div>
-
-                                    <div className="alert alert-warning">
-                                        <p className="mb-1"><strong>{t("aviso-importante")}</strong></p>
-                                        <p className="mb-0">{t("al-eliminar-un-jugador-se-actualizara-el-estado-d")}</p>
-                                    </div>
-
-                                    <button type={t("submit")} className="btn btn-danger w-100" disabled={!jugadorSeleccionado}>{t("eliminar-jugador_1")}</button>
-                                </form> : <div className="alert alert-info">
-                                    <p className="mb-0">{t("no-hay-jugadores-invitados-en-esta-partida")}</p>
-                                </div>}
-                        </div>
-                    </div>
-                </div>
+              <div className="d-grid gap-2">
+                <button className="btn btn-danger" onClick={confirmarEliminacion} disabled={eliminando}>
+                  {eliminando ? "Procesando..." : "Confirmar eliminación"}
+                </button>
+                <button className="btn btn-secondary" onClick={cancelarConfirmacion} disabled={eliminando}>{t("volver")}</button>
+              </div>
             </div>
-        </div>;
+          </div>
+        </div>
+      </div>
+    </div>;
+  }
+
+  // Formulario principal para eliminar jugador
+  return <div className="container min-vh-100 d-flex align-items-center">
+    <div className="row w-100">
+      <div className="col-12 col-md-8 col-lg-6 mx-auto">
+        <div className="card shadow">
+          <div className="card-body">
+            <h3 className="mb-4 text-center">{t("eliminar-jugador")}</h3>
+
+            {/* Detalles de la partida */}
+            <ul className="list-group mb-4">
+              <li className="list-group-item">{t("fecha")}{new Date(partida.inicio).toLocaleDateString("es-ES", {
+                timeZone: 'Europe/Madrid'
+              })}</li>
+              <li className="list-group-item">{t("hora")}{new Date(partida.inicio).toLocaleTimeString("es-ES", {
+                hour: "2-digit",
+                minute: "2-digit",
+                timeZone: 'Europe/Madrid'
+              })}</li>
+              <li className="list-group-item">{t("nivel_3")}{partida.nivel || "No especificado"}</li>
+              <li className="list-group-item">{t("pista_1")}{partida.pista}</li>
+              <li className="list-group-item">{t("organizador")}{partida.organizador}</li>
+              <li className="list-group-item">{t("jugadores-actuales")}{partida.jugadores_actuales}</li>
+            </ul>
+
+            {/* Formulario para eliminar jugador */}
+            {jugadores.length > 0 ? <form onSubmit={handleSubmit}>
+              <div className="mb-4">
+                <label htmlFor={t("jugadorseleccionado")} className="form-label">{t("selecciona-el-jugador-a-eliminar")}</label>
+                <select className="form-select" id="jugadorSeleccionado" value={jugadorSeleccionado} onChange={e => setJugadorSeleccionado(e.target.value)} required>
+                  <option value="">{t("seleccionar-jugador")}</option>
+                  {jugadores.map((jugador, index) => <option key={index} value={jugador.nombre}>
+                    {jugador.nombre}
+                  </option>)}
+                </select>
+              </div>
+
+              <div className="alert alert-warning">
+                <p className="mb-1"><strong>{t("aviso-importante")}</strong></p>
+                <p className="mb-0">{t("al-eliminar-un-jugador-se-actualizara-el-estado-d")}</p>
+              </div>
+
+              <button type={t("submit")} className="btn btn-danger w-100" disabled={!jugadorSeleccionado}>{t("eliminar-jugador_1")}</button>
+            </form> : <div className="alert alert-info">
+              <p className="mb-0">{t("no-hay-jugadores-invitados-en-esta-partida")}</p>
+            </div>}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>;
 }
