@@ -83,17 +83,7 @@ export class InvitacionesController {
                 timeZone: 'Europe/Madrid'
             });
 
-            // 5. Crear mensaje de invitación
-            const mensaje = `¡Hola *${data.nombre}*! \r\r` +
-                `Te invitamos a unirte a la partida (Nivel: *${data.nivel}*) ` +
-                `que ha creado *${data.jugadorCrea}*.` +
-                `\rFecha: *${fechaFormateada}* \r` +
-                `\rHora: *${horaFormateada}* \r\r` +
-                `Para confirmar tu participación, haz clic en el siguiente enlace:\r` +
-                `👉 ${urlCorta} \r\r` +
-                `¡Te esperamos!`;
-
-            // 6. Guardar la invitación en la base de datos
+            // 5. Guardar la invitación en la base de datos
             await InvitacionesModel.create({
                 partidaId: data.partidaId,
                 nombre: data.nombre,
@@ -102,8 +92,15 @@ export class InvitacionesController {
                 clubId: req.body.clubId // Si existe un club_id en la solicitud
             });
 
-            // 7. Enviar mensaje usando el servicio de WhatsApp existente
-            await enviarMensajeWhatsApp(mensaje, data.numero);
+            // 6. Enviar mensaje de invitación
+            await enviarMensajeWhatsApp('invitaciones.nuevaInvitacion', data.numero, {
+                nombre: data.nombre,
+                nivel: data.nivel,
+                creador: data.jugadorCrea,
+                fecha: fechaFormateada,
+                hora: horaFormateada,
+                enlace: urlCorta
+            });
 
             // 8. Devolver respuesta exitosa
             return res.status(200).json({

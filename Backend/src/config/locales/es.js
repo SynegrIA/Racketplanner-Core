@@ -39,5 +39,15 @@ export default {
             opcionCancelar: "❌ Cancelar: {{linkCancel}}\n👑 _Eres el jugador principal_\n",
             despedida: "🏆 ¡Que disfrutes del juego! 🎾"
         }
+    },
+    invitaciones: {
+        nuevaInvitacion: "¡Hola *{{nombre}}*! \r\r" +
+            "Te invitamos a unirte a la partida (Nivel: *{{nivel}}*) " +
+            "que ha creado *{{creador}}*." +
+            "\rFecha: *{{fecha}}* \r" +
+            "\rHora: *{{hora}}* \r\r" +
+            "Para confirmar tu participación, haz clic en el siguiente enlace:\r" +
+            "👉 {{enlace}} \r\r" +
+            "¡Te esperamos!"
     }
 };
