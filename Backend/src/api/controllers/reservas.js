@@ -1071,7 +1071,6 @@ Jugador 4: ${jugador4}
         }
     }
 
-    // Añadir este método a la clase ReservasController
     static async obtenerReservasActivas(req, res) {
         try {
             const { numero } = req.params;
@@ -1091,54 +1090,88 @@ Jugador 4: ${jugador4}
             const { partidasCompletas, partidasAbiertas } = await ReservasModel.getReservasActivas(numero);
 
             // 2. Formatear el mensaje para WhatsApp con emojis
-            let mensajeFinal = `🎾 ¡Hola *${nombre || 'jugador'}*! 🎾\n`;
-            mensajeFinal += `Estas son tus próximas partidas:\n\n`;
+            let mensajeFinal = '';
+
+            // Encabezado con traducción
+            const encabezado = await enviarMensajeWhatsApp('reservas.misReservas.encabezado', '', {
+                nombre: nombre || 'jugador'
+            }, true);
+            mensajeFinal += encabezado;
 
             // PARTIDAS COMPLETAS
             if (partidasCompletas.length > 0) {
-                mensajeFinal += `✅ *PARTIDAS COMPLETAS:*\n`;
-                partidasCompletas.forEach(info => {
-                    mensajeFinal += `━━━━━━━━━━━━━━━\n`;
-                    mensajeFinal += `🏸 ID: *${info.idPartida}*\n`;
-                    mensajeFinal += `📅 Fecha: ${info.fechaLegible}\n`;
-                    mensajeFinal += `🔵 Estado: ${info.estado}\n`;
+                // Título de sección Partidas Completas
+                const tituloCompletas = await enviarMensajeWhatsApp('reservas.misReservas.partidasCompletas', '', {}, true);
+                mensajeFinal += tituloCompletas;
+
+                // Iterar cada partida completa y formatear
+                for (const info of partidasCompletas) {
+                    // Formato base de partida
+                    const formatoPartida = await enviarMensajeWhatsApp('reservas.misReservas.formatoPartida', '', {
+                        idPartida: info.idPartida,
+                        fechaLegible: info.fechaLegible,
+                        estado: info.estado
+                    }, true);
+                    mensajeFinal += formatoPartida;
 
                     // Solo mostrar link de cancelar si es el jugador principal
                     if (info.esDuenio) {
-                        mensajeFinal += `❌ Cancelar: ${info.linkCancel}\n`;
-                        mensajeFinal += `👑 _Eres el jugador principal_\n`;
+                        const opcionCancelar = await enviarMensajeWhatsApp('reservas.misReservas.opcionCancelar', '', {
+                            linkCancel: info.linkCancel
+                        }, true);
+                        mensajeFinal += opcionCancelar;
                     }
-                    mensajeFinal += `\n`;
-                });
+                    mensajeFinal += '\n';
+                }
             } else {
-                mensajeFinal += `📝 No hay partidas completas programadas.\n\n`;
+                // Mensaje cuando no hay partidas completas
+                const sinCompletas = await enviarMensajeWhatsApp('reservas.misReservas.sinPartidasCompletas', '', {}, true);
+                mensajeFinal += sinCompletas;
             }
 
             // PARTIDAS ABIERTAS
             if (partidasAbiertas.length > 0) {
-                mensajeFinal += `🔄 *PARTIDAS ABIERTAS:*\n`;
-                partidasAbiertas.forEach(info => {
-                    mensajeFinal += `━━━━━━━━━━━━━━━\n`;
-                    mensajeFinal += `🏸 ID: *${info.idPartida}*\n`;
-                    mensajeFinal += `📅 Fecha: ${info.fechaLegible}\n`;
-                    mensajeFinal += `🔵 Estado: ${info.estado}\n`;
-                    mensajeFinal += `👥 Jugadores: ${info.jugadoresActuales}\n`;
-                    mensajeFinal += `⭐ Faltan: ${info.jugadoresFaltantes}\n`;
+                // Título de sección Partidas Abiertas
+                const tituloAbiertas = await enviarMensajeWhatsApp('reservas.misReservas.partidasAbiertas', '', {}, true);
+                mensajeFinal += tituloAbiertas;
+
+                // Iterar cada partida abierta y formatear
+                for (const info of partidasAbiertas) {
+                    // Formato base de partida
+                    const formatoPartida = await enviarMensajeWhatsApp('reservas.misReservas.formatoPartida', '', {
+                        idPartida: info.idPartida,
+                        fechaLegible: info.fechaLegible,
+                        estado: info.estado
+                    }, true);
+                    mensajeFinal += formatoPartida;
+
+                    // Información adicional de jugadores para partidas abiertas
+                    const formatoPartidaAbierta = await enviarMensajeWhatsApp('reservas.misReservas.formatoPartidaAbierta', '', {
+                        jugadoresActuales: info.jugadoresActuales,
+                        jugadoresFaltantes: info.jugadoresFaltantes
+                    }, true);
+                    mensajeFinal += formatoPartidaAbierta;
 
                     // Solo mostrar links si es el jugador principal
                     if (info.esDuenio) {
-                        mensajeFinal += `✅ Unirse: ${info.linkJoin}\n`;
-                        mensajeFinal += `🚫 Eliminar: ${info.linkDelete}\n`;
-                        mensajeFinal += `❌ Cancelar: ${info.linkCancel}\n`;
-                        mensajeFinal += `👑 _Eres el jugador principal_\n`;
+                        const opcionesDuenio = await enviarMensajeWhatsApp('reservas.misReservas.opcionesDuenio', '', {
+                            linkJoin: info.linkJoin,
+                            linkDelete: info.linkDelete,
+                            linkCancel: info.linkCancel
+                        }, true);
+                        mensajeFinal += opcionesDuenio;
                     }
-                    mensajeFinal += `\n`;
-                });
+                    mensajeFinal += '\n';
+                }
             } else {
-                mensajeFinal += `📝 No hay partidas abiertas disponibles.\n\n`;
+                // Mensaje cuando no hay partidas abiertas
+                const sinAbiertas = await enviarMensajeWhatsApp('reservas.misReservas.sinPartidasAbiertas', '', {}, true);
+                mensajeFinal += sinAbiertas;
             }
 
-            mensajeFinal += `🏆 ¡Que disfrutes del juego! 🎾`;
+            // Mensaje de despedida
+            const despedida = await enviarMensajeWhatsApp('reservas.misReservas.despedida', '', {}, true);
+            mensajeFinal += despedida;
 
             // 3. Enviar el mensaje por WhatsApp
             try {
