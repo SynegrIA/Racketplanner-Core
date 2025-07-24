@@ -149,6 +149,15 @@ export default function Header() {
                                 FR (Français)
                             </button>
                         </li>
+                        <li>
+                            <button
+                                className="dropdown-item"
+                                onClick={(e) => changeLanguage('en', e)}
+                                aria-label="Cambiar a inglés"
+                            >
+                                EN (English)
+                            </button>
+                        </li>
                     </ul>
                 </div>
 
