@@ -49,5 +49,22 @@ export default {
             "Pour confirmer votre participation, cliquez sur le lien suivant:\r" +
             "👉 {{enlace}} \r\r" +
             "Nous vous attendons!"
+    },
+    jugadores: {
+        registro: {
+            confirmacion: "Bonjour {{nombre}} ! Votre numéro a été enregistré dans Racket Planner.\n\n🔵 Veuillez confirmer votre inscription en cliquant sur le lien suivant :\n{{enlace}}\n\n⚠️ *IMPORTANT* : Si vous ne confirmez pas votre inscription dans les 7 prochains jours, vos données seront automatiquement supprimées du système.\n\nSi vous avez reçu ce message par erreur ou si vous souhaitez supprimer vos données, il vous suffit de me le demander et je les supprimerai immédiatement."
+        },
+        confirmacion: {
+            exito: "Merci {{nombre}} ! Votre numéro a été correctement confirmé dans Racket Planner. Vous pouvez maintenant recevoir des invitations aux matchs selon vos préférences."
+        },
+        preferencias: {
+            actualizadas: "Vos préférences ont été mises à jour avec succès.",
+            error: "Désolé, une erreur s'est produite lors de la mise à jour de vos préférences.",
+            errorSistema: "Désolé, une erreur s'est produite dans le système. Veuillez réessayer plus tard."
+        },
+        eliminacion: {
+            exito: "Vos données ont été supprimées de notre système avec succès",
+            error: "Une erreur s'est produite lors de la suppression de vos données du système, veuillez réessayer plus tard"
+        }
     }
 };

@@ -49,5 +49,22 @@ export default {
             "Para confirmar tu participación, haz clic en el siguiente enlace:\r" +
             "👉 {{enlace}} \r\r" +
             "¡Te esperamos!"
+    },
+    jugadores: {
+        registro: {
+            confirmacion: "¡Hola {{nombre}}! Tu número se ha registrado en Racket Planner.\n\n🔵 Por favor, confirma tu registro haciendo clic en el siguiente enlace:\n{{enlace}}\n\n⚠️ *IMPORTANTE*: Si no confirmas tu registro en los próximos 7 días, tus datos serán eliminados automáticamente del sistema.\n\nSi has recibido este mensaje por error o deseas eliminar tus datos, solo debes darme la orden y los eliminaré en un momento."
+        },
+        confirmacion: {
+            exito: "¡Gracias {{nombre}}! Tu número ha sido confirmado correctamente en Racket Planner. Ya puedes recibir invitaciones a partidas según tus preferencias."
+        },
+        preferencias: {
+            actualizadas: "Tus preferencias han sido actualizadas correctamente.",
+            error: "Lo sentimos, ha ocurrido un error al intentar actualizar tus preferencias.",
+            errorSistema: "Lo sentimos, ha ocurrido un error en el sistema. Por favor, inténtalo de nuevo más tarde."
+        },
+        eliminacion: {
+            exito: "Tus datos han sido eliminados de nuestro sistema correctamente",
+            error: "Ha habido un error eliminando tus datos del sistema, vuelva a intentarlo más tarde"
+        }
     }
 };

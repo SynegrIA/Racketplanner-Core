@@ -86,10 +86,10 @@ export class JugadoresController {
                 const urlAcortada = await shortenUrl(urlCompleta);
 
                 // 6. Enviar mensaje de confirmación por WhatsApp con la URL acortada
-                await enviarMensajeWhatsApp(
-                    `¡Hola ${nombre}! Tu número se ha registrado en Racket Planner.\n\n🔵 Por favor, confirma tu registro haciendo clic en el siguiente enlace:\n${urlAcortada}\n\n⚠️ *IMPORTANTE*: Si no confirmas tu registro en los próximos 7 días, tus datos serán eliminados automáticamente del sistema.\n\nSi has recibido este mensaje por error o deseas eliminar tus datos, solo debes darme la orden y los eliminaré en un momento.`,
-                    telefono
-                );
+                await enviarMensajeWhatsApp('jugadores.registro.confirmacion', telefono, {
+                    nombre: nombre,
+                    enlace: urlAcortada
+                });
 
                 return res.status(201).json({
                     status: "success",
@@ -146,10 +146,9 @@ export class JugadoresController {
 
             if (resultado.success) {
                 // Enviar mensaje de confirmación por WhatsApp
-                await enviarMensajeWhatsApp(
-                    `¡Gracias ${jugador['Nombre Real']}! Tu número ha sido confirmado correctamente en Racket Planner. Ya puedes recibir invitaciones a partidas según tus preferencias.`,
-                    numero
-                );
+                await enviarMensajeWhatsApp('jugadores.confirmacion.exito', numero, {
+                    nombre: jugador['Nombre Real']
+                });
 
                 return res.status(200).json({
                     success: true,
@@ -210,7 +209,7 @@ export class JugadoresController {
             const resultado = await JugadoresModel.updatePreferences(telefono, updateData);
 
             if (resultado.success) {
-                await enviarMensajeWhatsApp("Tus preferencias han sido actualizadas correctamente.", telefono);
+                await enviarMensajeWhatsApp('jugadores.preferencias.actualizadas', telefono);
                 return res.status(200).json({
                     success: true,
                     message: 'Preferencias del jugador actualizadas correctamente.',
@@ -225,7 +224,7 @@ export class JugadoresController {
                     });
                 }
                 // Para otros errores del modelo
-                await enviarMensajeWhatsApp("Lo sentimos, ha ocurrido un error al intentar actualizar tus preferencias.", telefono);
+                await enviarMensajeWhatsApp('jugadores.preferencias.error', telefono);
                 return res.status(500).json({
                     success: false,
                     message: 'Error al actualizar las preferencias.',
@@ -233,7 +232,7 @@ export class JugadoresController {
                 });
             }
         } catch (error) {
-            await enviarMensajeWhatsApp("Lo sentimos, ha ocurrido un error en el sistema. Por favor, inténtalo de nuevo más tarde.", telefono);
+            await enviarMensajeWhatsApp('jugadores.preferencias.errorSistema', telefono);
             return res.status(500).json({
                 success: false,
                 message: 'Error del servidor.',
@@ -256,14 +255,14 @@ export class JugadoresController {
             const resultado = await JugadoresModel.delete(telefono);
 
             if (resultado.success) {
-                await enviarMensajeWhatsApp("Tus datos han sido eliminados de nuestro sistema correctamente", telefono)
+                await enviarMensajeWhatsApp('jugadores.eliminacion.exito', telefono);
 
                 return res.status(200).json({
                     success: true,
                     message: 'Jugador eliminado correctamente'
                 });
             } else {
-                await enviarMensajeWhatsApp("Ha habido un error eliminando tus datos del sistema, vuelva a intentarlo más tarde", telefono)
+                await enviarMensajeWhatsApp('jugadores.eliminacion.error', telefono);
 
                 return res.status(404).json({
                     success: false,
@@ -272,7 +271,7 @@ export class JugadoresController {
                 });
             }
         } catch (error) {
-            await enviarMensajeWhatsApp("Ha habido un error eliminando tus datos del sistema, vuelva a intentarlo más tarde", telefono)
+            await enviarMensajeWhatsApp('jugadores.eliminacion.error', telefono);
 
             return res.status(500).json({
                 success: false,
