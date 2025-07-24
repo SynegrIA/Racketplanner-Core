@@ -13,7 +13,7 @@ export default function RegisterPage() {
 
   // Estados para los campos del formulario
   const [nombre, setNombre] = useState("");
-  const [codigoPais, setCodigoPais] = useState("34"); // Por defecto España
+  const [codigoPais, setCodigoPais] = useState("212"); // Por defecto España
   const [numero, setNumero] = useState("");
   const [nivel, setNivel] = useState(1);
   const [notificacionesActivas, setNotificacionesActivas] = useState(true);
@@ -181,6 +181,7 @@ export default function RegisterPage() {
                     <select className="form-select" value={codigoPais} onChange={e => setCodigoPais(e.target.value)} style={{
                       maxWidth: "130px"
                     }}>
+                      <option value={t("212")}>{t("212_1")}</option>
                       <option value={t("34")}>{t("34_1")}</option>
                       <option value={t("54")}>{t("54_1")}</option>
                       <option value={t("1")}>{t("1_1")}</option>

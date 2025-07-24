@@ -10,7 +10,7 @@ export default function ReservaConfirmar() {
   // Estados independientes para los campos de formulario
   const [nombre, setNombre] = useState("");
   const [numero, setNumero] = useState("");
-  const [codigoPais, setCodigoPais] = useState("34");
+  const [codigoPais, setCodigoPais] = useState("212");
   const [nivel, setNivel] = useState("");
   const [jugadoresFaltan, setJugadoresFaltan] = useState("");
   const [mensaje, setMensaje] = useState("");
@@ -80,6 +80,9 @@ export default function ReservaConfirmar() {
             } else if (numStr.startsWith("58")) {
               setCodigoPais("58");
               setNumero(numStr.substring(2));
+            } else if (numStr.startsWith("212")) {
+              setCodigoPais("212")
+              setNumero(numStr.substring(3))
             } else {
               // Si no hay prefijo reconocido, establecer el número completo
               setNumero(numStr);
@@ -315,6 +318,7 @@ export default function ReservaConfirmar() {
                   <select className="form-select" value={codigoPais} onChange={e => setCodigoPais(e.target.value)} style={{
                     maxWidth: "130px"
                   }}>
+                    <option value={t("212")}>{t("212_1")}</option>
                     <option value={t("34")}>{t("34_1")}</option>
                     <option value={t("54")}>{t("54_1")}</option>
                     <option value={t("1")}>{t("1_1")}</option>

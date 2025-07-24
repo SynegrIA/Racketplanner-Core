@@ -19,7 +19,7 @@ export default function ReservaUnirse() {
   // Datos del formulario
   const [nombreInvitado, setNombreInvitado] = useState("");
   const [numeroInvitado, setNumeroInvitado] = useState("");
-  const [codigoPais, setCodigoPais] = useState("34"); // Por defecto España
+  const [codigoPais, setCodigoPais] = useState("212"); // Por defecto España
   // Se elimina la opción de tipo de unión, solo permitimos con notificaciones
   const tipoUnion = "new"; // Fijo a "new" = con notificaciones
 
@@ -334,6 +334,7 @@ export default function ReservaUnirse() {
                   <select className="form-select" value={codigoPais} onChange={e => setCodigoPais(e.target.value)} style={{
                     maxWidth: "130px"
                   }}>
+                    <option value={t("212")}>{t("212_1")}</option>
                     <option value={t("34")}>{t("34_1")}</option>
                     <option value={t("54")}>{t("54_1")}</option>
                     <option value={t("1")}>{t("1_1")}</option>
