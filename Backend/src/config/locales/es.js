@@ -5,7 +5,9 @@ export default {
             invitacion: "👉🏼 Si deseas invitar a un jugador, envía este mensaje a la persona: [Unirse a Partida]({{urlInvitar}})"
         },
         unirse: {
-            exito: "✅ *¡Te has unido a la partida exitosamente!*\n\n📋 *Detalles de la partida*:\n🆔 ID Partida: {{idPartida}}\n📅 Fecha: {{fecha}}\n⏰ Horario: {{horaInicio}} - {{horaFin}}\n🎾 Pista: {{pista}}\n🏆 Nivel: {{nivel}}\n👑 Organizador: {{organizador}}\n\n👥 *Jugadores* ({{jugadoresActuales}}/4):\n1. {{jugador1}}{{jugador2}}{{jugador3}}{{jugador4}}\n{{estadoJugadores}}\n🚫 Si necesitas cancelar tu participación: [Eliminarme de esta partida]({{urlEliminar}})"
+            exito: "✅ *¡Te has unido a la partida exitosamente!*\n\n📋 *Detalles de la partida*:\n🆔 ID Partida: {{idPartida}}\n📅 Fecha: {{fecha}}\n⏰ Horario: {{horaInicio}} - {{horaFin}}\n🎾 Pista: {{pista}}\n🏆 Nivel: {{nivel}}\n👑 Organizador: {{organizador}}\n\n👥 *Jugadores* ({{jugadoresActuales}}/4):\n1. {{jugador1}}{{jugador2}}{{jugador3}}{{jugador4}}\n{{estadoJugadores}}\n🚫 Si necesitas cancelar tu participación: [Eliminarme de esta partida]({{urlEliminar}})",
+            jugadoresFaltan: "⚠️ Aún faltan {{cantidad}} jugador(es)",
+            partidaCompleta: "✅ ¡La partida está completa!"
         },
         cancelacion: {
             exito: "✅ Tu reserva ha sido cancelada con éxito.\n\n📅 Detalles de la reserva cancelada:\n📆 Fecha: {{fecha}}\n🕒 Hora: {{hora}}\n🎾 Pista: {{pista}}{{motivoTexto}}"

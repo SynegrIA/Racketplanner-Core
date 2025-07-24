@@ -591,9 +591,7 @@ Jugador 4: ${jugador4}
             }
 
             // 5. Preparar mensaje de confirmación para WhatsApp
-            let mensajeConfirmacion = "✅ Tu reserva ha sido cancelada con éxito.";
-
-            if (evento) {
+            if (numero && evento) {
                 const fechaEvento = new Date(evento.start.dateTime);
                 const fechaFormateada = fechaEvento.toLocaleDateString('es-ES', {
                     weekday: 'long',
@@ -620,21 +618,17 @@ Jugador 4: ${jugador4}
                     }
                 }
 
-                mensajeConfirmacion = `✅ Tu reserva ha sido cancelada con éxito.\n\n` +
-                    `📅 Detalles de la reserva cancelada:\n` +
-                    `📆 Fecha: ${fechaFormateada}\n` +
-                    `🕒 Hora: ${horaInicio}\n` +
-                    `🎾 Pista: ${pistaInfo || "No especificada"}`;
+                // Formatear el texto del motivo si existe
+                const motivoTexto = motivo ? `\n\n📝 Motivo: "${motivo}"` : '';
 
-                if (motivo) {
-                    mensajeConfirmacion += `\n\n📝 Motivo: "${motivo}"`;
-                }
-            }
-
-            // 6. Enviar mensaje de WhatsApp si tenemos número
-            if (numero) {
+                // 6. Enviar mensaje de WhatsApp con internacionalización
                 try {
-                    await enviarMensajeWhatsApp(mensajeConfirmacion, numero);
+                    await enviarMensajeWhatsApp('reservas.cancelacion.exito', numero, {
+                        fecha: fechaFormateada,
+                        hora: horaInicio,
+                        pista: pistaInfo || "No especificada",
+                        motivoTexto: motivoTexto
+                    });
                 } catch (whatsappError) {
                     console.error("Error al enviar mensaje WhatsApp:", whatsappError);
                     // No bloqueamos la respuesta por un error en WhatsApp
@@ -782,27 +776,41 @@ Jugador 4: ${jugador4}
                     urlEliminarCorta = urlEliminar;
                 }
 
-                // Construir mensaje detallado para el nuevo jugador
-                const mensajeJugador = `✅ *¡Te has unido a la partida exitosamente!*\n\n` +
-                    `📋 *Detalles de la partida*:\n` +
-                    `🆔 ID Partida: ${infoMap['ID'] || 'No disponible'}\n` +
-                    `📅 Fecha: ${fechaFormateada}\n` +
-                    `⏰ Horario: ${horaInicio} - ${horaFin}\n` +
-                    `🎾 Pista: ${infoMap['Pista'] || evento.summary || 'No especificada'}\n` +
-                    `🏆 Nivel: ${infoMap['Nivel'] || 'No especificado'}\n` +
-                    `👑 Organizador: ${infoMap['Jugador Principal'] || organizador || 'No especificado'}\n\n` +
-                    `👥 *Jugadores* (${jugadoresActuales}/4):\n` +
-                    `1. ${infoMap['Jugador Principal'] || 'Organizador'}\n` +
-                    (infoMap['Jugador 2'] ? `2. ${infoMap['Jugador 2']}\n` : '') +
-                    (infoMap['Jugador 3'] ? `3. ${infoMap['Jugador 3']}\n` : '') +
-                    (infoMap['Jugador 4'] ? `4. ${infoMap['Jugador 4']}\n` : '') +
-                    (jugadoresFaltantesActualizados > 0 ?
-                        `\n⚠️ Aún faltan ${jugadoresFaltantesActualizados} jugador(es)\n` :
-                        `\n✅ ¡La partida está completa!\n`) +
-                    `\n🚫 Si necesitas cancelar tu participación: [Eliminarme de esta partida](${urlEliminarCorta})`;
+                // Preparar datos para los jugadores
+                const jugador1 = infoMap['Jugador Principal'] || 'Organizador';
+                const jugador2 = infoMap['Jugador 2'] ? `2. ${infoMap['Jugador 2']}\n` : '';
+                const jugador3 = infoMap['Jugador 3'] ? `3. ${infoMap['Jugador 3']}\n` : '';
+                const jugador4 = infoMap['Jugador 4'] ? `4. ${infoMap['Jugador 4']}\n` : '';
 
-                // Notificar al nuevo jugador con el mensaje detallado
-                await enviarMensajeWhatsApp(mensajeJugador, numeroInvitado);
+                // Determinar el estado de jugadores usando traducciones
+                let estadoJugadoresKey;
+                if (jugadoresFaltantesActualizados > 0) {
+                    // Obtener traducción para "Aún faltan X jugadores"
+                    estadoJugadoresKey = await enviarMensajeWhatsApp('reservas.unirse.jugadoresFaltan', '', {
+                        cantidad: jugadoresFaltantesActualizados
+                    }, true);
+                } else {
+                    // Obtener traducción para "La partida está completa"
+                    estadoJugadoresKey = await enviarMensajeWhatsApp('reservas.unirse.partidaCompleta', '', {}, true);
+                }
+
+                // Enviar mensaje al nuevo jugador usando internacionalización
+                await enviarMensajeWhatsApp('reservas.unirse.exito', numeroInvitado, {
+                    idPartida: infoMap['ID'] || 'No disponible',
+                    fecha: fechaFormateada,
+                    horaInicio: horaInicio,
+                    horaFin: horaFin,
+                    pista: infoMap['Pista'] || evento.summary || 'No especificada',
+                    nivel: infoMap['Nivel'] || 'No especificado',
+                    organizador: infoMap['Jugador Principal'] || organizador || 'No especificado',
+                    jugadoresActuales: jugadoresActuales,
+                    jugador1: `1. ${jugador1}\n`,
+                    jugador2: jugador2,
+                    jugador3: jugador3,
+                    jugador4: jugador4,
+                    estadoJugadores: estadoJugadoresKey,
+                    urlEliminar: urlEliminarCorta
+                });
             }
 
             const telefono = numeroOrganizador || infoMap['Teléfono'];
@@ -835,19 +843,28 @@ Jugador 4: ${jugador4}
                 const jugadoresActuales = parseInt(infoMap['Nº Actuales'] || '1') + 1;
                 const jugadoresFaltantesActualizados = jugadoresFaltan - 1;
 
-                // Construir mensaje detallado
-                const mensajeOrganizador = `✅ *¡Nuevo jugador en tu partida!*\n\n` +
-                    `👤 *${nombreInvitado}* se ha unido a tu partida con los siguientes detalles:\n\n` +
-                    `🆔 ID Partida: ${infoMap['ID'] || 'No disponible'}\n` +
-                    `📅 Fecha: ${fechaFormateada}\n` +
-                    `⏰ Horario: ${horaInicio} - ${horaFin}\n` +
-                    `🎾 Pista: ${infoMap['Pista'] || evento.summary || 'No especificada'}\n` +
-                    `🏆 Nivel: ${infoMap['Nivel'] || 'No especificado'}\n` +
-                    (jugadoresFaltantesActualizados > 0 ?
-                        `⚠️ Aún faltan ${jugadoresFaltantesActualizados} jugador(es)\n` :
-                        `✅ ¡Partida completa!\n`);
+                let estadoJugadoresKey;
+                if (jugadoresFaltantesActualizados > 0) {
+                    // Obtener traducción para "Aún faltan X jugadores" para el organizador
+                    estadoJugadoresKey = await enviarMensajeWhatsApp('reservas.nuevoJugador.jugadoresFaltan', '', {
+                        cantidad: jugadoresFaltantesActualizados
+                    }, true);
+                } else {
+                    // Obtener traducción para "Partida completa" para el organizador
+                    estadoJugadoresKey = await enviarMensajeWhatsApp('reservas.nuevoJugador.partidaCompleta', '', {}, true);
+                }
 
-                await enviarMensajeWhatsApp(mensajeOrganizador, telefono);
+                // Enviar mensaje al organizador usando internacionalización
+                await enviarMensajeWhatsApp('reservas.nuevoJugador.notificacion', telefono, {
+                    nombreJugador: nombreInvitado,
+                    idPartida: infoMap['ID'] || 'No disponible',
+                    fecha: fechaFormateada,
+                    horaInicio: horaInicio,
+                    horaFin: horaFin,
+                    pista: infoMap['Pista'] || evento.summary || 'No especificada',
+                    nivel: infoMap['Nivel'] || 'No especificado',
+                    estadoJugadores: estadoJugadoresKey
+                });
             }
 
             return res.json({
