@@ -169,20 +169,32 @@ export class ReservasController {
             // 2. Buscar alternativas en el MISMO horario pero en otras pistas
             const alternativasMismoHorario = await buscarAlternativasMismoHorario(startDate, nombre, numero, partida, nivel, jugadores_faltan);
             if (alternativasMismoHorario.length > 0) {
-                const listaHorarios = alternativasMismoHorario.map(horario => {
+                // Formatear cada horario con traducción individual
+                const listaHorarios = await Promise.all(alternativasMismoHorario.map(async horario => {
                     const inicio = new Date(horario.inicio);
                     const fin = new Date(horario.fin);
                     const fechaInicioFormateada = inicio.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Europe/Madrid' });
                     const horaInicio = inicio.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid' });
                     const horaFin = fin.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid' });
-                    return `👉🏼 *El ${fechaInicioFormateada} de ${horaInicio} a ${horaFin} en ${horario.pista}*: [Haz clic para reservar](${horario.enlace})`;
-                }).join(' \n');
 
-                const mensaje = `😊 Hay otras pistas disponibles en la misma hora:\n${listaHorarios}`;
-                await enviarMensajeWhatsApp(mensaje, numero);
+                    // Usar la función de traducción con el parámetro soloTraducir=true
+                    return await enviarMensajeWhatsApp('reservas.disponibilidad.formatoHorario', '', {
+                        fecha: fechaInicioFormateada,
+                        horaInicio: horaInicio,
+                        horaFin: horaFin,
+                        pista: horario.pista,
+                        enlace: horario.enlace
+                    }, true); // true indica que solo queremos la traducción, no enviar mensaje
+                }));
+
+                // Enviamos el mensaje completo con la lista de horarios ya traducidos
+                await enviarMensajeWhatsApp('reservas.disponibilidad.alternativasMismoHorario', numero, {
+                    listaHorarios: listaHorarios.join('\n')
+                });
+
                 return res.json({
                     status: "alternativas_mismo_horario",
-                    message: mensaje,
+                    message: "Mensaje enviado con alternativas en el mismo horario",
                     alternativas: alternativasMismoHorario
                 });
             }
@@ -190,20 +202,32 @@ export class ReservasController {
             // 3. Si no hay nada en el mismo horario, buscar alternativas en otros horarios
             const alternativas = await buscarAlternativasSlots(startDate, nombre, numero, partida, nivel, jugadores_faltan);
             if (alternativas.length > 0) {
-                const listaHorarios = alternativas.map(horario => {
+                // Formatear cada horario con traducción individual
+                const listaHorarios = await Promise.all(alternativas.map(async horario => {
                     const inicio = new Date(horario.inicio);
                     const fin = new Date(horario.fin);
                     const fechaInicioFormateada = inicio.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Europe/Madrid' });
                     const horaInicio = inicio.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid' });
                     const horaFin = fin.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid' });
-                    return `👉🏼 *El ${fechaInicioFormateada} de ${horaInicio} a ${horaFin} en ${horario.pista}*: [Haz clic para reservar](${horario.enlace})`;
-                }).join(' \n');
 
-                const mensaje = `😔 No hay disponibilidad en la hora seleccionada. Opciones alternativas:\n${listaHorarios}`;
-                await enviarMensajeWhatsApp(mensaje, numero);
+                    // Usar la función de traducción con el parámetro soloTraducir=true
+                    return await enviarMensajeWhatsApp('reservas.disponibilidad.formatoHorario', '', {
+                        fecha: fechaInicioFormateada,
+                        horaInicio: horaInicio,
+                        horaFin: horaFin,
+                        pista: horario.pista,
+                        enlace: horario.enlace
+                    }, true); // true indica que solo queremos la traducción, no enviar mensaje
+                }));
+
+                // Enviamos el mensaje completo con la lista de horarios ya traducidos
+                await enviarMensajeWhatsApp('reservas.disponibilidad.alternativas', numero, {
+                    listaHorarios: listaHorarios.join('\n')
+                });
+
                 return res.json({
                     status: "alternativas",
-                    message: mensaje,
+                    message: "Mensaje enviado con alternativas en otros horarios",
                     alternativas
                 });
             } else {
