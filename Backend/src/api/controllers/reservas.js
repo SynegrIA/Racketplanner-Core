@@ -150,11 +150,18 @@ export class ReservasController {
                 const enlace = await shortenUrl(urlReserva);
 
 
-                const mensaje = `✅ Hay disponibilidad para reservar el ${slotInfo.pista.name} el ${slotInfo.slotInicio.toLocaleString('es-ES', { timeZone: 'Europe/Madrid' })}.\n\n[Haz clic aquí para confirmar la reserva](${enlace})`;
-                await enviarMensajeWhatsApp(mensaje, numero);
+                // const mensaje = `✅ Hay disponibilidad para reservar el ${slotInfo.pista.name} el ${slotInfo.slotInicio.toLocaleString('es-ES', { timeZone: 'Europe/Madrid' })}.\n\n[Haz clic aquí para confirmar la reserva](${enlace})`;
+                // await enviarMensajeWhatsApp(mensaje, numero);
+
+                await enviarMensajeWhatsApp('reservas.disponibilidad.disponible', numero, {
+                    pista: slotInfo.pista.name,
+                    fecha: slotInfo.slotInicio.toLocaleString('es-ES', { timeZone: 'Europe/Madrid' }),
+                    enlace: enlace
+                });
+
                 return res.json({
                     status: "enlace_confirmacion",
-                    message: mensaje,
+                    message: "Mensaje enviado con enlace de confirmación",
                     enlace
                 });
             }

@@ -1,24 +1,18 @@
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import { APP_LOCALE } from '../../config/config.js';
+// Importaciones estáticas
+import esTranslations from '../../config/locales/es.js';
+import frTranslations from '../../config/locales/fr.js';
 
 // Obtener el idioma de las variables de entorno o usar español por defecto
-const LOCALE = APP_LOCALE
+const LOCALE = APP_LOCALE || 'es';
 
 // Cargar los archivos de traducción
-const loadTranslations = () => {
-    const translations = {};
-    try {
-        // Importar dinámicamente los archivos de traducción
-        translations.es = require('../../config/locales/es.js').default;
-        translations.fr = require('../../config/locales/fr.js').default;
-    } catch (error) {
-        console.error('Error cargando traducciones:', error);
-    }
-    return translations;
+const translations = {
+    es: esTranslations,
+    fr: frTranslations
 };
-
-const translations = loadTranslations();
 
 /**
  * Traduce un texto usando la clave proporcionada
@@ -27,11 +21,18 @@ const translations = loadTranslations();
  * @returns {string} - Mensaje traducido
  */
 export function translate(key, params = {}) {
+    // Añadir log para depuración
+    console.log(`Traduciendo clave: ${key}, idioma: ${LOCALE}`);
+    console.log(`Params:`, params);
+
     // Obtener la traducción según el idioma configurado
     const localeData = translations[LOCALE] || translations.es;
 
-    // Obtener el texto para la clave dada o usar la clave como fallback
-    let text = key;
+    // Si no hay datos de traducción, devolver la clave original
+    if (!localeData) {
+        console.error(`No hay datos de traducción para el idioma ${LOCALE}`);
+        return key;
+    }
 
     // Dividir la clave por puntos para acceder a objetos anidados
     const keys = key.split('.');
@@ -43,12 +44,17 @@ export function translate(key, params = {}) {
             currentObj = currentObj[k];
         } else {
             // Si no se encuentra la clave, devolver la clave original
+            console.error(`No se encontró la clave de traducción: ${key}`);
             return replaceParams(key, params);
         }
     }
 
+    let text = key;
     if (typeof currentObj === 'string') {
         text = currentObj;
+        console.log(`Texto traducido: ${text}`);
+    } else {
+        console.error(`La clave ${key} no apunta a un string sino a:`, currentObj);
     }
 
     // Reemplazar los parámetros en el texto
