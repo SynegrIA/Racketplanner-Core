@@ -27,7 +27,7 @@ function App() {
             <Route path="/" element={<CalendarPage />} />
             <Route path="/home" element={<CalendarPage />} />
             <Route path="/signup" element={<RegisterPage />} />
-            <Route path="/confirmar-numerotelefono" element={<RegisterConfirmPage />} />
+            <Route path="/confirmar-numero/:telefono" element={<RegisterConfirmPage />} />
             <Route path="/confirmar-reserva" element={<ReservaConfirmar />} />
             <Route path="/cancelar-reserva" element={<CancelarReserva />} />
             <Route path="/unir-jugador-reserva" element={<ReservaUnirse />} />
