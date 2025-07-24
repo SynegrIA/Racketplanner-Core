@@ -6,11 +6,6 @@ import { InvitacionesModel } from '../../models/invitaciones.js';
 import { GoogleCalendarService } from '../services/googleCalendar.js';
 
 export class InvitacionesController {
-    static async testing(req, res) {
-        console.log("probando endpoint")
-        return res.status(200).json({ message: "Todo okey" })
-    }
-
     /**
      * Envía invitación a un jugador para unirse a una partida
      * @param {Request} req - Petición Express
