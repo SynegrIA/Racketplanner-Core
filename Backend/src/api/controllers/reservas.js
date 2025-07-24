@@ -231,11 +231,12 @@ export class ReservasController {
                     alternativas
                 });
             } else {
-                const mensaje = "😔 Lo sentimos, no hay disponibilidad ni alternativas cercanas.";
-                await enviarMensajeWhatsApp(mensaje, numero);
+                // const mensaje = "😔 Lo sentimos, no hay disponibilidad ni alternativas cercanas.";
+                // await enviarMensajeWhatsApp(mensaje, numero);
+                await enviarMensajeWhatsApp('reservas.disponibilidad.noDisponible', numero)
                 return res.json({
                     status: "nodisponible",
-                    message: mensaje
+                    message: 'No hay disponibilidad'
                 });
             }
         } catch (error) {
