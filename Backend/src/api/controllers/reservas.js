@@ -1007,15 +1007,14 @@ Jugador 4: ${jugador4}
                         timeZone: 'Europe/Madrid'
                     });
 
-                    const mensaje = `⚠️ Actualización de partida\n\n` +
-                        `El jugador ${nombreJugador} ha sido eliminado de tu partida.\n\n` +
-                        `📅 Fecha: ${fechaFormateada}\n` +
-                        `⏰ Hora: ${horaEvento}\n` +
-                        `🎾 Pista: ${infoMap['Pista'] || "No especificada"}\n\n` +
-                        `👥 Jugadores actuales: ${jugadoresActuales}/4\n` +
-                        `👥 Jugadores faltantes: ${jugadoresFaltan}`;
-
-                    await enviarMensajeWhatsApp(mensaje, organizadorNumero);
+                    await enviarMensajeWhatsApp('reservas.eliminarJugador.exito', organizadorNumero, {
+                        nombreJugador: nombreJugador,
+                        fecha: fechaFormateada,
+                        hora: horaEvento,
+                        pista: infoMap['Pista'] || "No especificada",
+                        jugadoresActuales: jugadoresActuales,
+                        jugadoresFaltan: jugadoresFaltan
+                    });
                 } catch (whatsappError) {
                     console.error("Error al enviar mensaje WhatsApp:", whatsappError);
                     // No bloqueamos la respuesta por este error
@@ -1041,14 +1040,12 @@ Jugador 4: ${jugador4}
                         timeZone: 'Europe/Madrid'
                     });
 
-                    const mensaje = `ℹ️ Has sido eliminado de una partida\n\n` +
-                        `${organizadorNombre} te ha eliminado de la siguiente partida:\n\n` +
-                        `📅 Fecha: ${fechaFormateada}\n` +
-                        `⏰ Hora: ${horaEvento}\n` +
-                        `🎾 Pista: ${infoMap['Pista'] || "No especificada"}\n\n` +
-                        `Si crees que es un error, por favor contacta con el organizador.`;
-
-                    await enviarMensajeWhatsApp(mensaje, telefonoJugador);
+                    await enviarMensajeWhatsApp('reservas.eliminarJugador.notificacion', telefonoJugador, {
+                        organizador: organizadorNombre,
+                        fecha: fechaFormateada,
+                        hora: horaEvento,
+                        pista: infoMap['Pista'] || "No especificada"
+                    });
                 } catch (whatsappError) {
                     console.error("Error al enviar mensaje WhatsApp:", whatsappError);
                     // No bloqueamos la respuesta por este error
