@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: padelpointrabat-racketplanner-frontend
+  labels:
+    app: padelpointrabat-racketplanner-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: padelpointrabat-racketplanner-frontend
+  template:
+    metadata:
+      labels:
+        app: padelpointrabat-racketplanner-frontend
+    spec:
+      containers:
+      - name: padelpointrabat-racketplanner-frontend
+        image: xesuspb/padelpointrabat-racketplanner-frontend:latest
+        ports:
+        - containerPort: 80
+        env:
+        - name: TZ
+          value: "Europe/Madrid"
+        - name: NODE_ENV
+          value: production
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: padelpointrabat-racketplanner-frontend-service
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: 80
+  selector:
+    app: padelpointrabat-racketplanner-frontend

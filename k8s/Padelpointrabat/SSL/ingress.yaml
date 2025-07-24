@@ -1,0 +1,45 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: padelpointrabat-racketplanner-ingress
+  namespace: synergia
+  annotations:
+    nginx.ingress.kubernetes.io/cors-allow-origin: "https://padelpointrabat.racketplanner.es"
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    cert-manager.io/cluster-issuer: letsencrypt
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/server-snippet: |-
+      proxy_set_header X-Forwarded-Host $host;
+      proxy_set_header X-Forwarded-Server $host;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header X-Forwarded-Proto $scheme;
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header Host $host;
+spec:
+  ingressClassName: "nginx"
+  rules:
+    - host: padelpointrabat.racketplanner.es
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: padelpointrabat-racketplanner-frontend-service
+                port:
+                  number: 80
+    - host: backend.padelpointrabat.racketplanner.es
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: padelpointrabat-racketplanner-backend-service
+                port:
+                  number: 3000
+  tls:
+  - hosts:
+    - padelpointrabat.racketplanner.es
+    - backend.padelpointrabat.racketplanner.es
+    secretName: padelpointrabat-racketplanner-tls
