@@ -6,6 +6,9 @@ export const NODE_ENV = process.env.NODE_ENV || 'development'
 
 export const DOMINIO_FRONTEND = NODE_ENV == 'production' ? process.env.DOMINIO_FRONTEND_PROD : process.env.DOMINIO_FRONTEND_DEV
 
+// Añadir esta línea a tu configuración existente
+export const APP_LOCALE = process.env.APP_LOCALE || 'es';
+
 export const SUPABASE_URL = process.env.SUPABASE_URL
 export const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY
 
