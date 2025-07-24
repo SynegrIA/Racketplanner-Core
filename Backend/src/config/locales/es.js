@@ -15,7 +15,8 @@ export default {
             disponible: "✅ Hay disponibilidad para reservar el {{pista}} el {{fecha}}.\n\n[Haz clic aquí para confirmar la reserva]({{enlace}})",
             alternativasMismoHorario: "😊 Hay otras pistas disponibles en la misma hora:\n{{listaHorarios}}",
             alternativas: "😔 No hay disponibilidad en la hora seleccionada. Opciones alternativas:\n{{listaHorarios}}",
-            formatoHorario: "👉🏼 *El {{fecha}} de {{horaInicio}} a {{horaFin}} en {{pista}}*: [Haz clic para reservar]({{enlace}})"
+            formatoHorario: "👉🏼 *El {{fecha}} de {{horaInicio}} a {{horaFin}} en {{pista}}*: [Haz clic para reservar]({{enlace}})",
+            pistaNoDisponible: "😔 Lo sentimos, esta pista ya no está disponible"
         },
         eliminarJugador: {
             exito: "⚠️ Actualización de partida\n\nEl jugador {{nombreJugador}} ha sido eliminado de tu partida.\n\n📅 Fecha: {{fecha}}\n⏰ Hora: {{hora}}\n🎾 Pista: {{pista}}\n\n👥 Jugadores actuales: {{jugadoresActuales}}/4\n👥 Jugadores faltantes: {{jugadoresFaltan}}",

@@ -291,11 +291,11 @@ export class ReservasController {
             );
 
             if (eventos && eventos.length > 0) {
-                const mensaje = "😔 Lo sentimos, esta pista ya no está disponible.";
+                const mensaje = 'reservas.disponibilidad.pistaNoDisponible';
                 await enviarMensajeWhatsApp(mensaje, numero);
                 return res.status(409).json({
                     status: "error",
-                    message: mensaje
+                    message: "Pista no disponible"
                 });
             }
 
@@ -451,35 +451,28 @@ Jugador 4: ${jugador4}
             });
 
             // 12. Preparar mensaje de confirmación según tipo de partida
-            let mensaje;
-            if (estado == "Completa") {
-                mensaje = `✅ ¡Tu reserva para ${organizador["Nombre Real"]} ha sido confirmada!\n` +
-                    `📅 Fecha: ${fechaFormateada}\n` +
-                    `🕒 Hora: ${fechaInicio.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid' })} - ${fechaFin.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid' })}\n` +
-                    `🎾 Pista: ${pista}\n\n` +
-                    `📱 Puedes cancelar tu reserva aquí: \n` +
-                    `👉🏼 [Cancelar Reserva](${urlCancelarCorta})\n\n` +
-                    `🔄 Número de jugadores que faltan: ${jugadores_faltan}\n` +
-                    `📈 Estado de la partida: completa\n\n` +
-                    `🚫 Si deseas eliminar a algún invitado, pulsa aquí: [Eliminar Jugador sin Cancelar](${urlEliminarCorta}).`;
-            } else {
-                mensaje = `✅ ¡Tu reserva para ${organizador["Nombre Real"]} ha sido confirmada!\n` +
-                    `📅 Fecha: ${fechaFormateada}\n` +
-                    `🕒 Hora: ${fechaInicio.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid' })} - ${fechaFin.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid' })}\n` +
-                    `🎾 Pista: ${pista}\n\n` +
-                    `📱 Puedes cancelar tu reserva aquí: \n` +
-                    `👉🏼 [Cancelar Reserva](${urlCancelarCorta})\n\n` +
-                    `🔄 Número de jugadores que faltan: ${jugadores_faltan}\n` +
-                    `📈 Estado de la partida: abierta\n\n` +
-                    `🚫 Si deseas eliminar a algún invitado, pulsa aquí: [Eliminar Reserva sin Cancelar](${urlEliminarCorta}).`;
-            }
+            const horaInicio = fechaInicio.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid' });
+            const horaFin = fechaFin.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid' });
+            const estadoTexto = estado === "Completa" ? "completa" : "abierta";
+            const textoReserva = estado === "Completa" ? "Jugador sin Cancelar" : "Reserva sin Cancelar";
 
-            // 13. Enviar mensaje de confirmación
-            await enviarMensajeWhatsApp(mensaje, numero);
+            await enviarMensajeWhatsApp('reservas.confirmacion.exito', numero, {
+                nombre: organizador["Nombre Real"],
+                fecha: fechaFormateada,
+                horaInicio: horaInicio,
+                horaFin: horaFin,
+                pista: pista,
+                urlCancelar: urlCancelarCorta,
+                jugadores_faltan: jugadores_faltan,
+                estado: estadoTexto,
+                textoReserva: textoReserva,
+                urlEliminar: urlEliminarCorta
+            });
 
             // 14. Enviar mensaje adicional con enlace para invitar si es partida abierta
-            const mensajeInvitacion = `👉🏼 Si deseas invitar a un jugador, envía este mensaje a la persona: [Unirse a Partida](${urlInvitarCorta})`;
-            await enviarMensajeWhatsApp(mensajeInvitacion, numero);
+            await enviarMensajeWhatsApp('reservas.confirmacion.invitacion', numero, {
+                urlInvitar: urlInvitarCorta
+            });
 
             // Intentar cerrar la partida según se crea?
             // await fetch(N8N_WEBHOOK_URL, {
