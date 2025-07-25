@@ -104,20 +104,36 @@ async function loadDynamicConfig() {
         const clubsModel = new ClubsModel();
         const config = await clubsModel.getCalendarConfigFromSettings(CLUB_ID);
 
-        if (config) {
-            // Actualizar las configuraciones en memoria
-            config.calendars.forEach((updatedCalendar, index) => {
-                Object.assign(CALENDARS[index], updatedCalendar);
+        if (config && config.calendars && config.calendars.length > 0) {
+            console.log(`Configuración cargada: ${config.calendars.length} pistas`);
+
+            // Actualizamos cada calendario individualmente para mantener las referencias
+            config.calendars.forEach((updatedCalendar, i) => {
+                if (i < CALENDARS.length) {
+                    // Actualizamos directamente en lugar de usar Object.assign
+                    CALENDARS[i].name = updatedCalendar.name;
+                    CALENDARS[i].businessHours = {
+                        weekdays: [...updatedCalendar.businessHours.weekdays],
+                        weekends: [...updatedCalendar.businessHours.weekends]
+                    };
+                    CALENDARS[i].avaliable = updatedCalendar.avaliable !== false;
+                }
             });
 
+            // Actualizamos business hours haciendo copia profunda
             if (config.businessHours) {
-                Object.assign(BUSINESS_HOURS, config.businessHours);
+                BUSINESS_HOURS.weekdays = [...config.businessHours.weekdays];
+                BUSINESS_HOURS.weekends = [...config.businessHours.weekends];
             }
 
-            console.log('Configuración de calendarios actualizada desde la base de datos');
+            console.log('✅ Configuración de calendarios actualizada exitosamente');
+            console.log('Horarios actualizados:',
+                CALENDARS.map(c => `${c.name}: ${JSON.stringify(c.businessHours.weekdays)}`).join('\n'));
+        } else {
+            console.warn('⚠️ No se pudo cargar la configuración de calendarios o está vacía');
         }
     } catch (error) {
-        console.error('Error al cargar configuración dinámica:', error);
+        console.error('❌ Error al cargar configuración dinámica:', error);
     }
 }
 
@@ -126,10 +142,13 @@ loadDynamicConfig().catch(console.error);
 
 // Función para recargar la configuración bajo demanda
 export async function reloadCalendarConfig() {
+    console.log('🔄 Recargando configuración de calendarios...');
     await loadDynamicConfig();
+
+    // Devolver copia de la configuración para evitar problemas de referencia
     return {
-        CALENDARS,
-        BUSINESS_HOURS,
+        CALENDARS: CALENDARS.map(c => ({ ...c })),
+        BUSINESS_HOURS: { ...BUSINESS_HOURS },
         RESERVATION_DURATION_MINUTES
     };
 }
