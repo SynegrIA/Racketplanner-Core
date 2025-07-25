@@ -1268,15 +1268,25 @@ Jugador 4: ${jugador4}
 
 // NUEVA FUNCIÓN HELPER: Busca todos los slots disponibles en un día
 async function buscarTodosLosSlotsDisponibles(fecha) {
+    console.log("Buscando slots disponibles para:", fecha);
     const slots = [];
     const dia = fecha.getDay();
     const isWeekend = dia === 0 || dia === 6;
 
-    const ahora = new Date()
+    const ahora = new Date();
 
-    for (const pista of CALENDARS) {
+    // Primero recopilamos todos los horarios para todas las pistas
+    const pistasHorarios = CALENDARS.map(pista => {
         const horarios = isWeekend ? pista.businessHours.weekends : pista.businessHours.weekdays;
-        if (!horarios || horarios.length === 0) continue;
+        return {
+            pista,
+            horarios: horarios || []
+        };
+    }).filter(item => item.horarios.length > 0);
+
+    // Procesamos pista por pista sin importar sus diferentes horarios de inicio
+    for (const { pista, horarios } of pistasHorarios) {
+        console.log(`Procesando pista ${pista.name} con ${horarios.length} rangos horarios`);
 
         for (const rango of horarios) {
             const [startHour, startMinute] = rango.start.split(":").map(Number);
@@ -1294,6 +1304,7 @@ async function buscarTodosLosSlotsDisponibles(fecha) {
                 slotFinRango.setDate(slotFinRango.getDate() + 1);
             }
 
+            console.log(`- Rango horario: ${rango.start} a ${rango.end}`);
 
             while (slotInicio < slotFinRango) {
                 const slotFin = new Date(slotInicio.getTime() + pista.slotDuration * 60000);
@@ -1301,26 +1312,36 @@ async function buscarTodosLosSlotsDisponibles(fecha) {
 
                 // Solo considerar slots futuros
                 if (slotInicio > ahora) {
-                    const eventos = await GoogleCalendarService.getEvents(
-                        pista.id,
-                        slotInicio.toISOString(),
-                        slotFin.toISOString()
-                    );
+                    try {
+                        const eventos = await GoogleCalendarService.getEvents(
+                            pista.id,
+                            slotInicio.toISOString(),
+                            slotFin.toISOString()
+                        );
 
-                    if (!eventos || eventos.length === 0) {
-                        slots.push({
-                            pista: pista.name,
-                            inicio: slotInicio.toISOString(),
-                            fin: slotFin.toISOString(),
-                        });
+                        if (!eventos || eventos.length === 0) {
+                            const slot = {
+                                pista: pista.name,
+                                inicio: slotInicio.toISOString(),
+                                fin: slotFin.toISOString(),
+                            };
+                            slots.push(slot);
+                            console.log(`  - Slot disponible: ${pista.name} - ${new Date(slot.inicio).toLocaleTimeString()}`);
+                        }
+                    } catch (error) {
+                        console.error(`Error al verificar eventos para ${pista.name}:`, error);
                     }
                 }
                 slotInicio = new Date(slotInicio.getTime() + pista.slotDuration * 60000);
             }
         }
     }
+
     // Ordenar por hora de inicio
-    return slots.sort((a, b) => new Date(a.inicio) - new Date(b.inicio));
+    const sortedSlots = slots.sort((a, b) => new Date(a.inicio) - new Date(b.inicio));
+    console.log(`Total de slots disponibles encontrados: ${sortedSlots.length}`);
+
+    return sortedSlots;
 }
 
 // Helper: Busca si la hora coincide exactamente con un slot y si hay pista libre

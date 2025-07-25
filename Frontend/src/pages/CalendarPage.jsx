@@ -166,6 +166,7 @@ export default function CalendarPage() {
     if (nombreParam) setNombre(decodeURIComponent(nombreParam));
     if (numeroParam) setNumero(decodeURIComponent(numeroParam));
   }, []);
+
   const fetchAvailableSlots = async date => {
     setLoading(true);
     setError('');
@@ -183,7 +184,8 @@ export default function CalendarPage() {
         console.log("Ignorando respuesta obsoleta", requestId);
         return;
       }
-      if (response.ok && data.status === 'success' && data.data.length > 0) {
+
+      if (response.ok && data.status === 'success' && data.data && data.data.length > 0) {
         console.log("Datos recibidos del servidor:", data.data);
 
         // Verificar si cada elemento tiene el tipo correcto
@@ -211,7 +213,7 @@ export default function CalendarPage() {
 
         // Convertir el mapa a array
         const uniqueSlots = Array.from(slotMap.values());
-        console.log("Slots procesados:", uniqueSlots);
+        console.log("Slots únicos procesados:", uniqueSlots.length);
 
         // Agrupar por hora
         const groups = uniqueSlots.reduce((acc, slot) => {
@@ -222,16 +224,29 @@ export default function CalendarPage() {
           acc[time].push(slot);
           return acc;
         }, {});
+
+        console.log("Grupos de horarios:", Object.keys(groups));
+
+        // Si no hay grupos expandidos y hay al menos un grupo, expandir el primero
         setGroupedSlots(groups);
+
+        // Expandir automáticamente el primer horario disponible
+        if (Object.keys(groups).length > 0 && expandedTime === null) {
+          const firstTime = Object.keys(groups).sort()[0];
+          setExpandedTime(firstTime);
+          console.log("Expandiendo automáticamente el primer horario:", firstTime);
+        }
       } else {
-        const message = data.data?.length === 0 ? 'No hay horarios disponibles para la fecha seleccionada.' : data.message || 'No se pudieron cargar los horarios.';
+        const message = (!data.data || data.data.length === 0) ?
+          'No hay horarios disponibles para la fecha seleccionada.' :
+          data.message || 'No se pudieron cargar los horarios.';
         setError(message);
       }
     } catch (err) {
       // Verificar si esta petición sigue siendo relevante
       if (requestId === requestIdRef.current) {
         setError('Error de conexión al cargar los horarios. Inténtalo de nuevo.');
-        console.error(err);
+        console.error("Error al cargar slots:", err);
       }
     } finally {
       // Solo actualizar el estado de carga si esta es la petición más reciente
@@ -240,6 +255,7 @@ export default function CalendarPage() {
       }
     }
   };
+
   useEffect(() => {
     if (selectedDate) {
       fetchAvailableSlots(selectedDate);
