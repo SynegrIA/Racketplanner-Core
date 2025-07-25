@@ -5,7 +5,7 @@ import Backend from 'i18next-http-backend';
 
 i18n
     .use(Backend)               // Para cargar traducciones desde archivos
-    .use(LanguageDetector)      // detecta lang del navegador
+    //.use(LanguageDetector)      // detecta lang del navegador
     .use(initReactI18next)      // pasa i18n a react-i18next
     .init({
         fallbackLng: 'fr',      // idioma por defecto
