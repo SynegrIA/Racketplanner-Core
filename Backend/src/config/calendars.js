@@ -97,6 +97,7 @@ export const RESERVATION_DURATION_MINUTES = 90;
 // Función para cargar la configuración dinámica desde la BD
 async function loadDynamicConfig() {
     try {
+        console.log("Cargando configuración de calendarios desde base de datos...");
         const clubsModel = new ClubsModel();
         const config = await clubsModel.getCalendarConfigFromSettings(CLUB_ID);
 
@@ -106,25 +107,56 @@ async function loadDynamicConfig() {
             // Actualizamos cada calendario individualmente para mantener las referencias
             config.calendars.forEach((updatedCalendar, i) => {
                 if (i < CALENDARS.length) {
-                    // Actualizamos directamente en lugar de usar Object.assign
+                    // Actualizamos nombre
                     CALENDARS[i].name = updatedCalendar.name;
-                    CALENDARS[i].businessHours = {
-                        weekdays: [...updatedCalendar.businessHours.weekdays],
-                        weekends: [...updatedCalendar.businessHours.weekends]
-                    };
+
+                    // Actualizamos horarios laborables
+                    CALENDARS[i].businessHours.weekdays = [];
+                    updatedCalendar.businessHours.weekdays.forEach(interval => {
+                        CALENDARS[i].businessHours.weekdays.push({
+                            start: interval.start,
+                            end: interval.end
+                        });
+                    });
+
+                    // Actualizamos horarios de fin de semana
+                    CALENDARS[i].businessHours.weekends = [];
+                    updatedCalendar.businessHours.weekends.forEach(interval => {
+                        CALENDARS[i].businessHours.weekends.push({
+                            start: interval.start,
+                            end: interval.end
+                        });
+                    });
+
+                    // Actualizamos disponibilidad
                     CALENDARS[i].avaliable = updatedCalendar.avaliable !== false;
+
+                    console.log(`Actualizado ${CALENDARS[i].name}:`);
+                    console.log(`- Días laborables: ${JSON.stringify(CALENDARS[i].businessHours.weekdays)}`);
+                    console.log(`- Fin de semana: ${JSON.stringify(CALENDARS[i].businessHours.weekends)}`);
                 }
             });
 
             // Actualizamos business hours haciendo copia profunda
             if (config.businessHours) {
-                BUSINESS_HOURS.weekdays = [...config.businessHours.weekdays];
-                BUSINESS_HOURS.weekends = [...config.businessHours.weekends];
+                BUSINESS_HOURS.weekdays = [];
+                config.businessHours.weekdays.forEach(interval => {
+                    BUSINESS_HOURS.weekdays.push({
+                        start: interval.start,
+                        end: interval.end
+                    });
+                });
+
+                BUSINESS_HOURS.weekends = [];
+                config.businessHours.weekends.forEach(interval => {
+                    BUSINESS_HOURS.weekends.push({
+                        start: interval.start,
+                        end: interval.end
+                    });
+                });
             }
 
             console.log('✅ Configuración de calendarios actualizada exitosamente');
-            console.log('Horarios actualizados:',
-                CALENDARS.map(c => `${c.name}: ${JSON.stringify(c.businessHours.weekdays)}`).join('\n'));
         } else {
             console.warn('⚠️ No se pudo cargar la configuración de calendarios o está vacía');
         }

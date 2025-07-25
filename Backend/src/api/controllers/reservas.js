@@ -1272,47 +1272,70 @@ async function buscarTodosLosSlotsDisponibles(fecha) {
     const slots = [];
     const dia = fecha.getDay();
     const isWeekend = dia === 0 || dia === 6;
+    console.log(`Es fin de semana: ${isWeekend ? 'Sí' : 'No'} (día ${dia})`);
+
+    // Obtener zona horaria local
+    const timeZoneOffset = -new Date().getTimezoneOffset() / 60; // Convierte minutos a horas
+    console.log(`Offset de zona horaria local: UTC${timeZoneOffset >= 0 ? '+' : ''}${timeZoneOffset}`);
 
     const ahora = new Date();
 
-    // Primero recopilamos todos los horarios para todas las pistas
-    const pistasHorarios = CALENDARS.map(pista => {
+    // Recopilar las pistas y sus horarios según si es fin de semana o no
+    const pistasHorarios = CALENDARS.filter(pista => pista.avaliable !== false).map(pista => {
+        // Usar horarios de fin de semana o días laborables según corresponda
         const horarios = isWeekend ? pista.businessHours.weekends : pista.businessHours.weekdays;
+
+        console.log(`Configuración de ${pista.name}:`,
+            isWeekend ?
+                `Fin de semana: ${JSON.stringify(horarios)}` :
+                `Días laborables: ${JSON.stringify(horarios)}`);
+
         return {
             pista,
             horarios: horarios || []
         };
     }).filter(item => item.horarios.length > 0);
 
-    // Procesamos pista por pista sin importar sus diferentes horarios de inicio
-    for (const { pista, horarios } of pistasHorarios) {
-        console.log(`Procesando pista ${pista.name} con ${horarios.length} rangos horarios`);
+    console.log(`Procesando ${pistasHorarios.length} pistas con horarios configurados`);
 
+    // Procesar cada pista con sus horarios correspondientes
+    for (const { pista, horarios } of pistasHorarios) {
+        console.log(`\nGenerando slots para ${pista.name} en ${isWeekend ? 'fin de semana' : 'día laborable'}`);
+
+        // Procesar cada rango horario configurado para esta pista
         for (const rango of horarios) {
+            console.log(`- Rango configurado: ${rango.start} a ${rango.end}`);
+
+            // Convertir las horas de string a números
             const [startHour, startMinute] = rango.start.split(":").map(Number);
             const [endHour, endMinute] = rango.end.split(":").map(Number);
 
-            // Crear fechas consistentemente en la zona horaria local
+            // Crear fechas en la zona horaria local para este día
             let slotInicio = new Date(fecha);
             slotInicio.setHours(startHour, startMinute, 0, 0);
 
             let slotFinRango = new Date(fecha);
             slotFinRango.setHours(endHour, endMinute, 0, 0);
 
-            // Ajustar correctamente la medianoche
-            if (endHour === 0 && endMinute === 0) {
+            // Manejar correctamente horarios que cruzan la medianoche
+            if ((endHour === 0 && endMinute === 0) || endHour < startHour) {
                 slotFinRango.setDate(slotFinRango.getDate() + 1);
+                console.log(`  Ajustando horario que cruza medianoche: ${rango.start} a ${rango.end} (día siguiente)`);
             }
 
-            console.log(`- Rango horario: ${rango.start} a ${rango.end}`);
+            console.log(`- Generando slots desde ${slotInicio.toLocaleTimeString()} hasta ${slotFinRango.toLocaleTimeString()}`);
 
+            // Generar los slots para este rango horario
             while (slotInicio < slotFinRango) {
                 const slotFin = new Date(slotInicio.getTime() + pista.slotDuration * 60000);
+
+                // Si este slot terminaría después del fin del rango, no lo incluimos
                 if (slotFin > slotFinRango) break;
 
                 // Solo considerar slots futuros
                 if (slotInicio > ahora) {
                     try {
+                        // Verificar si el slot está disponible (no hay eventos programados)
                         const eventos = await GoogleCalendarService.getEvents(
                             pista.id,
                             slotInicio.toISOString(),
@@ -1320,24 +1343,31 @@ async function buscarTodosLosSlotsDisponibles(fecha) {
                         );
 
                         if (!eventos || eventos.length === 0) {
+                            // Slot disponible - añadirlo a la lista
                             const slot = {
                                 pista: pista.name,
                                 inicio: slotInicio.toISOString(),
                                 fin: slotFin.toISOString(),
                             };
                             slots.push(slot);
-                            console.log(`  - Slot disponible: ${pista.name} - ${new Date(slot.inicio).toLocaleTimeString()}`);
+                            console.log(`  ✅ Slot disponible: ${pista.name} - ${new Date(slot.inicio).toLocaleTimeString('es-ES', { timeZone: 'Europe/Madrid' })} a ${new Date(slot.fin).toLocaleTimeString('es-ES', { timeZone: 'Europe/Madrid' })}`);
+                        } else {
+                            console.log(`  ❌ Slot ocupado: ${pista.name} - ${slotInicio.toLocaleTimeString('es-ES', { timeZone: 'Europe/Madrid' })}`);
                         }
                     } catch (error) {
-                        console.error(`Error al verificar eventos para ${pista.name}:`, error);
+                        console.error(`  Error al verificar eventos para ${pista.name}:`, error);
                     }
+                } else {
+                    console.log(`  ⏰ Slot en el pasado, ignorado: ${slotInicio.toLocaleTimeString('es-ES', { timeZone: 'Europe/Madrid' })}`);
                 }
+
+                // Avanzar al siguiente slot
                 slotInicio = new Date(slotInicio.getTime() + pista.slotDuration * 60000);
             }
         }
     }
 
-    // Ordenar por hora de inicio
+    // Ordenar los slots por hora de inicio
     const sortedSlots = slots.sort((a, b) => new Date(a.inicio) - new Date(b.inicio));
     console.log(`Total de slots disponibles encontrados: ${sortedSlots.length}`);
 
