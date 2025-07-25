@@ -15,8 +15,7 @@ export const CALENDARS = [
                 { start: "15:00", end: "22:00" }
             ],
             weekends: [
-                { start: "09:00", end: "14:00" },
-                { start: "15:00", end: "22:00" }
+                { start: "09:00", end: "21:00" }
             ]
         },
         avaliable: true,
@@ -32,8 +31,7 @@ export const CALENDARS = [
                 { start: "15:00", end: "22:00" }
             ],
             weekends: [
-                { start: "09:00", end: "14:00" },
-                { start: "15:00", end: "22:00" }
+                { start: "09:00", end: "21:00" }
             ]
         },
         avaliable: true,
@@ -49,8 +47,7 @@ export const CALENDARS = [
                 { start: "15:00", end: "22:00" }
             ],
             weekends: [
-                { start: "09:00", end: "14:00" },
-                { start: "15:00", end: "22:00" }
+                { start: "09:00", end: "21:00" }
             ]
         },
         avaliable: true,
@@ -66,8 +63,7 @@ export const CALENDARS = [
                 { start: "15:00", end: "22:00" }
             ],
             weekends: [
-                { start: "09:00", end: "14:00" },
-                { start: "15:00", end: "22:00" }
+                { start: "09:00", end: "21:00" }
             ]
         },
         avaliable: true,
