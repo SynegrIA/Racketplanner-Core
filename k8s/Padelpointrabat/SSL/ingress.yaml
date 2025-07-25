@@ -52,4 +52,5 @@ spec:
     - hosts:
         - padelpointrabat.racketplanner.es
         - backend.padelpointrabat.racketplanner.es
+        - dashboard.padelpointrabat.racketplanner.es
       secretName: padelpointrabat-racketplanner-tls
