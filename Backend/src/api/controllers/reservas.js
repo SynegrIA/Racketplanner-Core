@@ -2,7 +2,7 @@ import { CALENDARS, BUSINESS_HOURS, RESERVATION_DURATION_MINUTES } from '../../c
 import { GoogleCalendarService } from '../../api/services/googleCalendar.js'
 import { enviarMensajeWhatsApp } from '../../api/services/builderBot.js'
 import { shortenUrl } from '../../api/services/acortarURL.js' // No se usa por el momento, no permite acortar rutas de "Localhost"
-import { DOMINIO_FRONTEND } from '../../config/config.js'
+import { CLUB_ID, DOMINIO_FRONTEND } from '../../config/config.js'
 import { ReservasModel } from '../../models/reservas.js'
 import { JugadoresModel } from '../../models/jugadores.js'
 import { NODE_ENV } from '../../config/config.js'
@@ -1276,6 +1276,8 @@ function verificarRestriccionesHorario(slotInicio, slotFin, restricciones) {
     const horaInicioSlot = `${slotInicio.getHours().toString().padStart(2, '0')}:${slotInicio.getMinutes().toString().padStart(2, '0')}`;
     const horaFinSlot = `${slotFin.getHours().toString().padStart(2, '0')}:${slotFin.getMinutes().toString().padStart(2, '0')}`;
 
+    console.log(`🔍 Verificando slot ${diaSemana} ${horaInicioSlot}-${horaFinSlot} contra ${restricciones.length} restricciones`);
+
     // Función para comparar horas en formato "HH:MM"
     const compararHoras = (hora1, hora2) => {
         const [h1, m1] = hora1.split(':').map(Number);
@@ -1292,15 +1294,20 @@ function verificarRestriccionesHorario(slotInicio, slotFin, restricciones) {
             const inicioRestriccion = restriccion.hora_inicio;
             const finRestriccion = restriccion.hora_fin;
 
+            console.log(`  📌 Evaluando restricción para ${diaSemana}: ${inicioRestriccion}-${finRestriccion}`);
+
             // Hay solapamiento si:
             // 1. El inicio del slot está dentro de la restricción
+            const condicion1 = (compararHoras(horaInicioSlot, inicioRestriccion) >= 0 && compararHoras(horaInicioSlot, finRestriccion) < 0);
             // 2. El fin del slot está dentro de la restricción
+            const condicion2 = (compararHoras(horaFinSlot, inicioRestriccion) > 0 && compararHoras(horaFinSlot, finRestriccion) <= 0);
             // 3. La restricción está completamente contenida en el slot
-            if (
-                (compararHoras(horaInicioSlot, inicioRestriccion) >= 0 && compararHoras(horaInicioSlot, finRestriccion) < 0) ||
-                (compararHoras(horaFinSlot, inicioRestriccion) > 0 && compararHoras(horaFinSlot, finRestriccion) <= 0) ||
-                (compararHoras(horaInicioSlot, inicioRestriccion) <= 0 && compararHoras(horaFinSlot, finRestriccion) >= 0)
-            ) {
+            const condicion3 = (compararHoras(horaInicioSlot, inicioRestriccion) <= 0 && compararHoras(horaFinSlot, finRestriccion) >= 0);
+
+            console.log(`    Condiciones: ${condicion1 ? '✓' : '✗'} | ${condicion2 ? '✓' : '✗'} | ${condicion3 ? '✓' : '✗'}`);
+
+            if (condicion1 || condicion2 || condicion3) {
+                console.log(`    ⛔ SLOT BLOQUEADO por ${restriccion.tipo}: ${restriccion.descripcion || 'sin descripción'}`);
                 return {
                     tipo: restriccion.tipo,
                     descripcion: restriccion.descripcion || (restriccion.tipo === 'bloqueo' ? 'Horario bloqueado' : 'Clase programada'),
@@ -1311,11 +1318,14 @@ function verificarRestriccionesHorario(slotInicio, slotFin, restricciones) {
         }
     }
 
+    console.log(`  ✅ Slot no tiene restricciones aplicables`);
     return null; // No hay restricciones que bloqueen este slot
 }
 function getDiaSemana(numeroDia) {
     const diasSemana = ['domingo', 'lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado'];
-    return diasSemana[numeroDia];
+    const dia = diasSemana[numeroDia];
+    console.log(`Día ${numeroDia} corresponde a '${dia}'`);
+    return dia;
 }
 // NUEVA FUNCIÓN HELPER: Busca todos los slots disponibles en un día
 async function buscarTodosLosSlotsDisponibles(fecha) {
@@ -1324,6 +1334,9 @@ async function buscarTodosLosSlotsDisponibles(fecha) {
     const dia = fecha.getDay();
     const isWeekend = dia === 0 || dia === 6;
     console.log(`Es fin de semana: ${isWeekend ? 'Sí' : 'No'} (día ${dia})`);
+    const diaSemana = getDiaSemana(dia);
+    console.log(`Día de la semana para verificación: '${diaSemana}'`);
+
 
     const timeZoneOffset = -new Date().getTimezoneOffset() / 60;
     console.log(`Offset de zona horaria local: UTC${timeZoneOffset >= 0 ? '+' : ''}${timeZoneOffset}`);
@@ -1351,6 +1364,7 @@ async function buscarTodosLosSlotsDisponibles(fecha) {
 
     for (const { pista, horarios } of pistasHorarios) {
         console.log(`\nGenerando slots para ${pista.name} en ${isWeekend ? 'fin de semana' : 'día laborable'}`);
+        console.log(`  Restricciones cargadas: ${pista.restricciones?.length || 0}`);
 
         for (const rango of horarios) {
             console.log(`- Rango configurado: ${rango.start} a ${rango.end}`);
@@ -1777,24 +1791,33 @@ async function buscarPartidasAbiertas(fecha) {
     return partidas;
 }
 
-async function obtenerCalendariosActivos(clubId = 'default') {
+async function obtenerCalendariosActivos(clubId = CLUB_ID) {
     try {
         const clubsModel = new ClubsModel();
         const configCalendarios = await clubsModel.getCalendarConfigFromSettings(clubId);
 
         if (!configCalendarios || !configCalendarios.calendars) {
             console.log("No se encontró configuración de calendarios activos, usando configuración por defecto");
-            // Si no hay configuración personalizada, usar CALENDARS por defecto
             return CALENDARS.filter(cal => cal.avaliable !== false).map(cal => ({
                 ...cal,
                 restricciones: [] // Añadir array de restricciones vacío
             }));
         }
 
-        return configCalendarios.calendars.filter(cal => cal.avaliable !== false);
+        // IMPORTANTE: Verificar que las restricciones existen antes de devolverlas
+        const calendarsWithRestrictions = configCalendarios.calendars.map(cal => {
+            if (!cal.restricciones) {
+                console.log(`⚠️ Calendario ${cal.name} sin array de restricciones, inicializando array vacío`);
+                cal.restricciones = [];
+            } else {
+                console.log(`✅ Calendario ${cal.name}: ${cal.restricciones.length} restricciones encontradas`);
+            }
+            return cal;
+        });
+
+        return calendarsWithRestrictions.filter(cal => cal.avaliable !== false);
     } catch (error) {
         console.error("Error al obtener calendarios activos:", error);
-        // En caso de error, devolver filtrado básico de seguridad
         return CALENDARS.filter(cal => cal.avaliable !== false).map(cal => ({
             ...cal,
             restricciones: [] // Añadir array de restricciones vacío

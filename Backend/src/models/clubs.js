@@ -106,6 +106,16 @@ export class ClubsModel {
                 // Añadir log para duración del slot
                 console.log(`  Duración de slot: ${pista.slotDuration || 90} minutos`);
 
+                const restricciones = pista.restricciones || pista.restricicones || [];
+                console.log(`⚠️ Pista ${pista.id}: Cargando ${restricciones.length} restricciones`);
+
+                // Imprimir cada restricción para verificar
+                if (restricciones && restricciones.length > 0) {
+                    restricciones.forEach((r, idx) => {
+                        console.log(`   - R${idx + 1}: ${r.tipo} en ${r.dias.join(', ')} de ${r.hora_inicio} a ${r.hora_fin}`);
+                    });
+                }
+
                 return {
                     ...calendar,
                     name: pista.nombre || calendar.name,
@@ -117,7 +127,7 @@ export class ClubsModel {
                     slotDuration: pista.slotDuration || 90,
                     // Mantener la pista como activa
                     avaliable: true,
-                    restricciones: pista.restricciones || []
+                    restricciones: restricciones || []
                 };
             });
 
