@@ -24,6 +24,8 @@ spec:
           value: "Europe/Madrid"
         - name: NODE_ENV
           value: production
+        - name: APP_LOCALE
+          value: es
 ---
 apiVersion: v1
 kind: Service
