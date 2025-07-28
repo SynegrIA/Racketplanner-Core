@@ -1,12 +1,12 @@
 import { readFileSync } from 'fs';
 import { join } from 'path';
-import { APP_LOCALE } from '../../config/config.js';
+import { APP_LOCALE } from './config.js';
 // Importaciones estáticas
-import esTranslations from '../../config/locales/es.js';
-import frTranslations from '../../config/locales/fr.js';
+import esTranslations from './locales/es.js';
+import frTranslations from './locales/fr.js';
 
 // Obtener el idioma de las variables de entorno o usar español por defecto
-const LOCALE = APP_LOCALE || 'es';
+const LOCALE = APP_LOCALE || 'fr';
 
 // Cargar los archivos de traducción
 const translations = {

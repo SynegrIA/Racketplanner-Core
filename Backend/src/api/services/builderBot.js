@@ -17,7 +17,7 @@
 
 import fetch from 'node-fetch'
 import { BUILDERBOT_URL, BUILDERBOT_KEY } from '../../config/config.js'
-import i18nService from './i18n.js'
+import i18nService from '../../config/i18n.js'
 
 /**
  * Envía un mensaje a WhatsApp o solo traduce el texto
