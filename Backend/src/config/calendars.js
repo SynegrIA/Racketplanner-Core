@@ -1,7 +1,6 @@
 import { ClubsModel } from '../models/clubs.js';
+import { CLUB_ID } from './config.js';
 
-// ID del club a utilizar - REEMPLAZAR CON EL ID DE TU CLUB
-const CLUB_ID = "24f0c80b-fd53-47b6-89f1-0f197b792a4c";
 
 // Configuración base de los calendarios con IDs de Google Calendar (no modificar estos IDs)
 export const CALENDARS = [
