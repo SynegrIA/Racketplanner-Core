@@ -11,7 +11,8 @@ RUN npm ci
 COPY . .
 
 #ENV NODE_ENV=production
-
+ARG VITE_NODE_ENV=development
+ENV VITE_NODE_ENV=$VITE_NODE_ENV
 # Compilar la aplicación (utilizará el archivo .env automáticamente)
 RUN npm run build
 
