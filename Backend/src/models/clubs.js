@@ -2,12 +2,7 @@ import { supabase } from '../api/services/supabase.js'
 import { CALENDARS as DEFAULT_CALENDARS } from '../config/calendars.js'
 
 export class ClubsModel {
-    /**
-     * Obtiene la configuración de calendarios desde la columna settings del club
-     * manteniendo los IDs originales de Google Calendar
-     * @param {string} clubId - ID del club
-     * @returns {object} - Configuración de calendarios actualizada
-     */
+
     async getCalendarConfigFromSettings(clubId) {
         try {
             console.log(`Obteniendo configuración de calendarios para club ${clubId}`);
@@ -38,6 +33,8 @@ export class ClubsModel {
                 console.log(`Configuración de pista ${pista.id} (${pista.nombre}):`);
                 console.log(`  Días laborables: ${pista.horario_inicio}-${pista.horario_fin} y ${pista.horario_inicio2 || 'N/A'}-${pista.horario_fin2 || 'N/A'}`);
                 console.log(`  Fin de semana: ${pista.horario_inicio_fds}-${pista.horario_fin_fds}`);
+                // Añadir log para duración del slot
+                console.log(`  Duración de slot: ${pista.slotDuration || 90} minutos`);
             });
 
             // Actualizar los calendarios existentes manteniendo sus IDs
@@ -46,8 +43,11 @@ export class ClubsModel {
                 const pista = pistasMap.get(calendar.index);
 
                 if (!pista) {
-                    console.log(`No se encontró configuración para pista con índice ${calendar.index}, manteniendo valores por defecto`);
-                    return calendar;
+                    // Si no hay configuración para esta pista, dejarla inactiva
+                    return {
+                        ...calendar,
+                        avaliable: false
+                    };
                 }
 
                 // DÍAS LABORABLES: Crear intervalos de tiempo
@@ -74,25 +74,15 @@ export class ClubsModel {
 
                 // Si hay horarios específicos de fin de semana
                 if (pista.horario_inicio_fds && pista.horario_fin_fds) {
-                    // Para fin de semana solo usamos un intervalo
                     weekendIntervals.push({
                         start: pista.horario_inicio_fds,
                         end: pista.horario_fin_fds
                     });
                 } else {
-                    // Si no hay horarios específicos de fin de semana, usar los de días laborables
-                    if (pista.horario_inicio && pista.horario_fin) {
-                        weekendIntervals.push({
-                            start: pista.horario_inicio,
-                            end: pista.horario_fin
-                        });
-                    }
-                    if (pista.horario_inicio2 && pista.horario_fin2) {
-                        weekendIntervals.push({
-                            start: pista.horario_inicio2,
-                            end: pista.horario_fin2
-                        });
-                    }
+                    // Si no hay horarios de fin de semana, usar los mismos que los días laborables
+                    weekdayIntervals.forEach(interval => {
+                        weekendIntervals.push({ ...interval });
+                    });
                 }
 
                 // Si no hay intervalos definidos, usar valores predeterminados
@@ -105,6 +95,8 @@ export class ClubsModel {
                 console.log(`Configuración final para ${pista.nombre}:`);
                 console.log(`  Días laborables: ${JSON.stringify(weekdayBusinessHours)}`);
                 console.log(`  Fin de semana: ${JSON.stringify(weekendBusinessHours)}`);
+                // Añadir log para duración del slot
+                console.log(`  Duración de slot: ${pista.slotDuration || 90} minutos`);
 
                 return {
                     ...calendar,
@@ -112,24 +104,33 @@ export class ClubsModel {
                     businessHours: {
                         weekdays: weekdayBusinessHours,
                         weekends: weekendBusinessHours
-                    }
+                    },
+                    // Añadir slotDuration desde la configuración, con valor predeterminado de 90 minutos
+                    slotDuration: pista.slotDuration || 90,
+                    // Mantener la pista como activa
+                    avaliable: true
                 };
             });
 
             // Generar business hours generales basados en la primera pista
             let businessHours = null;
+            let reservationDuration = 90; // Valor predeterminado
+
             if (calendars.length > 0) {
                 businessHours = calendars[0].businessHours;
+                // Usar la duración de la primera pista como duración general si está disponible
+                reservationDuration = calendars[0].slotDuration || 90;
             }
 
             return {
                 calendars,
                 businessHours,
-                reservationDuration: 90
+                reservationDuration
             };
         } catch (error) {
             console.error('Error al procesar configuración de calendarios:', error);
             return null;
         }
     }
+
 }

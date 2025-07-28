@@ -91,7 +91,7 @@ export const BUSINESS_HOURS = {
  * DURACIÓN DE RESERVAS
  * Tiempo en minutos que dura cada reserva
  */
-export const RESERVATION_DURATION_MINUTES = 90;
+export let RESERVATION_DURATION_MINUTES = 90;
 
 // Función para cargar la configuración dinámica desde la BD
 async function loadDynamicConfig() {
@@ -130,9 +130,13 @@ async function loadDynamicConfig() {
                     // Actualizamos disponibilidad
                     CALENDARS[i].avaliable = updatedCalendar.avaliable !== false;
 
+                    // Actualizamos duración del slot
+                    CALENDARS[i].slotDuration = updatedCalendar.slotDuration || 90;
+
                     console.log(`Actualizado ${CALENDARS[i].name}:`);
                     console.log(`- Días laborables: ${JSON.stringify(CALENDARS[i].businessHours.weekdays)}`);
                     console.log(`- Fin de semana: ${JSON.stringify(CALENDARS[i].businessHours.weekends)}`);
+                    console.log(`- Duración del slot: ${CALENDARS[i].slotDuration} minutos`);
                 }
             });
 
@@ -153,6 +157,12 @@ async function loadDynamicConfig() {
                         end: interval.end
                     });
                 });
+            }
+
+            // Actualizamos la duración de reserva global si está definida
+            if (config.reservationDuration) {
+                RESERVATION_DURATION_MINUTES = config.reservationDuration;
+                console.log(`- Duración de reserva global: ${RESERVATION_DURATION_MINUTES} minutos`);
             }
 
             console.log('✅ Configuración de calendarios actualizada exitosamente');
