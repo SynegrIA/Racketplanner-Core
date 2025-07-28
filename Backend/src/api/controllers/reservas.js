@@ -6,6 +6,7 @@ import { DOMINIO_FRONTEND } from '../../config/config.js'
 import { ReservasModel } from '../../models/reservas.js'
 import { JugadoresModel } from '../../models/jugadores.js'
 import { NODE_ENV } from '../../config/config.js'
+import { ClubsModel } from '../../models/clubs.js';
 
 export class ReservasController {
 
@@ -1280,8 +1281,12 @@ async function buscarTodosLosSlotsDisponibles(fecha) {
 
     const ahora = new Date();
 
-    // Recopilar las pistas y sus horarios según si es fin de semana o no
-    const pistasHorarios = CALENDARS.filter(pista => pista.avaliable !== false).map(pista => {
+    // Obtener solo calendarios activos
+    const calendariosFiltrados = await obtenerCalendariosActivos();
+    console.log(`Usando ${calendariosFiltrados.length} pistas activas`);
+
+    // Recopilar las pistas activas y sus horarios según si es fin de semana o no
+    const pistasHorarios = calendariosFiltrados.map(pista => {
         // Usar horarios de fin de semana o días laborables según corresponda
         const horarios = isWeekend ? pista.businessHours.weekends : pista.businessHours.weekdays;
 
@@ -1379,8 +1384,10 @@ async function buscarSlotDisponibleExacto(startDate) {
     const dia = startDate.getDay()
     const isWeekend = dia === 0 || dia === 6
 
+    const calendariosFiltrados = await obtenerCalendariosActivos();
+
     // Para cada pista, comprobar si el horario solicitado está disponible
-    for (const pista of CALENDARS) {
+    for (const pista of calendariosFiltrados) {
         const horarios = isWeekend ? pista.businessHours.weekends : pista.businessHours.weekdays
         if (!horarios || horarios.length === 0) continue
 
@@ -1423,8 +1430,11 @@ async function buscarAlternativasMismoHorario(startDate, nombre, numero, partida
     const dia = startDate.getDay();
     const isWeekend = dia === 0 || dia === 6;
 
-    // Para cada pista, comprobar si el horario solicitado está disponible
-    for (const pista of CALENDARS) {
+    // Obtener solo calendarios activos
+    const calendariosFiltrados = await obtenerCalendariosActivos();
+
+    // Para cada pista activa, comprobar si el horario solicitado está disponible
+    for (const pista of calendariosFiltrados) {
         const horarios = isWeekend ? pista.businessHours.weekends : pista.businessHours.weekdays;
         if (!horarios || horarios.length === 0) continue;
 
@@ -1494,7 +1504,10 @@ async function buscarAlternativasSlots(startDate, nombre, numero, partida, nivel
     const dia = fechaBase.getDay();
     const isWeekend = dia === 0 || dia === 6;
 
-    for (const pista of CALENDARS) {
+    // Obtener solo calendarios activos
+    const calendariosFiltrados = await obtenerCalendariosActivos();
+
+    for (const pista of calendariosFiltrados) {
         const horarios = isWeekend ? pista.businessHours.weekends : pista.businessHours.weekdays;
         if (!horarios || horarios.length === 0) continue;
 
@@ -1642,8 +1655,10 @@ async function buscarPartidasAbiertas(fecha) {
     const fechaFin = new Date(fecha);
     fechaFin.setHours(23, 59, 59, 999);
 
-    // Buscar en todos los calendarios (todas las pistas)
-    for (const pista of CALENDARS) {
+    // Obtener solo calendarios activos
+    const calendariosFiltrados = await obtenerCalendariosActivos();
+
+    for (const pista of calendariosFiltrados) {
         // Obtener todos los eventos del día para esta pista
         const eventos = await GoogleCalendarService.getEvents(
             pista.id,
@@ -1686,4 +1701,23 @@ async function buscarPartidasAbiertas(fecha) {
     }
 
     return partidas;
+}
+
+async function obtenerCalendariosActivos(clubId = 'default') {
+    try {
+        const clubsModel = new ClubsModel();
+        const configCalendarios = await clubsModel.getCalendarConfigFromSettings(clubId);
+
+        if (!configCalendarios || !configCalendarios.calendars) {
+            console.log("No se encontró configuración de calendarios activos, usando configuración por defecto");
+            // Si no hay configuración personalizada, filtrar de CALENDARS los que tengan avaliable !== false
+            return CALENDARS.filter(cal => cal.avaliable !== false);
+        }
+
+        return configCalendarios.calendars.filter(cal => cal.avaliable !== false);
+    } catch (error) {
+        console.error("Error al obtener calendarios activos:", error);
+        // En caso de error, devolver filtrado básico de seguridad
+        return CALENDARS.filter(cal => cal.avaliable !== false);
+    }
 }
