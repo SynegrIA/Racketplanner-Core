@@ -6,7 +6,7 @@ import esTranslations from './locales/es.js';
 import frTranslations from './locales/fr.js';
 
 // Obtener el idioma de las variables de entorno o usar español por defecto
-const LOCALE = APP_LOCALE || 'fr';
+const LOCALE = APP_LOCALE
 
 // Cargar los archivos de traducción
 const translations = {
