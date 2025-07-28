@@ -33,8 +33,16 @@ export class ClubsModel {
                 console.log(`Configuración de pista ${pista.id} (${pista.nombre}):`);
                 console.log(`  Días laborables: ${pista.horario_inicio}-${pista.horario_fin} y ${pista.horario_inicio2 || 'N/A'}-${pista.horario_fin2 || 'N/A'}`);
                 console.log(`  Fin de semana: ${pista.horario_inicio_fds}-${pista.horario_fin_fds}`);
-                // Añadir log para duración del slot
                 console.log(`  Duración de slot: ${pista.slotDuration || 90} minutos`);
+
+                // Log de restricciones
+                const restricciones = pista.restricciones || [];
+                if (restricciones.length > 0) {
+                    console.log(`  Restricciones: ${restricciones.length} configuradas`);
+                    restricciones.forEach(r => {
+                        console.log(`    - ${r.tipo} en ${r.dias.join(', ')} de ${r.hora_inicio} a ${r.hora_fin} - ${r.descripcion || 'Sin descripción'}`);
+                    });
+                }
             });
 
             // Actualizar los calendarios existentes manteniendo sus IDs
@@ -108,7 +116,8 @@ export class ClubsModel {
                     // Añadir slotDuration desde la configuración, con valor predeterminado de 90 minutos
                     slotDuration: pista.slotDuration || 90,
                     // Mantener la pista como activa
-                    avaliable: true
+                    avaliable: true,
+                    restricciones: pista.restricciones || []
                 };
             });
 
