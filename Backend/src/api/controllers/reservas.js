@@ -274,11 +274,12 @@ export class ReservasController {
             }
 
             // 2. Buscar el calendario de la pista
-            const pistaConfig = CALENDARS.find(c => c.name === pista);
+            const calendariosFiltrados = await obtenerCalendariosActivos();
+            const pistaConfig = calendariosFiltrados.find(c => c.name === pista);
             if (!pistaConfig) {
                 return res.status(400).json({
                     status: "error",
-                    message: "Pista no encontrada."
+                    message: "Pista no encontrada o desactivada."
                 });
             }
 

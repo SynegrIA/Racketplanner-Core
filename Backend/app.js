@@ -11,12 +11,12 @@ import { initializeJobs } from './src/jobs/index.js';
 const app = express();
 app.disable("x-powered-by");
 
-try {
-    await loadDynamicConfig();
-    console.log('Configuración inicial de calendarios cargada');
-} catch (err) {
-    console.error('Error cargando configuración inicial de calendarios:', err);
-}
+// try {
+//     await loadDynamicConfig();
+//     console.log('Configuración inicial de calendarios cargada');
+// } catch (err) {
+//     console.error('Error cargando configuración inicial de calendarios:', err);
+// }
 
 
 const PORT = process.env.PORT || 3000;
