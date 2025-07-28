@@ -10,7 +10,7 @@ export const DOMINIO_FRONTEND = NODE_ENV == 'production' ? process.env.DOMINIO_F
 // Añadir esta línea a tu configuración existente
 export const APP_LOCALE = process.env.APP_LOCALE || 'es';
 
-export const CLUB_ID = process.env.CLUB_ID || '3c7b3769-9da0-4a93-be36-5a056db0dd79'
+export const CLUB_ID = process.env.CLUB_ID
 
 export const SUPABASE_URL = process.env.SUPABASE_URL
 export const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY

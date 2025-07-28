@@ -26,6 +26,8 @@ spec:
           value: production
         - name: APP_LOCALE
           value: es
+        - name: CLUB_ID
+          value: 24f0c80b-fd53-47b6-89f1-0f197b792a4c
 ---
 apiVersion: v1
 kind: Service
