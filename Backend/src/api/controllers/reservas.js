@@ -763,13 +763,21 @@ Jugador 4: ${jugador4}
             if (tipoUnion === "new" && numeroInvitado) {
                 // Preparar datos para el mensaje
                 const fechaEvento = new Date(evento.start.dateTime);
-                const fechaFormateada = fechaEvento.toLocaleDateString('es-ES', {
-                    weekday: 'long',
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                    timeZone: 'Europe/Madrid'
-                });
+
+                // Traducción de fecha
+                const diasSemana = ['domingo', 'lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado'];
+                const meses = [
+                    'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+                    'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'
+                ];
+                const diaClave = diasSemana[fechaEvento.getDay()];
+                const mesClave = meses[fechaEvento.getMonth()];
+
+                const diaTraducido = await enviarMensajeWhatsApp(`fecha.dias.${diaClave}`, '', {}, true);
+                const mesTraducido = await enviarMensajeWhatsApp(`fecha.meses.${mesClave}`, '', {}, true);
+                const preposicionDe = await enviarMensajeWhatsApp('conectores.de', '', {}, true);
+
+                const fechaFormateada = `${diaTraducido}, ${fechaEvento.getDate()} ${preposicionDe} ${mesTraducido} ${preposicionDe} ${fechaEvento.getFullYear()}`;
 
                 const horaInicio = fechaEvento.toLocaleTimeString('es-ES', {
                     hour: '2-digit',
@@ -787,34 +795,20 @@ Jugador 4: ${jugador4}
                 const jugadoresActuales = parseInt(infoMap['Nº Actuales'] || '1') + 1;
                 const jugadoresFaltantesActualizados = jugadoresFaltan - 1;
 
-                // Crear URL para que el jugador pueda eliminarse
-                const urlEliminar = `${DOMINIO_FRONTEND}/eliminar-jugador-reserva?eventId=${encodeURIComponent(eventId)}&numero=${encodeURIComponent(numeroInvitado)}&nombreJugador=${encodeURIComponent(nombreInvitado)}&calendarId=${encodeURIComponent(calendarId)}`;
-
-                // Acortar URL si estamos en producción
-                let urlEliminarCorta;
-                if (NODE_ENV == 'production') {
-                    urlEliminarCorta = await shortenUrl(urlEliminar);
-                } else {
-                    urlEliminarCorta = urlEliminar;
-                }
-
-                // Preparar datos para los jugadores
-                const jugador1 = infoMap['Jugador Principal'] || 'Organizador';
-                const jugador2 = infoMap['Jugador 2'] ? `2. ${infoMap['Jugador 2']}\n` : '';
-                const jugador3 = infoMap['Jugador 3'] ? `3. ${infoMap['Jugador 3']}\n` : '';
-                const jugador4 = infoMap['Jugador 4'] ? `4. ${infoMap['Jugador 4']}\n` : '';
-
-                // Determinar el estado de jugadores usando traducciones
+                // Estado de jugadores traducido
                 let estadoJugadoresKey;
                 if (jugadoresFaltantesActualizados > 0) {
-                    // Obtener traducción para "Aún faltan X jugadores"
                     estadoJugadoresKey = await enviarMensajeWhatsApp('reservas.unirse.jugadoresFaltan', '', {
                         cantidad: jugadoresFaltantesActualizados
                     }, true);
                 } else {
-                    // Obtener traducción para "La partida está completa"
                     estadoJugadoresKey = await enviarMensajeWhatsApp('reservas.unirse.partidaCompleta', '', {}, true);
                 }
+
+                const jugador1 = infoMap['Jugador 1'] || '';
+                const jugador2 = infoMap['Jugador 2'] || '';
+                const jugador3 = infoMap['Jugador 3'] || '';
+                const jugador4 = infoMap['Jugador 4'] || '';
 
                 // Enviar mensaje al nuevo jugador usando internacionalización
                 await enviarMensajeWhatsApp('reservas.unirse.exito', numeroInvitado, {
@@ -831,7 +825,6 @@ Jugador 4: ${jugador4}
                     jugador3: jugador3,
                     jugador4: jugador4,
                     estadoJugadores: estadoJugadoresKey,
-                    urlEliminar: urlEliminarCorta
                 });
             }
 
@@ -839,15 +832,22 @@ Jugador 4: ${jugador4}
 
             // Notificar al organizador
             if (telefono) {
-                // Formatear fecha y hora para mejor legibilidad
                 const fechaEvento = new Date(evento.start.dateTime);
-                const fechaFormateada = fechaEvento.toLocaleDateString('es-ES', {
-                    weekday: 'long',
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                    timeZone: 'Europe/Madrid'
-                });
+
+                // Traducción de fecha
+                const diasSemana = ['domingo', 'lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado'];
+                const meses = [
+                    'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+                    'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'
+                ];
+                const diaClave = diasSemana[fechaEvento.getDay()];
+                const mesClave = meses[fechaEvento.getMonth()];
+
+                const diaTraducido = await enviarMensajeWhatsApp(`fecha.dias.${diaClave}`, '', {}, true);
+                const mesTraducido = await enviarMensajeWhatsApp(`fecha.meses.${mesClave}`, '', {}, true);
+                const preposicionDe = await enviarMensajeWhatsApp('conectores.de', '', {}, true);
+
+                const fechaFormateada = `${diaTraducido}, ${fechaEvento.getDate()} ${preposicionDe} ${mesTraducido} ${preposicionDe} ${fechaEvento.getFullYear()}`;
 
                 const horaInicio = fechaEvento.toLocaleTimeString('es-ES', {
                     hour: '2-digit',
@@ -867,16 +867,13 @@ Jugador 4: ${jugador4}
 
                 let estadoJugadoresKey;
                 if (jugadoresFaltantesActualizados > 0) {
-                    // Obtener traducción para "Aún faltan X jugadores" para el organizador
                     estadoJugadoresKey = await enviarMensajeWhatsApp('reservas.nuevoJugador.jugadoresFaltan', '', {
                         cantidad: jugadoresFaltantesActualizados
                     }, true);
                 } else {
-                    // Obtener traducción para "Partida completa" para el organizador
                     estadoJugadoresKey = await enviarMensajeWhatsApp('reservas.nuevoJugador.partidaCompleta', '', {}, true);
                 }
 
-                // Enviar mensaje al organizador usando internacionalización
                 await enviarMensajeWhatsApp('reservas.nuevoJugador.notificacion', telefono, {
                     nombreJugador: nombreInvitado,
                     idPartida: infoMap['ID'] || 'No disponible',
@@ -1015,19 +1012,30 @@ Jugador 4: ${jugador4}
             if (organizadorNumero) {
                 try {
                     const fechaEvento = new Date(evento.start.dateTime);
-                    const fechaFormateada = fechaEvento.toLocaleDateString('es-ES', {
-                        weekday: 'long',
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                        timeZone: 'Europe/Madrid'
-                    });
 
+                    // Traducción de fecha
+                    const diasSemana = ['domingo', 'lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado'];
+                    const meses = [
+                        'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+                        'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'
+                    ];
+                    const diaClave = diasSemana[fechaEvento.getDay()];
+                    const mesClave = meses[fechaEvento.getMonth()];
+
+                    const diaTraducido = await enviarMensajeWhatsApp(`fecha.dias.${diaClave}`, '', {}, true);
+                    const mesTraducido = await enviarMensajeWhatsApp(`fecha.meses.${mesClave}`, '', {}, true);
+                    const preposicionDe = await enviarMensajeWhatsApp('conectores.de', '', {}, true);
+
+                    const fechaFormateada = `${diaTraducido}, ${fechaEvento.getDate()} ${preposicionDe} ${mesTraducido} ${preposicionDe} ${fechaEvento.getFullYear()}`;
                     const horaEvento = fechaEvento.toLocaleTimeString('es-ES', {
                         hour: '2-digit',
                         minute: '2-digit',
                         timeZone: 'Europe/Madrid'
                     });
+
+                    // Estado traducido (opcional, si lo usas en el mensaje)
+                    // const estadoClave = jugadoresFaltan === 0 ? "estado_completa" : "estado_abierta";
+                    // const estadoTraducido = await enviarMensajeWhatsApp(estadoClave, '', {}, true);
 
                     await enviarMensajeWhatsApp('reservas.eliminarJugador.exito', organizadorNumero, {
                         nombreJugador: nombreJugador,
@@ -1036,6 +1044,7 @@ Jugador 4: ${jugador4}
                         pista: infoMap['Pista'] || "No especificada",
                         jugadoresActuales: jugadoresActuales,
                         jugadoresFaltan: jugadoresFaltan
+                        // , estado: estadoTraducido // Si tu plantilla lo requiere
                     });
                 } catch (whatsappError) {
                     console.error("Error al enviar mensaje WhatsApp:", whatsappError);
@@ -1048,14 +1057,21 @@ Jugador 4: ${jugador4}
             if (telefonoJugador) {
                 try {
                     const fechaEvento = new Date(evento.start.dateTime);
-                    const fechaFormateada = fechaEvento.toLocaleDateString('es-ES', {
-                        weekday: 'long',
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                        timeZone: 'Europe/Madrid'
-                    });
 
+                    // Traducción de fecha
+                    const diasSemana = ['domingo', 'lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado'];
+                    const meses = [
+                        'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+                        'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'
+                    ];
+                    const diaClave = diasSemana[fechaEvento.getDay()];
+                    const mesClave = meses[fechaEvento.getMonth()];
+
+                    const diaTraducido = await enviarMensajeWhatsApp(`fecha.dias.${diaClave}`, '', {}, true);
+                    const mesTraducido = await enviarMensajeWhatsApp(`fecha.meses.${mesClave}`, '', {}, true);
+                    const preposicionDe = await enviarMensajeWhatsApp('conectores.de', '', {}, true);
+
+                    const fechaFormateada = `${diaTraducido}, ${fechaEvento.getDate()} ${preposicionDe} ${mesTraducido} ${preposicionDe} ${fechaEvento.getFullYear()}`;
                     const horaEvento = fechaEvento.toLocaleTimeString('es-ES', {
                         hour: '2-digit',
                         minute: '2-digit',
