@@ -25,7 +25,9 @@ export default {
             notificacion: "ℹ️ Vous avez été retiré d'un match\n\n{{organizador}} vous a retiré du match suivant :\n\n📅 Date : {{fecha}}\n⏰ Heure : {{hora}}\n🎾 Terrain : {{pista}}\n\nSi vous pensez qu'il s'agit d'une erreur, veuillez contacter l'organisateur."
         },
         nuevoJugador: {
-            notificacion: "✅ *Nouveau joueur dans votre match !*\n\n👤 *{{nombreJugador}}* a rejoint votre match avec les détails suivants :\n\n🆔 ID du match : {{idPartida}}\n📅 Date : {{fecha}}\n⏰ Horaire : {{horaInicio}} - {{horaFin}}\n🎾 Terrain : {{pista}}\n🏆 Niveau : {{nivel}}\n{{estadoJugadores}}"
+            notificacion: "✅ *Nouveau joueur dans votre match !*\n\n👤 *{{nombreJugador}}* a rejoint votre match avec les détails suivants :\n\n🆔 ID du match : {{idPartida}}\n📅 Date : {{fecha}}\n⏰ Horaire : {{horaInicio}} - {{horaFin}}\n🎾 Terrain : {{pista}}\n🏆 Niveau : {{nivel}}\n{{estadoJugadores}}",
+            jugadoresFaltan: "⚠️ Il manque encore {{cantidad}} joueur(s)",
+            partidaCompleta: "✅ La partie est complète !"
         },
         misReservas: {
             encabezado: "🎾 Bonjour *{{nombre}}* ! 🎾\nVoici vos prochains matchs :\n\n",

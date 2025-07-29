@@ -25,7 +25,9 @@ export default {
             notificacion: "ℹ️ Has sido eliminado de una partida\n\n{{organizador}} te ha eliminado de la siguiente partida:\n\n📅 Fecha: {{fecha}}\n⏰ Hora: {{hora}}\n🎾 Pista: {{pista}}\n\nSi crees que es un error, por favor contacta con el organizador."
         },
         nuevoJugador: {
-            notificacion: "✅ *¡Nuevo jugador en tu partida!*\n\n👤 *{{nombreJugador}}* se ha unido a tu partida con los siguientes detalles:\n\n🆔 ID Partida: {{idPartida}}\n📅 Fecha: {{fecha}}\n⏰ Horario: {{horaInicio}} - {{horaFin}}\n🎾 Pista: {{pista}}\n🏆 Nivel: {{nivel}}\n{{estadoJugadores}}"
+            notificacion: "✅ *¡Nuevo jugador en tu partida!*\n\n👤 *{{nombreJugador}}* se ha unido a tu partida con los siguientes detalles:\n\n🆔 ID Partida: {{idPartida}}\n📅 Fecha: {{fecha}}\n⏰ Horario: {{horaInicio}} - {{horaFin}}\n🎾 Pista: {{pista}}\n🏆 Nivel: {{nivel}}\n{{estadoJugadores}}",
+            jugadoresFaltan: "⚠️ Aún faltan {{cantidad}} jugador(es)",
+            partidaCompleta: "✅ ¡La partida está completa!"
         },
         misReservas: {
             encabezado: "🎾 ¡Hola *{{nombre}}*! 🎾\nEstas son tus próximas partidas:\n\n",
