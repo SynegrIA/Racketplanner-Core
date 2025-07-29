@@ -60,13 +60,13 @@ export default function RegisterConfirmPage() {
       const data = await response.json();
       if (data.success) {
         setConfirmacionExitosa(true);
-        setMensaje(t('registro.confirmacion'));
+        setMensaje(t('registro-confirmacion'));
       } else {
-        throw new Error(t('registro.error'));
+        throw new Error(t('registro-error'));
       }
     } catch (err) {
       console.error("Error en la confirmación:", err);
-      setError(t('registro.error'));
+      setError(t('registro-error'));
     } finally {
       setConfirmando(false);
     }
