@@ -196,28 +196,37 @@ export class ReservasModel {
 
             if (data && data.length > 0) {
                 data.forEach(row => {
-                    console.log(`Procesando reserva ID: ${row.ID}, Estado: ${row.Estado}`);
+                    // ... código existente ...
 
-                    // Verificar si la fecha tiene el formato correcto
                     try {
                         const fechaObj = new Date(`${row['Fecha ISO']}T${row['Inicio']}`);
-                        console.log(`  Fecha parseada: ${fechaObj.toISOString()}`);
+
+                        // Separar fecha y hora correctamente
+                        const fecha = fechaObj.toLocaleDateString('es-ES', {
+                            day: '2-digit',
+                            month: '2-digit',
+                            year: 'numeric',
+                            timeZone: 'Europe/Madrid'
+                        });
+
+                        const hora = fechaObj.toLocaleTimeString('es-ES', {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            timeZone: 'Europe/Madrid'
+                        });
+
+                        const estadoClave = row['Estado'] === 'Completa' ? 'estado_completa' :
+                            row['Estado'] === 'Abierta' ? 'estado_abierta' : 'estado_otro';
 
                         // Información básica común
                         const partidaInfo = {
-                            idPartida: row['ID'] || '',
-                            fechaLegible: fechaObj.toLocaleDateString('es-ES', {
-                                day: '2-digit',
-                                month: '2-digit',
-                                year: 'numeric',
-                                hour: '2-digit',
-                                minute: '2-digit',
-                                timeZone: 'Europe/Madrid'
-                            }).replace(',', ' a las'),
+                            idPartida: row['ID Partida'] || '',
+                            fecha: fecha, // Fecha separada
+                            hora: hora,   // Hora separada
+                            estadoClave: estadoClave,
                             estado: row['Estado'],
                             linkCancel: row['Link Cancel'] || "",
                             esDuenio: row['Telefono 1'] === numeroTelefono,
-                            // Añadir estos campos para todos los tipos de partidas
                             jugadoresActuales: row['Nº Actuales'] || 0,
                             jugadoresFaltantes: row['Nº Faltantes'] || 0,
                             linkJoin: row['Link Join'] || "",

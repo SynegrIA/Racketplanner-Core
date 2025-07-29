@@ -66,5 +66,9 @@ export default {
             exito: "Vos données ont été supprimées de notre système avec succès",
             error: "Une erreur s'est produite lors de la suppression de vos données du système, veuillez réessayer plus tard"
         }
-    }
+    },
+    estado_completa: "Complète",
+    estado_abierta: "Ouverte",
+    estado_otro: "En attente",
+    fecha_separador: " à "
 };

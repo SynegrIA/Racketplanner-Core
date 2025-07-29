@@ -66,5 +66,9 @@ export default {
             exito: "Tus datos han sido eliminados de nuestro sistema correctamente",
             error: "Ha habido un error eliminando tus datos del sistema, vuelva a intentarlo más tarde"
         }
-    }
+    },
+    estado_completa: "Completa",
+    estado_abierta: "Abierta",
+    estado_otro: "Pendiente",
+    fecha_separador: " a las "
 };

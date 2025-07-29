@@ -1109,11 +1109,19 @@ Jugador 4: ${jugador4}
                 // Iterar cada partida completa y formatear
                 for (const info of partidasCompletas) {
                     // Formato base de partida
+                    const estado = await enviarMensajeWhatsApp(info.estadoClave, '', {}, true);
+                    const separador = await enviarMensajeWhatsApp('fecha_separador', '', {}, true);
+
+                    // Formatear fecha completa con separador traducido
+                    const fechaLegible = `${info.fecha}${separador}${info.hora}`;
+
+                    // Usar fechaLegible ya formateada con traducciones
                     const formatoPartida = await enviarMensajeWhatsApp('reservas.misReservas.formatoPartida', '', {
                         idPartida: info.idPartida,
-                        fechaLegible: info.fechaLegible,
-                        estado: info.estado
+                        fechaLegible: fechaLegible,
+                        estado: estado
                     }, true);
+
                     mensajeFinal += formatoPartida;
 
                     // Solo mostrar links si es el jugador principal
@@ -1143,11 +1151,16 @@ Jugador 4: ${jugador4}
                 // Iterar cada partida abierta y formatear
                 for (const info of partidasAbiertas) {
                     // Formato base de partida
+                    const estado = await enviarMensajeWhatsApp(info.estadoClave, '', {}, true);
+                    const separador = await enviarMensajeWhatsApp('fecha_separador', '', {}, true);
+                    const fechaLegible = `${info.fecha}${separador}${info.hora}`;
+
                     const formatoPartida = await enviarMensajeWhatsApp('reservas.misReservas.formatoPartida', '', {
                         idPartida: info.idPartida,
-                        fechaLegible: info.fechaLegible,
-                        estado: info.estado
+                        fechaLegible: fechaLegible,
+                        estado: estado
                     }, true);
+
                     mensajeFinal += formatoPartida;
 
                     // Información adicional de jugadores para partidas abiertas

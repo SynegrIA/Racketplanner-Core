@@ -29,7 +29,16 @@ import i18nService from '../../config/i18n.js'
  */
 export async function enviarMensajeWhatsApp(mensaje, numero, params = {}, soloTraducir = false) {
     // Si el mensaje parece ser una clave de traducción (contiene puntos y no tiene espacios)
-    const mensajeFinal = mensaje.includes('.') && !mensaje.includes(' ')
+    if (mensaje === undefined || mensaje === null) {
+        console.error('Error: El mensaje a enviar es undefined o null');
+        return soloTraducir ? '' : undefined;
+    }
+
+    // MODIFICADO: Ahora también reconoce claves con guiones bajos
+    const esClaveTraduccion = (mensaje.includes('.') || mensaje.includes('_') || mensaje.includes('-')) && !mensaje.includes(' ');
+
+    // Traducir el mensaje si parece ser una clave de traducción
+    const mensajeFinal = esClaveTraduccion
         ? i18nService.translate(mensaje, params)
         : mensaje;
 
