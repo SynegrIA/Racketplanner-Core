@@ -1116,12 +1116,15 @@ Jugador 4: ${jugador4}
                     }, true);
                     mensajeFinal += formatoPartida;
 
-                    // Solo mostrar link de cancelar si es el jugador principal
+                    // Solo mostrar links si es el jugador principal
                     if (info.esDuenio) {
-                        const opcionCancelar = await enviarMensajeWhatsApp('reservas.misReservas.opcionCancelar', '', {
+                        // Mostrar opciones de gestión para el dueño (ahora igual que en partidas abiertas)
+                        const opcionesDuenio = await enviarMensajeWhatsApp('reservas.misReservas.opcionesDuenio', '', {
+                            linkJoin: info.linkJoin,
+                            linkDelete: info.linkDelete,
                             linkCancel: info.linkCancel
                         }, true);
-                        mensajeFinal += opcionCancelar;
+                        mensajeFinal += opcionesDuenio;
                     }
                     mensajeFinal += '\n';
                 }
@@ -1131,7 +1134,7 @@ Jugador 4: ${jugador4}
                 mensajeFinal += sinCompletas;
             }
 
-            // PARTIDAS ABIERTAS
+            // PARTIDAS ABIERTAS - Código existente sin cambios
             if (partidasAbiertas.length > 0) {
                 // Título de sección Partidas Abiertas
                 const tituloAbiertas = await enviarMensajeWhatsApp('reservas.misReservas.partidasAbiertas', '', {}, true);

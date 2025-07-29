@@ -216,7 +216,12 @@ export class ReservasModel {
                             }).replace(',', ' a las'),
                             estado: row['Estado'],
                             linkCancel: row['Link Cancel'] || "",
-                            esDuenio: row['Telefono 1'] === numeroTelefono
+                            esDuenio: row['Telefono 1'] === numeroTelefono,
+                            // Añadir estos campos para todos los tipos de partidas
+                            jugadoresActuales: row['Nº Actuales'] || 0,
+                            jugadoresFaltantes: row['Nº Faltantes'] || 0,
+                            linkJoin: row['Link Join'] || "",
+                            linkDelete: row['Link Delete'] || ""
                         };
 
                         console.log(`  Info básica: ${JSON.stringify(partidaInfo)}`);
@@ -224,14 +229,8 @@ export class ReservasModel {
                         // Separar según el estado
                         if (row['Estado'] === 'Completa') {
                             partidasCompletas.push(partidaInfo);
-                            console.log(`  ✅ Añadida a partidas completas`);
+                            console.log(`  ✅ Añadida a partidas completas con opciones de gestión`);
                         } else if (row['Estado'] === 'Abierta') {
-                            // Añadir información adicional para partidas abiertas
-                            partidaInfo.jugadoresActuales = row['Nº Actuales'] || 0;
-                            partidaInfo.jugadoresFaltantes = row['Nº Faltantes'] || 0;
-                            partidaInfo.linkJoin = row['Link Join'] || "";
-                            partidaInfo.linkDelete = row['Link Delete'] || "";
-
                             partidasAbiertas.push(partidaInfo);
                             console.log(`  ✅ Añadida a partidas abiertas`);
                         } else {
