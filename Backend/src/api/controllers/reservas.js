@@ -1734,6 +1734,10 @@ async function buscarPartidasAbiertas(fecha) {
 
     console.log(`🔍 Buscando partidas abiertas entre ${fechaInicio.toISOString()} y ${fechaFin.toISOString()}`);
 
+    // Obtener la hora actual para filtrar partidas pasadas
+    const ahora = new Date();
+    console.log(`⏰ Hora actual: ${ahora.toISOString()}`);
+
     // Obtener solo calendarios activos
     const calendariosFiltrados = await obtenerCalendariosActivos();
     console.log(`📅 Consultando ${calendariosFiltrados.length} calendarios activos para partidas abiertas`);
@@ -1755,6 +1759,14 @@ async function buscarPartidasAbiertas(fecha) {
                 // Filtrar eventos que son partidas abiertas
                 for (const evento of eventos) {
                     console.log(`  • Analizando evento: "${evento.summary}" (${evento.id})`);
+
+                    // Verificar si el evento ya pasó
+                    const inicioEvento = new Date(evento.start.dateTime);
+                    if (inicioEvento <= ahora) {
+                        console.log(`    ⏰ PARTIDA PASADA: ${inicioEvento.toLocaleTimeString('es-ES')} - No se muestra`);
+                        continue; // Saltar esta partida porque ya pasó
+                    }
+
                     const descripcion = evento.description || "";
 
                     // Verificar si la descripción contiene la información esperada
@@ -1775,7 +1787,6 @@ async function buscarPartidasAbiertas(fecha) {
                     console.log(`    📋 Datos extraídos: Estado=${infoMap['Estado'] || 'No definido'}, Nº Faltantes=${infoMap['Nº Faltantes'] || '0'}`);
 
                     // Verificar si es una partida abierta con jugadores faltantes
-                    // Importante: verificar que el string no esté vacío antes de parsearlo
                     const jugadoresFaltanStr = infoMap['Nº Faltantes'] || '0';
                     const jugadoresFaltan = parseInt(jugadoresFaltanStr);
                     const estadoPartida = infoMap['Estado'] || '';
@@ -1784,13 +1795,11 @@ async function buscarPartidasAbiertas(fecha) {
 
                     // Considerar una partida como abierta si faltan jugadores O si el estado es "Abierta"
                     if (jugadoresFaltan > 0 || estadoPartida.toLowerCase() === 'abierta') {
-                        const inicio = new Date(evento.start.dateTime);
                         const fin = new Date(evento.end.dateTime);
-
-                        console.log(`    ✅ PARTIDA ABIERTA ENCONTRADA: ${inicio.toLocaleTimeString('es-ES')} a ${fin.toLocaleTimeString('es-ES')}`);
+                        console.log(`    ✅ PARTIDA ABIERTA ENCONTRADA: ${inicioEvento.toLocaleTimeString('es-ES')} a ${fin.toLocaleTimeString('es-ES')}`);
 
                         partidas.push({
-                            tipo: 'abierta',
+                            tipo: 'abierta', // Tipo correcto que espera el frontend
                             pista: pista.name,
                             inicio: evento.start.dateTime,
                             fin: evento.end.dateTime,
