@@ -444,18 +444,28 @@ Jugador 4: ${jugador4}
             }
 
             // 11. Formatear fecha para el mensaje
-            const fechaFormateada = fechaInicio.toLocaleDateString('es-ES', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                timeZone: 'Europe/Madrid'
-            });
+            const diasSemana = ['domingo', 'lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado'];
+            const meses = [
+                'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+                'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'
+            ];
+            const diaClave = diasSemana[fechaInicio.getDay()];
+            const mesClave = meses[fechaInicio.getMonth()];
+
+            const diaTraducido = await enviarMensajeWhatsApp(`fecha.dias.${diaClave}`, '', {}, true);
+            const mesTraducido = await enviarMensajeWhatsApp(`fecha.meses.${mesClave}`, '', {}, true);
+            const preposicionDe = await enviarMensajeWhatsApp('conectores.de', '', {}, true);
+
+            const fechaFormateada = `${diaTraducido}, ${fechaInicio.getDate()} ${preposicionDe} ${mesTraducido} ${preposicionDe} ${fechaInicio.getFullYear()}`;
 
             // 12. Preparar mensaje de confirmación según tipo de partida
             const horaInicio = fechaInicio.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid' });
             const horaFin = fechaFin.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid' });
-            const estadoTexto = estado === "Completa" ? "completa" : "abierta";
+
+            // Obtener estado traducido
+            const estadoClave = estado === "Completa" ? "estado_completa" : estado === "Abierta" ? "estado_abierta" : "estado_otro";
+            const estadoTraducido = await enviarMensajeWhatsApp(estadoClave, '', {}, true);
+
             const textoReserva = estado === "Completa" ? "Jugador sin Cancelar" : "Reserva sin Cancelar";
 
             await enviarMensajeWhatsApp('reservas.confirmacion.exito', numero, {
@@ -466,7 +476,7 @@ Jugador 4: ${jugador4}
                 pista: pista,
                 urlCancelar: urlCancelarCorta,
                 jugadores_faltan: jugadores_faltan,
-                estado: estadoTexto,
+                estado: estadoTraducido,
                 textoReserva: textoReserva,
                 urlEliminar: urlEliminarCorta
             });
