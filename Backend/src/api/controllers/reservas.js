@@ -595,13 +595,23 @@ Jugador 4: ${jugador4}
             // 5. Preparar mensaje de confirmación para WhatsApp
             if (numero && evento) {
                 const fechaEvento = new Date(evento.start.dateTime);
-                const fechaFormateada = fechaEvento.toLocaleDateString('es-ES', {
-                    weekday: 'long',
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                    timeZone: 'Europe/Madrid'
-                });
+
+                // Obtener claves de día y mes
+                const diasSemana = ['domingo', 'lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado'];
+                const meses = [
+                    'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+                    'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'
+                ];
+                const diaClave = diasSemana[fechaEvento.getDay()];
+                const mesClave = meses[fechaEvento.getMonth()];
+
+                // Traducir usando i18nService
+                const diaTraducido = await enviarMensajeWhatsApp(`fecha.dias.${diaClave}`, '', {}, true);
+                const mesTraducido = await enviarMensajeWhatsApp(`fecha.meses.${mesClave}`, '', {}, true);
+                const preposicionDe = await enviarMensajeWhatsApp('conectores.de', '', {}, true); // Asegúrate de tener esta clave en tus traducciones
+
+                // Formatear la fecha: "Lunes, 29 de Julio de 2025"
+                const fechaFormateada = `${diaTraducido}, ${fechaEvento.getDate()} ${preposicionDe} ${mesTraducido} ${preposicionDe} ${fechaEvento.getFullYear()}`;
 
                 const horaInicio = fechaEvento.toLocaleTimeString('es-ES', {
                     hour: '2-digit',

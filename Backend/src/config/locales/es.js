@@ -92,6 +92,9 @@ export default {
             diciembre: "Diciembre"
         }
     },
+    conectores: {
+        de: "de"
+    },
     estado_completa: "Completa",
     estado_abierta: "Abierta",
     estado_otro: "Pendiente",
