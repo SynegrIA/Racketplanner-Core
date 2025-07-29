@@ -72,7 +72,7 @@ export default function CancelarReserva() {
       });
       const data = await response.json();
       if (data.status === "success") {
-        setMensaje(data.message || "La reserva ha sido cancelada exitosamente.");
+        setMensaje('reserva-cancelada-long');
         setConfirmando(false);
       } else {
         setError(data.message || "Ocurrió un error al cancelar la reserva.");
@@ -122,7 +122,7 @@ export default function CancelarReserva() {
             <div className="card-body text-center">
               <div className="display-1 mb-4">{t("key_2")}</div>
               <h3 className="text-success mb-3">{t("reserva-cancelada")}</h3>
-              <p className="lead">{mensaje}</p>
+              <p className="lead">{t(mensaje)}</p>
               <p>{t("se-ha-enviado-una-confirmacion-a-tu-numero-de-what")}</p>
               <button onClick={() => window.close()} className="btn btn-primary mt-3">{t("cerrar")}</button>
             </div>
@@ -170,7 +170,7 @@ export default function CancelarReserva() {
 
               <div className="d-grid gap-2">
                 <button className="btn btn-danger" onClick={handleCancelar} disabled={cancelando}>
-                  {cancelando ? "Procesando..." : "Confirmar cancelación"}
+                  {cancelando ? t('http-procesando') : t('btn-confirmar-cancelacion')}
                 </button>
                 <button className="btn btn-secondary" onClick={() => setConfirmando(false)} disabled={cancelando}>{t("volver")}</button>
               </div>

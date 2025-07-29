@@ -120,6 +120,7 @@
   "completar-registro": "Completar registro",
   "tus-datos-estan-protegidos-y-solo-se-usa": "Tus datos están protegidos y solo se usarán para gestionar partidas",
   "reserva-cancelada": "Reserva Cancelada",
+  "reserva-cancelada-long": "Reserva cancelada correctamente",
   "se-ha-enviado-una-confirmacion-a-tu-nume": "Se ha enviado una confirmación a tu número de WhatsApp.",
   "_6": "⚠️",
   "informacion-no-disponible": "Información no disponible",
@@ -231,5 +232,8 @@
   "mensaje-especificaJugadores": "Debe especificar los jugadores que faltan para completar la partida",
   "mensaje-401": "Debe estar registrado en el sistema",
   "mensaje-reservaConfirmada": "¡Tu reserva ha sido confirmada! Hemos enviado los detalles a tu WhatsApp!",
-  "error-reserva": "Error al confirmar la reserva. Por favor, inténtalo de nuevo."
+  "error-reserva": "Error al confirmar la reserva. Por favor, inténtalo de nuevo.",
+
+  "btn-confirmar-cancelacion": "Confirmar cancelación",
+  "http-procesando": "Procesando..."
 }

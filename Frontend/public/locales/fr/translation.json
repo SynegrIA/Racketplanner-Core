@@ -120,6 +120,7 @@
   "completar-registro": "Terminer l'inscription",
   "tus-datos-estan-protegidos-y-solo-se-usa": "Tes données sont protégées et ne seront utilisées que pour gérer les parties",
   "reserva-cancelada": "Réservation annulée",
+  "reserva-cancelada-long": "Réservation annulée avec succès",
   "se-ha-enviado-una-confirmacion-a-tu-nume": "Une confirmation a été envoyée à ton numéro WhatsApp.",
   "_6": "⚠️",
   "informacion-no-disponible": "Information non disponible",
@@ -231,5 +232,8 @@
   "mensaje-especificaJugadores": "Vous devez indiquer les joueurs manquants pour compléter le match",
   "mensaje-401": "Vous devez être inscrit dans le système",
   "mensaje-reservaConfirmada": "Votre réservation a été confirmée! Nous avons envoyé les détails sur votre WhatsApp!",
-  "error-reserva": "Erreur lors de la confirmation de la réservation. Veuillez réessayer."
+  "error-reserva": "Erreur lors de la confirmation de la réservation. Veuillez réessayer.",
+
+  "btn-confirmar-cancelacion": "Confirmer l'annulation",
+  "http-procesando": "Traitement en cours…"
 }
