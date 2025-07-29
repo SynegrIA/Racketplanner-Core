@@ -93,7 +93,7 @@ export default {
         }
     },
     conectores: {
-        de: "de"
+        de: "-"
     },
     estado_completa: "Complète",
     estado_abierta: "Ouverte",
