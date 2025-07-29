@@ -10,8 +10,8 @@ export const CALENDARS = [
         name: "Pista 1",
         businessHours: {
             weekdays: [
-                { start: "09:00", end: "14:00" },
-                { start: "15:00", end: "22:00" }
+                { start: "08:00", end: "15:30" },
+                { start: "15:30", end: "21:30" }
             ],
             weekends: [
                 { start: "09:00", end: "21:00" }
@@ -26,48 +26,16 @@ export const CALENDARS = [
         name: "Pista 2",
         businessHours: {
             weekdays: [
-                { start: "09:00", end: "14:00" },
-                { start: "15:00", end: "22:00" }
+                { start: "08:00", end: "15:30" },
+                { start: "15:30", end: "21:30" }
             ],
             weekends: [
-                { start: "09:00", end: "21:00" }
+                { start: "08:00", end: "21:30" }
             ]
         },
         avaliable: true,
         slotDuration: 90
-    },
-    {
-        id: "43ef9998cd2031d54a22fcbd1de64163efabfd480450c60f02849832c03f6bff@group.calendar.google.com",
-        index: 3,
-        name: "Pista 3",
-        businessHours: {
-            weekdays: [
-                { start: "09:00", end: "14:00" },
-                { start: "15:00", end: "22:00" }
-            ],
-            weekends: [
-                { start: "09:00", end: "21:00" }
-            ]
-        },
-        avaliable: true,
-        slotDuration: 90
-    },
-    {
-        id: "484129fdd0fab2be87b5b2bc6088250e2d2b8c5f8e53a09c7deef18b174ef986@group.calendar.google.com",
-        index: 4,
-        name: "Pista 4",
-        businessHours: {
-            weekdays: [
-                { start: "09:00", end: "14:00" },
-                { start: "15:00", end: "22:00" }
-            ],
-            weekends: [
-                { start: "09:00", end: "21:00" }
-            ]
-        },
-        avaliable: true,
-        slotDuration: 90
-    },
+    }
 ];
 
 /**
@@ -78,12 +46,12 @@ export const CALENDARS = [
  */
 export const BUSINESS_HOURS = {
     weekdays: [
-        { start: "09:00", end: "14:00" },
-        { start: "15:00", end: "22:00" }
+        { start: "08:00", end: "15:30" },
+        { start: "15:30", end: "21:30" }
     ],
     weekends: [
-        { start: "09:00", end: "14:00" },
-        { start: "15:00", end: "22:00" }
+        { start: "08:00", end: "15:30" },
+        { start: "15:30", end: "21:30" }
     ],
 };
 
