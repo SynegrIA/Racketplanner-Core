@@ -1732,62 +1732,89 @@ async function buscarPartidasAbiertas(fecha) {
     const fechaFin = new Date(fecha);
     fechaFin.setHours(23, 59, 59, 999);
 
+    console.log(`🔍 Buscando partidas abiertas entre ${fechaInicio.toISOString()} y ${fechaFin.toISOString()}`);
+
     // Obtener solo calendarios activos
     const calendariosFiltrados = await obtenerCalendariosActivos();
+    console.log(`📅 Consultando ${calendariosFiltrados.length} calendarios activos para partidas abiertas`);
 
     for (const pista of calendariosFiltrados) {
-        // Obtener todos los eventos del día para esta pista
-        const eventos = await GoogleCalendarService.getEvents(
-            pista.id,
-            fechaInicio.toISOString(),
-            fechaFin.toISOString()
-        );
+        console.log(`- Consultando pista ${pista.name} (ID: ${pista.id})`);
 
-        if (eventos && eventos.length > 0) {
-            // Filtrar eventos que son partidas abiertas
-            for (const evento of eventos) {
-                const descripcion = evento.description || "";
+        try {
+            // Obtener todos los eventos del día para esta pista
+            const eventos = await GoogleCalendarService.getEvents(
+                pista.id,
+                fechaInicio.toISOString(),
+                fechaFin.toISOString()
+            );
 
-                // Extraer información del evento
-                const infoMap = {};
-                descripcion.split('\n').forEach(line => {
-                    if (line.includes(':')) {
-                        const [key, value] = line.split(':', 2);
-                        infoMap[key.trim()] = value.trim();
+            console.log(`  • Encontrados ${eventos?.length || 0} eventos para ${pista.name}`);
+
+            if (eventos && eventos.length > 0) {
+                // Filtrar eventos que son partidas abiertas
+                for (const evento of eventos) {
+                    console.log(`  • Analizando evento: "${evento.summary}" (${evento.id})`);
+                    const descripcion = evento.description || "";
+
+                    // Verificar si la descripción contiene la información esperada
+                    if (!descripcion.includes('Nº Faltantes')) {
+                        console.log(`    ❌ El evento no parece ser una partida (no tiene 'Nº Faltantes')`);
+                        continue;
                     }
-                });
 
-                // Verificar si es una partida abierta con jugadores faltantes
-                const jugadoresFaltan = parseInt(infoMap['Nº Faltantes'] || '0');
-                if (jugadoresFaltan > 0) {
-                    const inicio = new Date(evento.start.dateTime);
-                    const fin = new Date(evento.end.dateTime);
-
-                    // Verificar si este slot está bloqueado por una restricción (para futuras validaciones)
-                    const restriccion = verificarRestriccionesHorario(inicio, fin, pista.restricciones);
-
-                    // Nota: no filtramos las partidas ya creadas por restricciones porque ya existen,
-                    // pero podríamos marcarlas para información adicional si fuera necesario
-
-                    partidas.push({
-                        tipo: 'partida_abierta',
-                        pista: pista.name,
-                        inicio: evento.start.dateTime,
-                        fin: evento.end.dateTime,
-                        eventId: evento.id,
-                        calendarId: pista.id,
-                        organizador: infoMap['Jugador Principal'] || '',
-                        nivel: infoMap['Nivel'] || '',
-                        jugadoresActuales: parseInt(infoMap['Nº Actuales'] || '1'),
-                        jugadoresFaltantes: jugadoresFaltan,
-                        idPartida: infoMap['ID'] || '',
-                        descripcion: infoMap['descripcion'] || (restriccion ? `[${restriccion.descripcion}]` : '')
+                    // Extraer información del evento
+                    const infoMap = {};
+                    descripcion.split('\n').forEach(line => {
+                        if (line.includes(':')) {
+                            const [key, value] = line.split(':', 2);
+                            infoMap[key.trim()] = value.trim();
+                        }
                     });
+
+                    console.log(`    📋 Datos extraídos: Estado=${infoMap['Estado'] || 'No definido'}, Nº Faltantes=${infoMap['Nº Faltantes'] || '0'}`);
+
+                    // Verificar si es una partida abierta con jugadores faltantes
+                    // Importante: verificar que el string no esté vacío antes de parsearlo
+                    const jugadoresFaltanStr = infoMap['Nº Faltantes'] || '0';
+                    const jugadoresFaltan = parseInt(jugadoresFaltanStr);
+                    const estadoPartida = infoMap['Estado'] || '';
+
+                    console.log(`    👥 Jugadores faltantes: ${jugadoresFaltan}, Estado: ${estadoPartida}`);
+
+                    // Considerar una partida como abierta si faltan jugadores O si el estado es "Abierta"
+                    if (jugadoresFaltan > 0 || estadoPartida.toLowerCase() === 'abierta') {
+                        const inicio = new Date(evento.start.dateTime);
+                        const fin = new Date(evento.end.dateTime);
+
+                        console.log(`    ✅ PARTIDA ABIERTA ENCONTRADA: ${inicio.toLocaleTimeString('es-ES')} a ${fin.toLocaleTimeString('es-ES')}`);
+
+                        partidas.push({
+                            tipo: 'abierta',
+                            pista: pista.name,
+                            inicio: evento.start.dateTime,
+                            fin: evento.end.dateTime,
+                            eventId: evento.id,
+                            calendarId: pista.id,
+                            organizador: infoMap['Jugador Principal'] || '',
+                            nivel: infoMap['Nivel'] || '',
+                            jugadoresActuales: parseInt(infoMap['Nº Actuales'] || '1'),
+                            jugadoresFaltantes: jugadoresFaltan,
+                            idPartida: infoMap['ID'] || '',
+                            descripcion: infoMap['descripcion'] || '',
+                            colorId: evento.colorId || '0'
+                        });
+                    } else {
+                        console.log(`    ❌ No es partida abierta (jugadores faltantes = ${jugadoresFaltan}, estado = ${estadoPartida})`);
+                    }
                 }
             }
+        } catch (error) {
+            console.error(`Error al consultar eventos para pista ${pista.name}:`, error);
         }
     }
 
+    console.log(`🎾 Total de partidas abiertas encontradas: ${partidas.length}`);
     return partidas;
 }
 

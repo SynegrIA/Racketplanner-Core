@@ -54,7 +54,7 @@ function TimeSlot({
         }}>
           <i className="bi bi-people-fill me-1"></i>{t("partida-abierta")}</span>
         <div className="small text-muted mt-1">
-          <i className="bi bi-person-circle me-1"></i> <span className="fw-medium">{slot.organizador}</span>{t("or")}<i className="bi bi-bar-chart-fill me-1"></i>{t("nivel")}<span className="fw-medium">{slot.nivel || 'No especificado'}</span>{t("or")}<i className="bi bi-person-plus me-1"></i>{t("faltan")}<span className="fw-medium">{slot.jugadoresFaltan}{t("jugadores")}</span>
+          <i className="bi bi-person-circle me-1"></i> <span className="fw-medium">{slot.organizador} </span>{t("or")}<i className="bi bi-bar-chart-fill me-1"></i>{t("nivel")} <span className="fw-medium">{slot.nivel || 'No especificado'}</span> {t("or")}<i className="bi bi-person-plus me-1"></i>{t("faltan")} <span className="fw-medium">{slot.jugadoresFaltantes} {t("jugadores")}</span>
         </div>
       </>}
     </div>
