@@ -29,6 +29,7 @@ export default function ReservaConfirmar() {
   const { t } = useTranslation()
 
   useEffect(() => {
+    setNivel("")
     // Solo inicializar los datos una vez
     if (!datosInicializados) {
       try {
@@ -99,15 +100,16 @@ export default function ReservaConfirmar() {
       }
     }
   }, [searchParams, datosInicializados]);
+
   const handleSubmit = async e => {
     e.preventDefault();
     if (!nivel || nivel === "No especificado" || nivel === "") {
-      setMensaje("Debe especificar el nivel de la partida");
+      setMensaje('mensaje-especificarNivel');
       setTipoMensaje("danger");
       return;
     }
     if (!jugadoresFaltan || jugadoresFaltan === "?" || jugadoresFaltan === "") {
-      setMensaje("Debe especificar los jugadores que faltan para completar la partida");
+      setMensaje('mensaje-especificaJugadores');
       setTipoMensaje("danger");
       return;
     }
@@ -146,7 +148,7 @@ export default function ReservaConfirmar() {
       // Comprobamos el código de estado primero
       if (response.status === 401) {
         // Detectar específicamente el error de usuario no registrado
-        setMensaje("Para reservar pistas debes estar registrado en el sistema.");
+        setMensaje('mensaje-401');
         setTipoMensaje("warning");
 
         // Guardar los datos del intento de reserva
@@ -162,10 +164,10 @@ export default function ReservaConfirmar() {
       if (data.status === "success") {
         setNombre(data.data.nombre);
         setReservaConfirmada(true);
-        setMensaje("¡Tu reserva ha sido confirmada! Hemos enviado los detalles a tu WhatsApp.");
+        setMensaje('mensaje-reservaConfirmada');
         setReservaData(data.data);
       } else {
-        setMensaje(`Error: ${data.message}`);
+        setMensaje('error-reserva');
         setTipoMensaje("danger");
       }
     } catch (err) {
@@ -174,7 +176,7 @@ export default function ReservaConfirmar() {
       // Aquí manejamos los errores de red, incluyendo CORS
       // Para estos casos, asumimos que podría ser un 401, especialmente en producción
       if (window.location.hostname !== 'localhost') {
-        setMensaje("No pudimos verificar tu registro. Por favor, regístrate antes de reservar.");
+        setMensaje('mensaje-401');
         setTipoMensaje("warning");
 
         // Guardar los datos del intento de reserva
@@ -193,13 +195,14 @@ export default function ReservaConfirmar() {
         setNeedsRegistration(true);
       } else {
         // Para desarrollo local, mostramos el error técnico
-        setMensaje("Error al confirmar la reserva. Por favor, inténtalo de nuevo.");
+        setMensaje('error-reserva');
         setTipoMensaje("danger");
       }
     } finally {
       setEnviando(false);
     }
   };
+
   if (!partida) {
     return <div className="container min-vh-100 d-flex align-items-center">
       <div className="row w-100">
@@ -225,8 +228,10 @@ export default function ReservaConfirmar() {
           <div className="card shadow">
             <div className="card-body text-center">
               <div className="display-1 mb-4">{t("key_2")}</div>
-              <h3 className="text-success mb-3">{t("reserva-confirmada")}</h3>
-              <p className="lead">{mensaje}</p>
+              <div className="alert alert-success">
+                <h4 className="alert-heading">{t('reserva-confirmada')}</h4>
+                <p>{t('mensaje-reservaConfirmada')}</p>
+              </div>
               <ul className="list-group mb-4 text-start">
                 <li className="list-group-item">{t("fecha")}{new Date(partida.inicio).toLocaleDateString("es-ES", {
                   timeZone: 'Europe/Madrid'
@@ -261,7 +266,7 @@ export default function ReservaConfirmar() {
             <h3 className="mb-4 text-center">{t("detalles-de-la-partida")}</h3>
             <div className="d-flex justify-content-end mb-2">
               <button type={t("button")} className={`btn btn-sm ${modoEdicion ? 'btn-outline-secondary' : 'btn-outline-primary'}`} onClick={() => setModoEdicion(!modoEdicion)}>
-                {modoEdicion ? '❌ Cancelar edición' : '✏️ Editar detalles'}
+                {modoEdicion ? t('btn-cancelarEdicion') : t('btn-editarDetalles')}
               </button>
             </div>
             <ul className="list-group mb-4">
@@ -274,16 +279,15 @@ export default function ReservaConfirmar() {
                 timeZone: 'Europe/Madrid'
               })}</li>
 
-              {!modoEdicion ? <li className="list-group-item">{t("nivel_3")}{nivel || "No especificado"}</li> : <li className="list-group-item">
-                <div className="input-group">
-                  <span className="input-group-text">{t("nivel_3")}</span>
-                  <select className="form-select" value={nivel} onChange={e => setNivel(e.target.value)} required>
-                    <option value="">{t("selecciona-nivel")}</option>
-                    <option value={t("1")}>{t("1-principiante")}</option>
-                    <option value={t("2")}>{t("2-intermedio")}</option>
-                    <option value={t("3")}>{t("3-avanzado")}</option>
-                  </select>
-                </div>
+              {!modoEdicion ? <li className="list-group-item">{t("nivel_3")}{nivel || t("nivel-noEspecificado")}</li> : <li className="list-group-item">                <div className="input-group">
+                <span className="input-group-text">{t("nivel_3")}</span>
+                <select className="form-select" value={nivel} onChange={e => setNivel(e.target.value)} required>
+                  <option value="">{t("selecciona-nivel")}</option>
+                  <option value={t("1")}>{t("1-principiante")}</option>
+                  <option value={t("2")}>{t("2-intermedio")}</option>
+                  <option value={t("3")}>{t("3-avanzado")}</option>
+                </select>
+              </div>
               </li>}
 
               <li className="list-group-item">{t("pista_1")}{partida.pista}</li>
@@ -337,17 +341,17 @@ export default function ReservaConfirmar() {
                 <div className="form-text">{t("recibiras-notificaciones-por-whatsapp")}</div>
               </div>
 
-              {mensaje && tipoMensaje === "danger" && <div className={`alert alert-${tipoMensaje} mb-3`}>{mensaje}</div>}
+              {mensaje && tipoMensaje === "danger" && <div className={`alert alert-${tipoMensaje} mb-3`}>{t(mensaje)}</div>}
 
               {mensaje && tipoMensaje === "warning" && needsRegistration && <div className="alert alert-warning mb-3 text-center">
-                <p>{mensaje}</p>
+                <p>{t(mensaje)}</p>
                 <div className="d-flex justify-content-center">
                   <button type={t("button")} className="btn btn-outline-primary mt-2" onClick={() => navigate("/signup")}>{t("ir-a-la-pagina-de-registro")}</button>
                 </div>
               </div>}
 
               <button className="btn btn-success w-100" disabled={enviando}>
-                {enviando ? "Enviando..." : "Confirmar reserva"}
+                {enviando ? t('http-enviando') : t('btn-confirmarReserva')}
               </button>
             </form>
           </div>

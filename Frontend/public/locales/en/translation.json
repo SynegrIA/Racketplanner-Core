@@ -220,5 +220,16 @@
 
   "registro-confirmacion": "Your number has been successfully confirmed",
   "registro-error": "An error occurred while confirming your number",
-  "registro-error-datos": "An error occurred while retrieving the data; the link may be invalid"
+  "registro-error-datos": "An error occurred while retrieving the data; the link may be invalid",
+
+  "nivel-noEspecificado": "Not specified",
+  "btn-editarDetalles": "✏️ Edit details",
+  "btn-cancelarEdicion": "❌ Cancel edit",
+  "btn-confirmarReserva": "Confirm reservation",
+  "http-enviando": "Sending...",
+  "mensaje-especificarNivel": "You must specify the match level",
+  "mensaje-especificaJugadores": "You must specify the missing players to complete the match",
+  "mensaje-401": "You must be registered in the system",
+  "mensaje-reservaConfirmada": "Your booking has been confirmed! We've sent the details to your WhatsApp!",
+  "error-reserva": "Error confirming the booking. Please try again."
 }

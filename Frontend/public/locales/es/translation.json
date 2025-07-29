@@ -220,5 +220,16 @@
 
   "registro-confirmacion": "Tu número ha sido confirmado correctamente",
   "registro-error": "Ha ocurrido un error al confirmar su número",
-  "registro-error-datos": "Ha ocurrido un error recuperando los datos, el enlace podría ser inválido"
+  "registro-error-datos": "Ha ocurrido un error recuperando los datos, el enlace podría ser inválido",
+
+  "nivel-noEspecificado": "No especificado",
+  "btn-editarDetalles": "✏️ Editar detalles",
+  "btn-cancelarEdicion": "❌ Cancelar edición",
+  "btn-confirmarReserva": "Confirmar reserva",
+  "http-enviando": "Enviando...",
+  "mensaje-especificarNivel": "Debe especificar el nivel de la partida",
+  "mensaje-especificaJugadores": "Debe especificar los jugadores que faltan para completar la partida",
+  "mensaje-401": "Debe estar registrado en el sistema",
+  "mensaje-reservaConfirmada": "¡Tu reserva ha sido confirmada! Hemos enviado los detalles a tu WhatsApp!",
+  "error-reserva": "Error al confirmar la reserva. Por favor, inténtalo de nuevo."
 }
