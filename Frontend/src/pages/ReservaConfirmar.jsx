@@ -29,7 +29,7 @@ export default function ReservaConfirmar() {
   const { t } = useTranslation()
 
   useEffect(() => {
-    setNivel("")
+    setNivel(t('nivel-noEspecificado'))
     // Solo inicializar los datos una vez
     if (!datosInicializados) {
       try {
@@ -37,7 +37,6 @@ export default function ReservaConfirmar() {
         if (data) {
           const partidaData = JSON.parse(decodeURIComponent(data));
           setPartida(partidaData);
-
           // Inicializa los valores del formulario solo una vez
           if (partidaData.nombre) setNombre(partidaData.nombre);
 
@@ -279,7 +278,12 @@ export default function ReservaConfirmar() {
                 timeZone: 'Europe/Madrid'
               })}</li>
 
-              {!modoEdicion ? <li className="list-group-item">{t("nivel_3")}{nivel || t("nivel-noEspecificado")}</li> : <li className="list-group-item">                <div className="input-group">
+              {!modoEdicion ? <li className="list-group-item">
+                {t("nivel_3")}
+                {nivel === "1" ? t("1-principiante") :
+                  nivel === "2" ? t("2-intermedio") :
+                    nivel === "3" ? t("3-avanzado") : nivel}
+              </li> : <li className="list-group-item">                <div className="input-group">
                 <span className="input-group-text">{t("nivel_3")}</span>
                 <select className="form-select" value={nivel} onChange={e => setNivel(e.target.value)} required>
                   <option value="">{t("selecciona-nivel")}</option>
