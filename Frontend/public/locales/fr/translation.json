@@ -216,5 +216,9 @@
   "abierta": "ouverte",
   "abiertas": "ouvertes",
   "partida abierta": "partie ouverte",
-  "partidas abiertas": "parties ouvertes"
+  "partidas abiertas": "parties ouvertes",
+
+  "registro-confirmacion": "Votre numéro a été confirmé avec succès",
+  "registro-error": "Une erreur est survenue lors de la confirmation de votre numéro",
+  "registro-error-datos": "Une erreur s'est produite lors de la récupération des données; le lien pourrait être invalide"
 }

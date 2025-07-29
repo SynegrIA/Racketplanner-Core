@@ -26,7 +26,7 @@ export default function RegisterConfirmPage() {
   useEffect(() => {
     const cargarDatosUsuario = async () => {
       if (!telefono) {
-        setError("No se ha proporcionado un número de teléfono válido");
+        setError(t('registro-error-datos'));
         setCargando(false);
         return;
       }
@@ -37,11 +37,11 @@ export default function RegisterConfirmPage() {
           // <-- Cambiar data.status a data.success
           setUsuario(data.data);
         } else {
-          throw new Error(data.message || "No se pudo encontrar el usuario");
+          throw new Error("User not found");
         }
       } catch (err) {
         console.error("Error al cargar datos del usuario:", err);
-        setError("No se pudieron cargar los datos del usuario. El enlace puede haber expirado o ser inválido.");
+        setError(t('registro-error-datos'));
       } finally {
         setCargando(false);
       }
@@ -60,13 +60,13 @@ export default function RegisterConfirmPage() {
       const data = await response.json();
       if (data.success) {
         setConfirmacionExitosa(true);
-        setMensaje(data.message || "Tu registro ha sido confirmado correctamente");
+        setMensaje(t('registro.confirmacion'));
       } else {
-        throw new Error(data.message || "Error al confirmar el registro");
+        throw new Error(t('registro.error'));
       }
     } catch (err) {
       console.error("Error en la confirmación:", err);
-      setError(err.message || "Ha ocurrido un error al confirmar el registro");
+      setError(t('registro.error'));
     } finally {
       setConfirmando(false);
     }

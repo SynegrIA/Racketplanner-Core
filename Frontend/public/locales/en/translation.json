@@ -216,5 +216,9 @@
   "abierta": "open",
   "abiertas": "open",
   "partida abierta": "open match",
-  "partidas abiertas": "open matches"
+  "partidas abiertas": "open matches",
+
+  "registro-confirmacion": "Your number has been successfully confirmed",
+  "registro-error": "An error occurred while confirming your number",
+  "registro-error-datos": "An error occurred while retrieving the data; the link may be invalid"
 }
