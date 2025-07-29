@@ -67,6 +67,31 @@ export default {
             error: "Une erreur s'est produite lors de la suppression de vos données du système, veuillez réessayer plus tard"
         }
     },
+    fecha: {
+        dias: {
+            lunes: "Lundi",
+            martes: "Mardi",
+            miercoles: "Mercredi",
+            jueves: "Jeudi",
+            viernes: "Vendredi",
+            sabado: "Samedi",
+            domingo: "Dimanche"
+        },
+        meses: {
+            enero: "Janvier",
+            febrero: "Février",
+            marzo: "Mars",
+            abril: "Avril",
+            mayo: "Mai",
+            junio: "Juin",
+            julio: "Juillet",
+            agosto: "Août",
+            septiembre: "Septembre",
+            octubre: "Octobre",
+            noviembre: "Novembre",
+            diciembre: "Décembre"
+        }
+    },
     estado_completa: "Complète",
     estado_abierta: "Ouverte",
     estado_otro: "En attente",

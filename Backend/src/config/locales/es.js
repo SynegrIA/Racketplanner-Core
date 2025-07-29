@@ -67,6 +67,31 @@ export default {
             error: "Ha habido un error eliminando tus datos del sistema, vuelva a intentarlo más tarde"
         }
     },
+    fecha: {
+        dias: {
+            lunes: "Lunes",
+            martes: "Martes",
+            miercoles: "Miércoles",
+            jueves: "Jueves",
+            viernes: "Viernes",
+            sabado: "Sábado",
+            domingo: "Domingo"
+        },
+        meses: {
+            enero: "Enero",
+            febrero: "Febrero",
+            marzo: "Marzo",
+            abril: "Abril",
+            mayo: "Mayo",
+            junio: "Junio",
+            julio: "Julio",
+            agosto: "Agosto",
+            septiembre: "Septiembre",
+            octubre: "Octubre",
+            noviembre: "Noviembre",
+            diciembre: "Diciembre"
+        }
+    },
     estado_completa: "Completa",
     estado_abierta: "Abierta",
     estado_otro: "Pendiente",
