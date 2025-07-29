@@ -128,56 +128,122 @@ export class ReservasModel {
     static async getReservasActivas(numeroTelefono) {
         try {
             const hoy = new Date();
+            console.log(`Buscando reservas activas para número: ${numeroTelefono} (exactamente este formato)`);
+            console.log(`Fecha de hoy (ISO): ${hoy.toISOString()}`);
+            console.log(`Fecha de hoy (solo fecha): ${hoy.toISOString().split('T')[0]}`);
 
-            // Consultar reservas futuras
+            // 1. PRIMERA CONSULTA - Buscar sin filtro de fecha para verificar si hay reservas con tu número
+            const { data: reservasSinFiltroFecha, error: errorSinFiltro } = await supabase
+                .from('Reservas')
+                .select('ID, Fecha ISO, Estado, Telefono 1')
+                .eq('Telefono 1', numeroTelefono);
+
+            if (errorSinFiltro) {
+                console.error("Error al buscar reservas sin filtro de fecha:", errorSinFiltro);
+            } else {
+                console.log(`Reservas con tu número (sin filtro de fecha): ${reservasSinFiltroFecha.length}`);
+                reservasSinFiltroFecha.forEach(r => {
+                    console.log(`- ID: ${r.ID}, Fecha: ${r['Fecha ISO']}, Estado: ${r.Estado}`);
+                });
+            }
+
+            // 2. SEGUNDA CONSULTA - Verificar si el problema está en el filtro de fecha
+            const { data: reservasConFiltroFecha, error: errorConFiltro } = await supabase
+                .from('Reservas')
+                .select('ID, Fecha ISO, Estado, Telefono 1')
+                .eq('Telefono 1', numeroTelefono)
+                .gte('Fecha ISO', hoy.toISOString().split('T')[0]); // Mayor o igual en lugar de mayor que
+
+            if (errorConFiltro) {
+                console.error("Error al buscar reservas con filtro de fecha:", errorConFiltro);
+            } else {
+                console.log(`Reservas futuras con tu número: ${reservasConFiltroFecha.length}`);
+                reservasConFiltroFecha.forEach(r => {
+                    console.log(`- ID: ${r.ID}, Fecha: ${r['Fecha ISO']}, Estado: ${r.Estado}`);
+                });
+            }
+
+            // 3. TERCERA CONSULTA - Verificar si hay problemas con mayúsculas/minúsculas en los nombres de las columnas
+            const { data: todasReservas, error: errorTodas } = await supabase
+                .from('Reservas')
+                .select('*')
+                .limit(1);
+
+            if (errorTodas) {
+                console.error("Error al obtener estructura de tabla:", errorTodas);
+            } else if (todasReservas.length > 0) {
+                console.log("Estructura de la primera reserva (nombres de columnas):", Object.keys(todasReservas[0]));
+            }
+
+            // 4. CONSULTA PRINCIPAL - Con todos los filtros y selecciones necesarias
             const { data, error } = await supabase
                 .from('Reservas')
                 .select('*')
-                .or(`"Telefono 1".eq.${numeroTelefono},"Telefono 2".eq.${numeroTelefono},"Telefono 3".eq.${numeroTelefono},"Telefono 4".eq.${numeroTelefono}`)
-                .gt('Fecha ISO', hoy.toISOString().split('T')[0])
+                .eq('Telefono 1', numeroTelefono)
+                .gte('Fecha ISO', hoy.toISOString().split('T')[0])
                 .order('Fecha ISO', { ascending: true });
 
-            if (error) throw new Error(error.message);
+            if (error) {
+                console.error("Error en consulta principal:", error);
+                throw new Error(error.message);
+            }
 
+            console.log(`Procesando ${data?.length || 0} reservas para formatear en la respuesta`);
+
+            // Resto del código para formatear resultados
             const partidasCompletas = [];
             const partidasAbiertas = [];
 
-            // Procesar los resultados
-            data.forEach(row => {
-                const fechaObj = new Date(`${row['Fecha ISO']}T${row['Inicio']}`);
+            if (data && data.length > 0) {
+                data.forEach(row => {
+                    console.log(`Procesando reserva ID: ${row.ID}, Estado: ${row.Estado}`);
 
-                // Verificar si el usuario es el dueño de la reserva
-                const esDuenio = row['Telefono 1'] === numeroTelefono;
+                    // Verificar si la fecha tiene el formato correcto
+                    try {
+                        const fechaObj = new Date(`${row['Fecha ISO']}T${row['Inicio']}`);
+                        console.log(`  Fecha parseada: ${fechaObj.toISOString()}`);
 
-                // Información básica común para ambos tipos de partidas
-                const partidaInfo = {
-                    idPartida: row['ID'] || '',
-                    fechaLegible: fechaObj.toLocaleDateString('es-ES', {
-                        day: '2-digit',
-                        month: '2-digit',
-                        year: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        timeZone: 'Europe/Madrid'
-                    }).replace(',', ' a las'),
-                    estado: row['Estado'],
-                    linkCancel: row['Link Cancel'] || "",
-                    esDuenio: esDuenio
-                };
+                        // Información básica común
+                        const partidaInfo = {
+                            idPartida: row['ID'] || '',
+                            fechaLegible: fechaObj.toLocaleDateString('es-ES', {
+                                day: '2-digit',
+                                month: '2-digit',
+                                year: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit',
+                                timeZone: 'Europe/Madrid'
+                            }).replace(',', ' a las'),
+                            estado: row['Estado'],
+                            linkCancel: row['Link Cancel'] || "",
+                            esDuenio: row['Telefono 1'] === numeroTelefono
+                        };
 
-                // Separar según el estado
-                if (row['Estado'] === 'Completa') {
-                    partidasCompletas.push(partidaInfo);
-                } else if (row['Estado'] === 'Abierta') {
-                    // Añadir información adicional para partidas abiertas
-                    partidaInfo.jugadoresActuales = row['Nº Actuales'] || 0;
-                    partidaInfo.jugadoresFaltantes = row['Nº Faltantes'] || 0;
-                    partidaInfo.linkJoin = row['Link Join'] || "";
-                    partidaInfo.linkDelete = row['Link Delete'] || "";
-                    partidasAbiertas.push(partidaInfo);
-                }
-            });
+                        console.log(`  Info básica: ${JSON.stringify(partidaInfo)}`);
 
+                        // Separar según el estado
+                        if (row['Estado'] === 'Completa') {
+                            partidasCompletas.push(partidaInfo);
+                            console.log(`  ✅ Añadida a partidas completas`);
+                        } else if (row['Estado'] === 'Abierta') {
+                            // Añadir información adicional para partidas abiertas
+                            partidaInfo.jugadoresActuales = row['Nº Actuales'] || 0;
+                            partidaInfo.jugadoresFaltantes = row['Nº Faltantes'] || 0;
+                            partidaInfo.linkJoin = row['Link Join'] || "";
+                            partidaInfo.linkDelete = row['Link Delete'] || "";
+
+                            partidasAbiertas.push(partidaInfo);
+                            console.log(`  ✅ Añadida a partidas abiertas`);
+                        } else {
+                            console.log(`  ❌ Estado no reconocido: ${row['Estado']}`);
+                        }
+                    } catch (dateError) {
+                        console.error(`  Error procesando fecha: ${dateError.message}`);
+                    }
+                });
+            }
+
+            console.log(`Resultado final: ${partidasCompletas.length} partidas completas, ${partidasAbiertas.length} partidas abiertas`);
             return { partidasCompletas, partidasAbiertas };
         } catch (error) {
             console.error("Error al obtener reservas activas:", error);
