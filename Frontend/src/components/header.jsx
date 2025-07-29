@@ -163,8 +163,8 @@ export default function Header() {
 
                 {/* Logo - centrado en desktop, oculto en móvil para dar espacio */}
                 <Link className="navbar-brand-custom d-none d-md-flex align-items-center" to="/">
-                    <img src={t("racketplannerlogopng")} alt={t("racketplanner-logo")} height={t("40")} className="me-2" />
-                    <span className="fw-bold fs-5">{t("racketplanner")}</span>
+                    <img src={"/PadelPointRabatLogo.jpeg"} alt={t("racketplanner-logo")} height={t("40")} className="me-2" />
+                    <span className="fw-bold fs-5">PadelPointRabat</span>
                 </Link>
 
                 {/* Botón de registro a la derecha */}

@@ -1,15 +1,26 @@
 const themes = {
     default: {
         id: 'default',
-        nombre: 'PadelPlanner',
-        primaryColor: '#15823E',
-        secondaryColor: '#1CA74F',
-        accentColor: '#1CA74F',
+        nombre: 'PadelPointRabat',
+        primaryColor: '#273583',
+        secondaryColor: '#D1D818',
+        accentColor: '#D1D818',
         backgroundColor: '#FFFFFF',
         textColor: '#333333',
-        logoUrl: '../../public/RacketPlannerLogo.png',
+        logoUrl: '../../public/PadelPointRabatLogo.jpeg',
         isPremium: false
     },
+    // default: {
+    //     id: 'default',
+    //     nombre: 'PadelPlanner',
+    //     primaryColor: '#15823E',
+    //     secondaryColor: '#1CA74F',
+    //     accentColor: '#1CA74F',
+    //     backgroundColor: '#FFFFFF',
+    //     textColor: '#333333',
+    //     logoUrl: '../../public/RacketPlannerLogo.png',
+    //     isPremium: false
+    // },
     dark: {
         id: 'dark',
         nombre: 'PadelPlanner Dark',
