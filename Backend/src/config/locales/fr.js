@@ -5,7 +5,7 @@ export default {
             invitacion: "👉🏼 Si vous souhaitez inviter un joueur, envoyez ce message à la personne : [Rejoindre le match]({{urlInvitar}})"
         },
         unirse: {
-            exito: "✅ *Vous avez rejoint le match avec succès !*\n\n📋 *Détails du match* :\n🆔 ID du match : {{idPartida}}\n📅 Date : {{fecha}}\n⏰ Horaire : {{horaInicio}} - {{horaFin}}\n🎾 Terrain : {{pista}}\n🏆 Niveau : {{nivel}}\n👑 Organisateur : {{organizador}}\n\n👥 *Joueurs* ({{jugadoresActuales}}/4) :\n1. {{jugador1}}{{jugador2}}{{jugador3}}{{jugador4}}\n{{estadoJugadores}}\n🚫 Si vous devez annuler votre participation : [Me retirer de ce match]({{urlEliminar}})",
+            exito: "✅ *Vous avez rejoint le match avec succès !*\n\n📋 *Détails du match* :\n🆔 ID du match : {{idPartida}}\n📅 Date : {{fecha}}\n⏰ Horaire : {{horaInicio}} - {{horaFin}}\n🎾 Terrain : {{pista}}\n🏆 Niveau : {{nivel}}\n👑 Organisateur : {{organizador}}\n\n👥 *Joueurs* ({{jugadoresActuales}}/4)",
             jugadoresFaltan: "⚠️ Il manque encore {{cantidad}} joueur(s)",
             partidaCompleta: "✅ La partie est complète !"
         },
