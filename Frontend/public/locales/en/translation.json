@@ -241,6 +241,8 @@
   "message-union-success": "You have joined the match!",
   "message-union-error": "An error occurred while joining the match; you must be registered in the system",
 
+  "btn-confirmar-eliminacion-jugador": "Confirm deletion",
+
   "filtrar-por-pista": "Filter by court:",
   "no-hay-slots-para-las-pistas-seleccionadas": "No slots available for the selected courts"
 }

@@ -168,7 +168,7 @@ export default function ReservaEliminarJugador() {
             <div className="card-body text-center">
               <div className="display-1 mb-4">{t("key_2")}</div>
               <h3 className="text-success mb-3">{t("jugador-eliminado")}</h3>
-              <p className="lead">{mensaje}</p>
+              {/* <p className="lead">{mensaje}</p> */}
               <p>{t("se-ha-enviado-una-notificacion-a-los-jugadores-afe")}</p>
               <button onClick={() => window.close()} className="btn btn-primary mt-3">{t("cerrar")}</button>
             </div>
@@ -225,7 +225,7 @@ export default function ReservaEliminarJugador() {
 
               <div className="d-grid gap-2">
                 <button className="btn btn-danger" onClick={confirmarEliminacion} disabled={eliminando}>
-                  {eliminando ? "Procesando..." : "Confirmar eliminación"}
+                  {eliminando ? t('http-procesando') : t('btn-confirmar-eliminacion-jugador')}
                 </button>
                 <button className="btn btn-secondary" onClick={cancelarConfirmacion} disabled={eliminando}>{t("volver")}</button>
               </div>
