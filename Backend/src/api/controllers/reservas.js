@@ -225,6 +225,10 @@ export class ReservasController {
                 await enviarMensajeWhatsApp('reservas.disponibilidad.alternativas', numero, {
                     listaHorarios: listaHorarios.join('\n')
                 });
+                // Enviámos enlace al frontend para poder ver los horarios disponibles de forma visual
+                const urlFrontend = `${DOMINIO_FRONTEND}`
+                const urlCorta = await shortenUrl(urlFrontend)
+                await enviarMensajeWhatsApp('reservas.disponibilidad.verVisual', numero, { enlace: urlCorta });
 
                 return res.json({
                     status: "alternativas",

@@ -18,7 +18,8 @@ export default {
             alternativasMismoHorario: "😊 Il y a d'autres terrains disponibles à la même heure :\n{{listaHorarios}}",
             alternativas: "😔 Pas de disponibilité à l'heure sélectionnée. Options alternatives :\n{{listaHorarios}}",
             formatoHorario: "👉🏼 *Le {{fecha}} de {{horaInicio}} à {{horaFin}} sur {{pista}}* : [Cliquez pour réserver]({{enlace}})",
-            pistaNoDisponible: "😔 Nous sommes désolés, ce court n'est plus disponible"
+            pistaNoDisponible: "😔 Nous sommes désolés, ce court n'est plus disponible",
+            verVisual: "👀 Vous préférez voir les horaires de manière visuelle ? Consultez toutes les options ici :\n{{enlace}}"
         },
         eliminarJugador: {
             exito: "⚠️ Mise à jour du match\n\nLe joueur {{nombreJugador}} a été retiré de votre match.\n\n📅 Date : {{fecha}}\n⏰ Heure : {{hora}}\n🎾 Terrain : {{pista}}\n\n👥 Joueurs actuels : {{jugadoresActuales}}/4\n👥 Joueurs manquants : {{jugadoresFaltan}}",
