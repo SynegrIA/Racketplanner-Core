@@ -237,6 +237,10 @@
   "btn-confirmar-cancelacion": "Confirmar cancelación",
   "http-procesando": "Procesando...",
 
+  "btn-confirmar-union": "Confirmar unión",
+  "message-union-success": "Te has unido a la partida!",
+  "message-union-error": "Ha ocurrido un error al unirte a la partida, debes estar registrado en el sistema",
+
   "filtrar-por-pista": "Filtrar por pista:",
   "no-hay-slots-para-las-pistas-seleccionadas": "No hay slots disponibles para las pistas seleccionadas"
 }

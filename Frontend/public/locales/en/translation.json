@@ -237,6 +237,10 @@
   "btn-confirmar-cancelacion": "Confirm cancellation",
   "http-procesando": "Processing...",
 
+  "btn-confirmar-union": "Confirm join",
+  "message-union-success": "You have joined the match!",
+  "message-union-error": "An error occurred while joining the match; you must be registered in the system",
+
   "filtrar-por-pista": "Filter by court:",
   "no-hay-slots-para-las-pistas-seleccionadas": "No slots available for the selected courts"
 }

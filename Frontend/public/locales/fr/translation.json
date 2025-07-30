@@ -237,6 +237,10 @@
   "btn-confirmar-cancelacion": "Confirmer l'annulation",
   "http-procesando": "Traitement en cours…",
 
+  "btn-confirmar-union": "Confirmer la participation",
+  "message-union-success": "Tu as rejoint la partie!",
+  "message-union-error": "Une erreur s'est produite lors de la participation à la partie; vous devez être inscrit dans le système",
+
   "filtrar-por-pista": "Filtrer par court:",
   "no-hay-slots-para-las-pistas-seleccionadas": "Aucun créneau disponible pour les courts sélectionnés"
 }

@@ -138,7 +138,7 @@ export default function ReservaUnirse() {
       } catch (networkError) {
         // Error específico para problemas de red (incluidos CORS)
         console.error("Error de red al conectar con el servidor:", networkError);
-        setError("Error de conexión: Si es la primera vez que usas la aplicación, debes registrarte primero.");
+        setError('message-union-error');
 
         // Establecer estado para mostrar botón de registro
         setNeedsRegistration(true);
@@ -149,11 +149,11 @@ export default function ReservaUnirse() {
 
       // Usar los datos ya leídos en lugar de volver a llamar a response.json()
       if (responseData.status === "success") {
-        setMensaje(responseData.message || "Te has unido a la partida exitosamente.");
+        setMensaje(true);
         setConfirmando(false);
       } else if (responseData.status === "unauthorized") {
         // Detectar específicamente el error de usuario no registrado
-        setError("Para unirte a una partida debes estar registrado en el sistema.");
+        setError('message-union-error');
 
         // Guardar los datos del intento de unión en localStorage
         localStorage.setItem("unionPendiente", JSON.stringify({
@@ -204,7 +204,7 @@ export default function ReservaUnirse() {
             <div className="card-body text-center">
               <div className="display-1 mb-4">{t("key_1")}</div>
               <h3 className="text-danger mb-3">{t("error")}</h3>
-              <p className="lead">{error}</p>
+              <p className="lead">{t(error)}</p>
 
               {needsRegistration ? <div className="alert alert-warning mb-3">
                 <button onClick={() => navigate('/signup')} className="btn btn-outline-primary mt-2">{t("ir-a-la-pagina-de-registro")}</button>
@@ -227,7 +227,7 @@ export default function ReservaUnirse() {
             <div className="card-body text-center">
               <div className="display-1 mb-4">{t("key_2")}</div>
               <h3 className="text-success mb-3">{t("te-has-unido-a-la-partida")}</h3>
-              <p className="lead">{mensaje}</p>
+              {/* <p className="lead">{t(mensaje)}</p> */}
               <p>{t("se-ha-enviado-una-confirmacion-a-tu-numero-de-what")}</p>
               <button onClick={() => navigate('/home')} className="btn btn-primary mt-3">{t("cerrar")}</button>
             </div>
@@ -285,7 +285,7 @@ export default function ReservaUnirse() {
 
               <div className="d-grid gap-2">
                 <button className="btn btn-success" onClick={confirmarUnion} disabled={enviando}>
-                  {enviando ? "Procesando..." : "Confirmar unión"}
+                  {enviando ? t('http-procesando') : t('btn-confirmar-union')}
                 </button>
                 <button className="btn btn-secondary" onClick={cancelarConfirmacion} disabled={enviando}>{t("volver")}</button>
               </div>
