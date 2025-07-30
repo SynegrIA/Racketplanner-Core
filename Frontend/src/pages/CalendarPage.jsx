@@ -154,11 +154,14 @@ export default function CalendarPage() {
   const [nombre, setNombre] = useState('');
   const [numero, setNumero] = useState('');
   const [expandedTime, setExpandedTime] = useState(null);
+  const [pistasDisponibles, setPistasDisponibles] = useState([]);
+  const [filtroPistas, setFiltroPistas] = useState({});
   const requestIdRef = useRef(0);
   const { t } = useTranslation()
   const {
     currentTheme
   } = useTheme();
+
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const nombreParam = params.get('nombre');
@@ -173,68 +176,58 @@ export default function CalendarPage() {
     setGroupedSlots({});
     setExpandedTime(null);
 
-    // Incrementamos el ID de petición para cada nueva solicitud
     const requestId = ++requestIdRef.current;
     try {
       const response = await fetch(`${DOMINIO_BACKEND}/reservas/disponibles?fecha=${date}`);
       const data = await response.json();
 
-      // Si esta respuesta no corresponde a la última petición, la ignoramos
-      if (requestId !== requestIdRef.current) {
-        console.log("Ignorando respuesta obsoleta", requestId);
-        return;
-      }
+      if (requestId !== requestIdRef.current) return;
 
       if (response.ok && data.status === 'success' && data.data && data.data.length > 0) {
-        console.log("Datos recibidos del servidor:", data.data);
-
-        // Verificar si cada elemento tiene el tipo correcto
         const slotsConTipo = data.data.map(slot => ({
           ...slot,
           tipo: slot.tipo || 'disponible'
         }));
 
-        // Crear un mapa para eliminar duplicados de forma correcta
-        const slotMap = new Map();
+        // NUEVO: obtener pistas únicas
+        const pistasUnicas = Array.from(new Set(slotsConTipo.map(slot => slot.pista))).sort();
+        setPistasDisponibles(pistasUnicas);
 
-        // Primero procesar las partidas abiertas (para asegurar que tienen prioridad)
+        // Si es la primera vez, activar todas las pistas
+        setFiltroPistas(prev => {
+          if (Object.keys(prev).length === 0) {
+            const inicial = {};
+            pistasUnicas.forEach(p => { inicial[p] = true; });
+            return inicial;
+          }
+          // Si ya hay filtro, mantenerlo (por si el usuario ya filtró)
+          return prev;
+        });
+
+        // ...deduplicación y agrupación...
+        const slotMap = new Map();
         slotsConTipo.filter(slot => slot.tipo === 'abierta').forEach(slot => {
           const key = `${slot.pista}-${new Date(slot.inicio).toISOString()}`;
           slotMap.set(key, slot);
         });
-
-        // Luego procesar los slots disponibles (no sobrescriben partidas abiertas)
         slotsConTipo.filter(slot => slot.tipo === 'disponible').forEach(slot => {
           const key = `${slot.pista}-${new Date(slot.inicio).toISOString()}`;
-          if (!slotMap.has(key)) {
-            slotMap.set(key, slot);
-          }
+          if (!slotMap.has(key)) slotMap.set(key, slot);
         });
-
-        // Convertir el mapa a array
         const uniqueSlots = Array.from(slotMap.values());
-        console.log("Slots únicos procesados:", uniqueSlots.length);
 
         // Agrupar por hora
         const groups = uniqueSlots.reduce((acc, slot) => {
           const time = formatearHora(slot.inicio);
-          if (!acc[time]) {
-            acc[time] = [];
-          }
+          if (!acc[time]) acc[time] = [];
           acc[time].push(slot);
           return acc;
         }, {});
-
-        console.log("Grupos de horarios:", Object.keys(groups));
-
-        // Si no hay grupos expandidos y hay al menos un grupo, expandir el primero
         setGroupedSlots(groups);
 
-        // Expandir automáticamente el primer horario disponible
         if (Object.keys(groups).length > 0 && expandedTime === null) {
           const firstTime = Object.keys(groups).sort()[0];
           setExpandedTime(firstTime);
-          console.log("Expandiendo automáticamente el primer horario:", firstTime);
         }
       } else {
         const message = (!data.data || data.data.length === 0) ?
@@ -243,16 +236,11 @@ export default function CalendarPage() {
         setError(message);
       }
     } catch (err) {
-      // Verificar si esta petición sigue siendo relevante
       if (requestId === requestIdRef.current) {
         setError('Error de conexión al cargar los horarios. Inténtalo de nuevo.');
-        console.error("Error al cargar slots:", err);
       }
     } finally {
-      // Solo actualizar el estado de carga si esta es la petición más reciente
-      if (requestId === requestIdRef.current) {
-        setLoading(false);
-      }
+      if (requestId === requestIdRef.current) setLoading(false);
     }
   };
 
@@ -267,6 +255,20 @@ export default function CalendarPage() {
   const handleToggleTime = time => {
     setExpandedTime(expandedTime === time ? null : time);
   };
+
+  const handleTogglePista = pista => {
+    setFiltroPistas(prev => ({
+      ...prev,
+      [pista]: !prev[pista]
+    }));
+  };
+
+  const groupedSlotsFiltrados = {};
+  Object.entries(groupedSlots).forEach(([hora, slots]) => {
+    const filtrados = slots.filter(slot => filtroPistas[slot.pista]);
+    if (filtrados.length > 0) groupedSlotsFiltrados[hora] = filtrados;
+  });
+
 
   // Definimos los estilos CSS como objetos para aplicar a nivel de componente
   useEffect(() => {
@@ -287,6 +289,29 @@ export default function CalendarPage() {
                 from { opacity: 0; transform: translateY(10px); }
                 to { opacity: 1; transform: translateY(0); }
             }
+                 .btn-pista {
+        border-radius: 20px;
+        border: none;
+        margin-right: 8px;
+        margin-bottom: 8px;
+        font-weight: 500;
+        padding: 8px 18px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        transition: all 0.2s;
+        outline: none;
+      }
+      .btn-pista-activa {
+        background: linear-gradient(90deg, ${currentTheme.primaryColor}, ${currentTheme.secondaryColor});
+        color: #fff;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+        border: 2px solid ${currentTheme.primaryColor};
+      }
+      .btn-pista-inactiva {
+        background: #f1f3f6;
+        color: ${currentTheme.primaryColor};
+        border: 2px solid #e0e0e0;
+        opacity: 0.7;
+      }
         `;
 
     // Eliminar cualquier estilo anterior si existe
@@ -347,9 +372,25 @@ export default function CalendarPage() {
           </div>
         </div>
 
-        <hr className="my-4" style={{
-          opacity: 0.1
-        }} />
+        {/* NUEVO: Filtros de pistas */}
+        {pistasDisponibles.length > 0 && (
+          <div className="mb-4 text-center">
+            <span className="fw-medium me-2">{t("filtrar-por-pista") || "Filtrar por pista:"}</span>
+            {pistasDisponibles.map(pista => (
+              <button
+                key={pista}
+                className={`btn-pista ${filtroPistas[pista] ? 'btn-pista-activa' : 'btn-pista-inactiva'}`}
+                onClick={() => handleTogglePista(pista)}
+                type="button"
+                aria-pressed={filtroPistas[pista]}
+              >
+                <i className="bi bi-grid-3x3-gap me-1"></i>{t("pista")} {pista}
+              </button>
+            ))}
+          </div>
+        )}
+
+        <hr className="my-4" style={{ opacity: 0.1 }} />
 
         {loading && <div className="text-center p-5">
           <div className="spinner-border" role={t("status")} style={{
@@ -372,9 +413,25 @@ export default function CalendarPage() {
         </div>}
 
         {!loading && !error && <div>
-          {Object.keys(groupedSlots).length > 0 ? <div className="animate-fade-in">
-            {Object.keys(groupedSlots).sort().map(time => <TimeGroup key={time} time={time} slots={groupedSlots[time]} nombre={nombre} numero={numero} isExpanded={expandedTime === time} onToggle={() => handleToggleTime(time)} onSelect={() => { }} />)}
-          </div> : null}
+          {Object.keys(groupedSlotsFiltrados).length > 0 ? <div className="animate-fade-in">
+            {Object.keys(groupedSlotsFiltrados).sort().map(time => (
+              <TimeGroup
+                key={time}
+                time={time}
+                slots={groupedSlotsFiltrados[time]}
+                nombre={nombre}
+                numero={numero}
+                isExpanded={expandedTime === time}
+                onToggle={() => handleToggleTime(time)}
+                onSelect={() => { }}
+              />
+            ))}
+          </div> : (
+            <div className="text-center text-muted py-5">
+              <i className="bi bi-emoji-frown fs-1 mb-3"></i>
+              <div>{t("no-hay-slots-para-las-pistas-seleccionadas") || "No hay horarios para las pistas seleccionadas."}</div>
+            </div>
+          )}
         </div>}
       </div>
       <div className="card-footer text-center py-4" style={{

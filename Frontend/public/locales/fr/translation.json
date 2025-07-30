@@ -235,5 +235,8 @@
   "error-reserva": "Erreur lors de la confirmation de la réservation. Veuillez réessayer.",
 
   "btn-confirmar-cancelacion": "Confirmer l'annulation",
-  "http-procesando": "Traitement en cours…"
+  "http-procesando": "Traitement en cours…",
+
+  "filtrar-por-pista": "Filtrer par court:",
+  "no-hay-slots-para-las-pistas-seleccionadas": "Aucun créneau disponible pour les courts sélectionnés"
 }

@@ -235,5 +235,8 @@
   "error-reserva": "Error al confirmar la reserva. Por favor, inténtalo de nuevo.",
 
   "btn-confirmar-cancelacion": "Confirmar cancelación",
-  "http-procesando": "Procesando..."
+  "http-procesando": "Procesando...",
+
+  "filtrar-por-pista": "Filtrar por pista:",
+  "no-hay-slots-para-las-pistas-seleccionadas": "No hay slots disponibles para las pistas seleccionadas"
 }

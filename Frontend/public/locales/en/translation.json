@@ -235,5 +235,8 @@
   "error-reserva": "Error confirming the booking. Please try again.",
 
   "btn-confirmar-cancelacion": "Confirm cancellation",
-  "http-procesando": "Processing..."
+  "http-procesando": "Processing...",
+
+  "filtrar-por-pista": "Filter by court:",
+  "no-hay-slots-para-las-pistas-seleccionadas": "No slots available for the selected courts"
 }
