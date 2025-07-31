@@ -278,6 +278,11 @@ export class ReservasController {
                 });
             }
 
+            // Si no se recibe el nivel en el body lo extraemos del organizador
+            if (!nivel) {
+                const nivel = organizador.Nivel
+            }
+
             const nombre = organizador["Nombre Real"]
 
             // 2. Buscar el calendario de la pista
