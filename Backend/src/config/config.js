@@ -12,6 +12,8 @@ export const APP_LOCALE = process.env.APP_LOCALE || 'es';
 
 export const CLUB_ID = process.env.CLUB_ID
 
+export const STRIPE_API_KEY = process.env.STRIPE_API_KEY
+
 export const SUPABASE_URL = process.env.SUPABASE_URL
 export const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY
 
