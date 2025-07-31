@@ -258,7 +258,7 @@ export class ReservasController {
 
         try {
             console.log("Datos recibidos en confirmarReserva:", req.body);
-            const { pista, inicio, fin, nombre, numero, partida, nivel, jugadores_faltan } = req.body;
+            const { pista, inicio, fin, numero, partida, nivel, jugadores_faltan } = req.body;
 
             // 1. Validación básica
             if (!pista || !inicio || !fin || !numero) {
@@ -276,6 +276,8 @@ export class ReservasController {
                     message: "Necesitas estar registrado en el sistema para reservar una pista."
                 });
             }
+
+            const nombre = organizador["Nombre Real"]
 
             // 2. Buscar el calendario de la pista
             const calendariosFiltrados = await obtenerCalendariosActivos();
@@ -320,12 +322,12 @@ export class ReservasController {
             let jugador2 = "", jugador3 = "", jugador4 = "";
             const nombreBase = `${invitadoDe} ${nombre}`;
 
-            if (partida === "Completa" || "completa") {
+            if (partida === "completa" || partida === "Completa") {
                 // Si es partida completa, siempre añadir los 3 invitados
                 jugador2 = `${nombreBase} (1)`;
                 jugador3 = `${nombreBase} (2)`;
                 jugador4 = `${nombreBase} (3)`;
-            } else if (partida === "Abierta" || "abierta") {
+            } else if (partida === "abierta" || partida === "Abierta") {
                 // Para partida abierta, según jugadores actuales
                 if (jugadoresActuales >= 2) jugador2 = `${nombreBase} (1)`;
                 if (jugadoresActuales >= 3) jugador3 = `${nombreBase} (2)`;
