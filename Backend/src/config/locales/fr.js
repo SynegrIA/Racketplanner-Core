@@ -101,5 +101,7 @@ export default {
     estado_completa: "Complète",
     estado_abierta: "Ouverte",
     estado_otro: "En attente",
-    fecha_separador: " à "
+    fecha_separador: " à ",
+
+    invitado_de: "Invité de"
 };

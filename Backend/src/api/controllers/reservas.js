@@ -316,15 +316,16 @@ export class ReservasController {
             }
 
             // 5. Preparar nombres de invitados
+            const invitadoDe = await enviarMensajeWhatsApp('invitado_de', '', {}, true);
             let jugador2 = "", jugador3 = "", jugador4 = "";
-            const nombreBase = `Invitado de ${nombre}`;
+            const nombreBase = `${invitadoDe} ${nombre}`;
 
-            if (partida === "completa") {
+            if (partida === "Completa" || "completa") {
                 // Si es partida completa, siempre añadir los 3 invitados
                 jugador2 = `${nombreBase} (1)`;
                 jugador3 = `${nombreBase} (2)`;
                 jugador4 = `${nombreBase} (3)`;
-            } else if (partida === "abierta") {
+            } else if (partida === "Abierta" || "abierta") {
                 // Para partida abierta, según jugadores actuales
                 if (jugadoresActuales >= 2) jugador2 = `${nombreBase} (1)`;
                 if (jugadoresActuales >= 3) jugador3 = `${nombreBase} (2)`;
@@ -335,7 +336,7 @@ export class ReservasController {
             const idPartida = `A${Math.floor(Math.random() * 900 + 100)}`;
 
             // 7. Crear el evento en el calendario
-            const eventoTitulo = partida === "completa" ?
+            const eventoTitulo = partida === "completa" || "Completa" ?
                 `Partida Completa - ${nombre}` : `Partida Abierta - ${nombre}`;
 
             // 8. Preparar la descripción del evento
@@ -361,7 +362,7 @@ Jugador 4: ${jugador4}
                 description: eventoDescripcion,
                 start: { dateTime: fechaInicio.toISOString() },
                 end: { dateTime: fechaFin.toISOString() },
-                colorId: partida === "abierta" ? "5" : "1" // 5=Amarillo para partidas abiertas
+                colorId: partida === "abierta" || "Abierta" ? "5" : "1" // 5=Amarillo para partidas abiertas
             });
 
             // 10. Generar enlaces para cancelación, eliminación e invitación
