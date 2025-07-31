@@ -2,7 +2,10 @@ export default {
     reservas: {
         confirmacion: {
             exito: "✅ Votre réservation pour {{nombre}} a été confirmée !\n📅 Date : {{fecha}}\n🕒 Horaire : {{horaInicio}} - {{horaFin}}\n🎾 Terrain : {{pista}}\n\n📱 Vous pouvez annuler votre réservation ici : \n👉🏼 [Annuler la réservation]({{urlCancelar}})\n\n🔄 Nombre de joueurs manquants : {{jugadores_faltan}}\n📈 État du match : {{estado}}\n\n🚫 Si vous souhaitez supprimer un invité, cliquez ici : [Supprimer {{textoReserva}}]({{urlEliminar}}).",
-            invitacion: "👉🏼 Si vous souhaitez inviter un joueur, envoyez ce message à la personne : [Rejoindre le match]({{urlInvitar}})"
+            invitacion: "👉🏼 Si vous souhaitez inviter un joueur, envoyez ce message à la personne : [Rejoindre le match]({{urlInvitar}})",
+            grupo: {
+                invitacion: "🎾 Nouvelle partie ouverte niveau {{nivel}}!\n\n🗓️ Date: {{fecha}}\n⏰ Horaire: {{horaInicio}} - {{horaFin}}\n🏟️ Terrain: {{pista}}\n👤 Organisateur: {{organizador}}\n\nVous souhaitez rejoindre? Cliquez ici: {{urlInvitar}}"
+            }
         },
         unirse: {
             exito: "✅ *Vous avez rejoint le match avec succès !*\n\n📋 *Détails du match* :\n🆔 ID du match : {{idPartida}}\n📅 Date : {{fecha}}\n⏰ Horaire : {{horaInicio}} - {{horaFin}}\n🎾 Terrain : {{pista}}\n🏆 Niveau : {{nivel}}\n👑 Organisateur : {{organizador}}\n\n👥 *Joueurs* ({{jugadoresActuales}}/4)",

@@ -7,6 +7,7 @@ import { ReservasModel } from '../../models/reservas.js'
 import { JugadoresModel } from '../../models/jugadores.js'
 import { NODE_ENV } from '../../config/config.js'
 import { ClubsModel } from '../../models/clubs.js';
+import { WHATSAPP_GROUPS } from '../../config/config.js'
 
 export class ReservasController {
 
@@ -492,6 +493,44 @@ Jugador 4: ${jugador4}
             await enviarMensajeWhatsApp('reservas.confirmacion.invitacion', numero, {
                 urlInvitar: urlInvitarCorta
             });
+
+            // 15. Enviar mensaje al grupo de WhatsApp del nivel adecuado
+            if (partida == "Abierta" || partida == "abierta") {
+                try {
+                    // Determinar el grupo según el nivel (asegúrate de que nivel sea 1, 2 o 3)
+                    const nivelNum = parseInt(nivel);
+                    const grupoId = WHATSAPP_GROUPS[`nivel${nivelNum}`];
+
+                    if (grupoId) {
+                        // Prepara los datos para la plantilla
+                        const datosPlantilla = {
+                            nivel: nivelNum,
+                            fecha: fechaFormateada,      // Ejemplo: "31/07/2025"
+                            horaInicio: horaInicio,      // Ejemplo: "18:00"
+                            horaFin: horaFin,            // Ejemplo: "19:30"
+                            pista: pista,          // Ejemplo: "Pista 2"
+                            organizador: nombre,         // Nombre del organizador
+                            urlInvitar: urlInvitarCorta  // Enlace corto para invitar
+                        };
+
+                        // Obtén el mensaje traducido usando la plantilla
+                        const mensajeGrupo = await enviarMensajeWhatsApp(
+                            'reservas.confirmacion.grupo.invitacion',
+                            '',
+                            datosPlantilla,
+                            true // Solo obtener el texto traducido, no enviar a un número
+                        );
+
+                        // Envía el mensaje al grupo usando builderbot
+                        await enviarMensajeWhatsApp(mensajeGrupo, grupoId);
+                    } else {
+                        console.warn(`No se encontró grupo de WhatsApp para el nivel ${nivelNum}`);
+                    }
+                } catch (error) {
+                    console.error("Error al enviar mensaje al grupo de WhatsApp:", error);
+                }
+            }
+
 
             // Intentar cerrar la partida según se crea?
             // await fetch(N8N_WEBHOOK_URL, {
