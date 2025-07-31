@@ -17,6 +17,11 @@ export const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY
 
 export const BUILDERBOT_URL = process.env.BUILDERBOT_URL
 export const BUILDERBOT_KEY = process.env.BUILDERBOT_KEY
+export const WHATSAPP_GROUPS = {
+    nivel1: process.env.WHATS_GROUP_LVL1,
+    nivel2: process.env.WHATS_GROUP_LVL2,
+    nivel3: process.env.WHATS_GROUP_LVL3
+}
 
 export const GOOGLE_CLIENT_EMAIL = process.env.GOOGLE_CLIENT_EMAIL
 export const GOOGLE_PRIVATE_KEY = process.env.GOOGLE_PRIVATE_KEY
