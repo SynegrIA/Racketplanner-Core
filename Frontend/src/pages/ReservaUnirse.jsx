@@ -269,16 +269,16 @@ export default function ReservaUnirse() {
               <p className="lead text-center mb-4">{t("estas-seguro-que-deseas-unirte-a-esta-partida")}</p>
 
               <ul className="list-group mb-4">
-                <li className="list-group-item">{t("fecha")}{new Date(partida.inicio).toLocaleDateString("es-ES", {
+                <li className="list-group-item">{t("fecha")} {new Date(partida.inicio).toLocaleDateString("es-ES", {
                   timeZone: 'Europe/Madrid'
                 })}</li>
-                <li className="list-group-item">{t("hora")}{new Date(partida.inicio).toLocaleTimeString("es-ES", {
+                <li className="list-group-item">{t("hora")} {new Date(partida.inicio).toLocaleTimeString("es-ES", {
                   hour: "2-digit",
                   minute: "2-digit",
                   timeZone: 'Europe/Madrid'
                 })}</li>
-                <li className="list-group-item">{t("nivel_3")}{partida.nivel || "No especificado"}</li>
-                <li className="list-group-item">{t("pista_1")}{partida.pista}</li>
+                <li className="list-group-item">{t("nivel_3")} {partida.nivel || "No especificado"}</li>
+                <li className="list-group-item">{t("pista_1")} {partida.pista}</li>
                 {/* <li className="list-group-item">👥 Nombre: {nombreInvitado}</li> */}
                 <li className="list-group-item">{t("telefono_3")}{codigoPais} {numeroInvitado}</li>
               </ul>
@@ -306,19 +306,19 @@ export default function ReservaUnirse() {
 
             {/* Detalles de la partida */}
             <ul className="list-group mb-4">
-              <li className="list-group-item">{t("fecha")}{new Date(partida.inicio).toLocaleDateString("es-ES", {
+              <li className="list-group-item">{t("fecha")} {new Date(partida.inicio).toLocaleDateString("es-ES", {
                 timeZone: 'Europe/Madrid'
               })}</li>
-              <li className="list-group-item">{t("hora")}{new Date(partida.inicio).toLocaleTimeString("es-ES", {
+              <li className="list-group-item">{t("hora")} {new Date(partida.inicio).toLocaleTimeString("es-ES", {
                 hour: "2-digit",
                 minute: "2-digit",
                 timeZone: 'Europe/Madrid'
               })}</li>
-              <li className="list-group-item">{t("nivel_3")}{partida.nivel || "No especificado"}</li>
-              <li className="list-group-item">{t("pista_1")}{partida.pista}</li>
-              <li className="list-group-item">{t("organizador")}{organizador || partida.organizador}</li>
-              <li className="list-group-item">{t("jugadores-actuales")}{partida.jugadores_actuales}</li>
-              <li className="list-group-item">{t("jugadores-faltantes_1")}{partida.jugadores_faltan}</li>
+              <li className="list-group-item">{t("nivel_3")} {partida.nivel || "No especificado"}</li>
+              <li className="list-group-item">{t("pista_1")} {partida.pista}</li>
+              <li className="list-group-item">{t("organizador")} {organizador || partida.organizador}</li>
+              <li className="list-group-item">{t("jugadores-actuales")} {partida.jugadores_actuales}</li>
+              <li className="list-group-item">{t("jugadores-faltantes_1")} {partida.jugadores_faltan}</li>
             </ul>
 
             {/* Formulario para unirse */}
