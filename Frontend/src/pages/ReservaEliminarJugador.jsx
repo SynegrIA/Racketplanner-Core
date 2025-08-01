@@ -207,20 +207,20 @@ export default function ReservaEliminarJugador() {
                 <div className="display-1">{t("key_6")}</div>
                 <h3 className="text-warning">{t("confirmar-eliminacion")}</h3>
               </div>
-              <p className="lead text-center mb-4">{t("estas-seguro-que-deseas-eliminar-a")}<strong>{jugadorSeleccionado}</strong>{t("de-esta-partida")}</p>
+              <p className="lead text-center mb-4">{t("estas-seguro-que-deseas-eliminar-a")}<strong> {jugadorSeleccionado} </strong>{t("de-esta-partida")}</p>
               <p className="text-center text-danger">{t("esta-accion-no-se-puede-deshacer")}</p>
 
               <ul className="list-group mb-4">
-                <li className="list-group-item">{t("fecha")}{new Date(partida.inicio).toLocaleDateString("es-ES", {
+                <li className="list-group-item">{t("fecha")} {new Date(partida.inicio).toLocaleDateString("es-ES", {
                   timeZone: 'Europe/Madrid'
                 })}</li>
-                <li className="list-group-item">{t("hora")}{new Date(partida.inicio).toLocaleTimeString("es-ES", {
+                <li className="list-group-item">{t("hora")} {new Date(partida.inicio).toLocaleTimeString("es-ES", {
                   hour: "2-digit",
                   minute: "2-digit",
                   timeZone: 'Europe/Madrid'
                 })}</li>
-                <li className="list-group-item">{t("nivel_3")}{partida.nivel || "No especificado"}</li>
-                <li className="list-group-item">{t("pista_1")}{partida.pista}</li>
+                <li className="list-group-item">{t("nivel_3")} {partida.nivel || "No especificado"}</li>
+                <li className="list-group-item">{t("pista_1")} {partida.pista}</li>
               </ul>
 
               <div className="d-grid gap-2">
@@ -246,18 +246,18 @@ export default function ReservaEliminarJugador() {
 
             {/* Detalles de la partida */}
             <ul className="list-group mb-4">
-              <li className="list-group-item">{t("fecha")}{new Date(partida.inicio).toLocaleDateString("es-ES", {
+              <li className="list-group-item">{t("fecha")} {new Date(partida.inicio).toLocaleDateString("es-ES", {
                 timeZone: 'Europe/Madrid'
               })}</li>
-              <li className="list-group-item">{t("hora")}{new Date(partida.inicio).toLocaleTimeString("es-ES", {
+              <li className="list-group-item">{t("hora")} {new Date(partida.inicio).toLocaleTimeString("es-ES", {
                 hour: "2-digit",
                 minute: "2-digit",
                 timeZone: 'Europe/Madrid'
               })}</li>
-              <li className="list-group-item">{t("nivel_3")}{partida.nivel || "No especificado"}</li>
-              <li className="list-group-item">{t("pista_1")}{partida.pista}</li>
-              <li className="list-group-item">{t("organizador")}{partida.organizador}</li>
-              <li className="list-group-item">{t("jugadores-actuales")}{partida.jugadores_actuales}</li>
+              <li className="list-group-item">{t("nivel_3")} {partida.nivel || "No especificado"}</li>
+              <li className="list-group-item">{t("pista_1")} {partida.pista}</li>
+              <li className="list-group-item">{t("organizador")} {partida.organizador}</li>
+              <li className="list-group-item">{t("jugadores-actuales")} {partida.jugadores_actuales}</li>
             </ul>
 
             {/* Formulario para eliminar jugador */}
