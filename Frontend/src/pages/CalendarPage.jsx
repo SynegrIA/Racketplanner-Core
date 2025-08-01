@@ -46,7 +46,7 @@ function TimeSlot({
   };
   return <div className="list-group-item d-flex justify-content-between align-items-center border-0 py-3 hover-effect">
     <div>
-      <span className="fw-semibold">{t("pista")}<strong>{slot.pista}</strong></span>
+      <span className="fw-semibold">{t("pista") + " "}<strong>{slot.pista}</strong></span>
       {slot.tipo === 'abierta' && <>
         <span className="ms-3 badge rounded-pill px-3 py-2" style={{
           backgroundColor: currentTheme.accentColor,
