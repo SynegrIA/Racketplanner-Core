@@ -102,7 +102,8 @@ export default function ReservaConfirmar() {
 
   const handleSubmit = async e => {
     e.preventDefault();
-    if (!nivel || nivel === "No especificado" || nivel === "") {
+    const nivelesValidos = [t("1"), t("2"), t("3"), "1", "2", "3"];
+    if (!nivel || !nivelesValidos.includes(nivel)) {
       setMensaje('mensaje-especificarNivel');
       setTipoMensaje("danger");
       return;
@@ -232,18 +233,18 @@ export default function ReservaConfirmar() {
                 <p>{t('mensaje-reservaConfirmada')}</p>
               </div>
               <ul className="list-group mb-4 text-start">
-                <li className="list-group-item">{t("fecha")}{new Date(partida.inicio).toLocaleDateString("es-ES", {
+                <li className="list-group-item">{t("fecha")} {new Date(partida.inicio).toLocaleDateString("es-ES", {
                   timeZone: 'Europe/Madrid'
                 })}</li>
-                <li className="list-group-item">{t("hora")}{new Date(partida.inicio).toLocaleTimeString("es-ES", {
+                <li className="list-group-item">{t("hora")} {new Date(partida.inicio).toLocaleTimeString("es-ES", {
                   hour: "2-digit",
                   minute: "2-digit",
                   timeZone: 'Europe/Madrid'
                 })}</li>
-                <li className="list-group-item">{t("nivel_3")}{nivel}</li>
-                <li className="list-group-item">{t("pista_1")}{partida.pista}</li>
-                <li className="list-group-item">{t("a-tu-nombre")}{nombre}</li>
-                <li className="list-group-item">{t("jugadores-que-faltan")}{jugadoresFaltan}</li>
+                <li className="list-group-item">{t("nivel_3")} {nivel}</li>
+                <li className="list-group-item">{t("pista_1")} {partida.pista}</li>
+                <li className="list-group-item">{t("a-tu-nombre")} {nombre}</li>
+                <li className="list-group-item">{t("jugadores-que-faltan")} {jugadoresFaltan}</li>
               </ul>
               <div className="alert alert-info mb-4">
                 <p className="mb-0">{t("se-ha-enviado-una-confirmacion-a-tu-numero-de-what")}</p>
@@ -269,17 +270,17 @@ export default function ReservaConfirmar() {
               </button>
             </div>
             <ul className="list-group mb-4">
-              <li className="list-group-item">{t("fecha")}{new Date(partida.inicio).toLocaleDateString("es-ES", {
+              <li className="list-group-item">{t("fecha")} {new Date(partida.inicio).toLocaleDateString("es-ES", {
                 timeZone: 'Europe/Madrid'
               })}</li>
-              <li className="list-group-item">{t("hora")}{new Date(partida.inicio).toLocaleTimeString("es-ES", {
+              <li className="list-group-item">{t("hora")} {new Date(partida.inicio).toLocaleTimeString("es-ES", {
                 hour: "2-digit",
                 minute: "2-digit",
                 timeZone: 'Europe/Madrid'
               })}</li>
 
               {!modoEdicion ? <li className="list-group-item">
-                {t("nivel_3")}
+                {t("nivel_3") + " "}
                 {nivel === "1" ? t("1-principiante") :
                   nivel === "2" ? t("2-intermedio") :
                     nivel === "3" ? t("3-avanzado") : nivel}
@@ -294,9 +295,9 @@ export default function ReservaConfirmar() {
               </div>
               </li>}
 
-              <li className="list-group-item">{t("pista_1")}{partida.pista}</li>
+              <li className="list-group-item">{t("pista_1") + " "}{partida.pista}</li>
 
-              {!modoEdicion ? <li className="list-group-item">{t("jugadores-faltantes")}{jugadoresFaltan || "?"}</li> : <li className="list-group-item">
+              {!modoEdicion ? <li className="list-group-item">{t("jugadores-faltantes") + " "}{jugadoresFaltan || "?"}</li> : <li className="list-group-item">
                 <div className="input-group">
                   <span className="input-group-text">{t("jugadores-faltantes")}</span>
                   <select className="form-select" value={jugadoresFaltan} onChange={e => setJugadoresFaltan(e.target.value)} required>
