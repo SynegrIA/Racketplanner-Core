@@ -175,13 +175,30 @@ export class ReservasController {
                 const listaHorarios = await Promise.all(alternativasMismoHorario.map(async horario => {
                     const inicio = new Date(horario.inicio);
                     const fin = new Date(horario.fin);
-                    const fechaInicioFormateada = inicio.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Europe/Madrid' });
+
+                    // Obtener traducciones para el día y mes
+                    const diasSemana = ['domingo', 'lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado'];
+                    const meses = [
+                        'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+                        'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'
+                    ];
+                    const diaClave = diasSemana[inicio.getDay()];
+                    const mesClave = meses[inicio.getMonth()];
+
+                    // Traducir usando el sistema de internacionalización
+                    const diaTraducido = await enviarMensajeWhatsApp(`fecha.dias.${diaClave}`, '', {}, true);
+                    const mesTraducido = await enviarMensajeWhatsApp(`fecha.meses.${mesClave}`, '', {}, true);
+                    const preposicionDe = await enviarMensajeWhatsApp('conectores.de', '', {}, true);
+
+                    // Formatear la fecha: "Samedi, 2 Août 2025"
+                    const fechaFormateada = `${diaTraducido}, ${inicio.getDate()} ${preposicionDe} ${mesTraducido} ${preposicionDe} ${inicio.getFullYear()}`;
+
                     const horaInicio = inicio.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid' });
                     const horaFin = fin.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid' });
 
                     // Usar la función de traducción con el parámetro soloTraducir=true
                     return await enviarMensajeWhatsApp('reservas.disponibilidad.formatoHorario', '', {
-                        fecha: fechaInicioFormateada,
+                        fecha: fechaFormateada,
                         horaInicio: horaInicio,
                         horaFin: horaFin,
                         pista: horario.pista,
@@ -208,13 +225,30 @@ export class ReservasController {
                 const listaHorarios = await Promise.all(alternativas.map(async horario => {
                     const inicio = new Date(horario.inicio);
                     const fin = new Date(horario.fin);
-                    const fechaInicioFormateada = inicio.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Europe/Madrid' });
+
+                    // Obtener traducciones para el día y mes
+                    const diasSemana = ['domingo', 'lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado'];
+                    const meses = [
+                        'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+                        'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'
+                    ];
+                    const diaClave = diasSemana[inicio.getDay()];
+                    const mesClave = meses[inicio.getMonth()];
+
+                    // Traducir usando el sistema de internacionalización
+                    const diaTraducido = await enviarMensajeWhatsApp(`fecha.dias.${diaClave}`, '', {}, true);
+                    const mesTraducido = await enviarMensajeWhatsApp(`fecha.meses.${mesClave}`, '', {}, true);
+                    const preposicionDe = await enviarMensajeWhatsApp('conectores.de', '', {}, true);
+
+                    // Formatear la fecha: "Samedi, 2 Août 2025"
+                    const fechaFormateada = `${diaTraducido}, ${inicio.getDate()} ${preposicionDe} ${mesTraducido} ${preposicionDe} ${inicio.getFullYear()}`;
+
                     const horaInicio = inicio.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid' });
                     const horaFin = fin.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid' });
 
                     // Usar la función de traducción con el parámetro soloTraducir=true
                     return await enviarMensajeWhatsApp('reservas.disponibilidad.formatoHorario', '', {
-                        fecha: fechaInicioFormateada,
+                        fecha: fechaFormateada,
                         horaInicio: horaInicio,
                         horaFin: horaFin,
                         pista: horario.pista,
@@ -226,6 +260,7 @@ export class ReservasController {
                 await enviarMensajeWhatsApp('reservas.disponibilidad.alternativas', numero, {
                     listaHorarios: listaHorarios.join('\n')
                 });
+
                 // Enviámos enlace al frontend para poder ver los horarios disponibles de forma visual
                 const urlFrontend = `${DOMINIO_FRONTEND}`
                 const urlCorta = await shortenUrl(urlFrontend)
