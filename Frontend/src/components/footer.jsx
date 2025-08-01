@@ -28,7 +28,7 @@ export default function Footer() {
     }}>
       <div className="container d-flex justify-content-center align-items-center">
         <img src={t("logopng")} alt={t("synergia-logo")} height={t("24")} className="me-2" />
-        <span className="text-muted">{t("desarrollado-por")}<a href="https://synergiapro.es/" // Cambia esta URL por la real
+        <span className="text-muted">{t("desarrollado-por")} <a href="https://synergiapro.es/" // Cambia esta URL por la real
           target={t("blank")} rel={t("noopener-noreferrer")} className="synergia-link">{t("synergia")}</a>
         </span>
       </div>

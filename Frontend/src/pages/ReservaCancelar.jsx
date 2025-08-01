@@ -189,18 +189,18 @@ export default function CancelarReserva() {
           <div className="card-body">
             <h3 className="mb-4 text-center">{t("detalles-de-la-partida-a-cancelar")}</h3>
             <ul className="list-group mb-4">
-              <li className="list-group-item">{t("fecha")}{new Date(reserva.inicio).toLocaleDateString("es-ES", {
+              <li className="list-group-item">{t("fecha")} {new Date(reserva.inicio).toLocaleDateString("es-ES", {
                 timeZone: 'Europe/Madrid'
               })}</li>
-              <li className="list-group-item">{t("hora")}{new Date(reserva.inicio).toLocaleTimeString("es-ES", {
+              <li className="list-group-item">{t("hora")} {new Date(reserva.inicio).toLocaleTimeString("es-ES", {
                 hour: "2-digit",
                 minute: "2-digit",
                 timeZone: 'Europe/Madrid'
               })}</li>
-              <li className="list-group-item">{t("nivel_3")}{reserva.nivel || "No especificado"}</li>
-              <li className="list-group-item">{t("pista_1")}{reserva.pista}</li>
-              <li className="list-group-item">{t("organizador")}{reserva.organizador}</li>
-              <li className="list-group-item">{t("telefono_2")}{numero}</li>
+              <li className="list-group-item">{t("nivel_3")} {reserva.nivel || "No especificado"}</li>
+              <li className="list-group-item">{t("pista_1")} {reserva.pista}</li>
+              <li className="list-group-item">{t("organizador")} {reserva.organizador}</li>
+              <li className="list-group-item">{t("telefono_2")} {numero}</li>
             </ul>
 
             <div className="alert alert-warning">
