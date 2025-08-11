@@ -25,8 +25,8 @@ export async function createCheckoutSession({ amount, currency = 'EUR', customer
             capture_method: 'manual',
             metadata
         },
-        success_url: `${DOMINIO_FRONTEND}/pago-exitoso?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${DOMINIO_FRONTEND}/pago-cancelado`,
+        success_url: `${DOMINIO_FRONTEND}`,
+        cancel_url: `${DOMINIO_FRONTEND}`,
         metadata
     });
 }
