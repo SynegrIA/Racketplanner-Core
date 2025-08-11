@@ -1,10 +1,32 @@
 import { supabase } from '../api/services/supabase.js';
 
 export class PagosModel {
-    static async create(payload) {
-        const { error } = await supabase.from('Pagos').insert(payload);
-        if (error) throw error;
+
+    static #ALLOWED_FIELDS = new Set([
+        'Fecha ISO', 'Pista', 'Nivel', 'Nº Actuales', 'Nº Faltantes', 'Estado',
+        'ID Event', 'Payment_Intent 1', 'Payment Intent 2', 'Payment Intent 3', 'Payment Intent 4',
+        'Cobrado', 'ID Partida', 'club_id', 'Monto', 'jugador_id'
+    ]);
+
+    static #sanitize(payload) {
+        const out = {};
+        for (const [k, v] of Object.entries(payload || {})) {
+            if (this.#ALLOWED_FIELDS.has(k)) out[k] = v;
+        }
+        return out;
     }
+
+    static async create(payload) {
+        const toInsert = this.#sanitize(payload);
+        const { data, error } = await supabase
+            .from('Pagos')
+            .insert(toInsert)
+            .select()
+            .single();
+        if (error) throw error;
+        return data;
+    }
+
     static async findPendientePorReservaYTelefono(eventId, telefono) {
         const { data } = await supabase
             .from('Pagos')
@@ -45,4 +67,5 @@ export class PagosModel {
             .eq('stripe_payment_intent_id', paymentIntentId);
         if (error) throw error;
     }
+
 }

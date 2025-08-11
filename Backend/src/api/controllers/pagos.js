@@ -122,7 +122,7 @@ export class PagosController {
     static async stripeWebhook(req, res) {
         try {
             const signature = req.headers['stripe-signature'];
-            const event = constructWebhookEvent(req.rawBody, signature);
+            const event = constructWebhookEvent(req.body, signature);
 
             switch (event.type) {
                 case 'checkout.session.completed': {
