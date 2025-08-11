@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "../context/ThemeContext";
-import { DOMINIO_BACKEND } from "../config/config.js";
+import { DOMINIO_BACKEND, NUMBER_PREFIX } from "../config/config.js";
 import { useTranslation } from 'react-i18next';
 
 export default function RegisterPage() {
@@ -13,7 +13,7 @@ export default function RegisterPage() {
 
   // Estados para los campos del formulario
   const [nombre, setNombre] = useState("");
-  const [codigoPais, setCodigoPais] = useState("212"); // Por defecto España
+  const [codigoPais, setCodigoPais] = useState(NUMBER_PREFIX); // Por defecto España
   const [numero, setNumero] = useState("");
   const [nivel, setNivel] = useState(1);
   const [notificacionesActivas, setNotificacionesActivas] = useState(true);

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { DOMINIO_BACKEND } from "../config/config.js";
+import { DOMINIO_BACKEND, NUMBER_PREFIX } from "../config/config.js";
 import { useTranslation } from 'react-i18next';
 
 export default function ReservaConfirmar() {
@@ -10,7 +10,7 @@ export default function ReservaConfirmar() {
   // Estados independientes para los campos de formulario
   const [nombre, setNombre] = useState("");
   const [numero, setNumero] = useState("");
-  const [codigoPais, setCodigoPais] = useState("212");
+  const [codigoPais, setCodigoPais] = useState(NUMBER_PREFIX);
   const [nivel, setNivel] = useState("");
   const [jugadoresFaltan, setJugadoresFaltan] = useState("");
   const [mensaje, setMensaje] = useState("");

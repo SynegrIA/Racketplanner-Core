@@ -2,13 +2,14 @@ import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
 import Backend from 'i18next-http-backend';
+import { APP_LOCALE } from './config';
 
 i18n
     .use(Backend)               // Para cargar traducciones desde archivos
     //.use(LanguageDetector)      // detecta lang del navegador
     .use(initReactI18next)      // pasa i18n a react-i18next
     .init({
-        fallbackLng: 'fr',      // idioma por defecto
+        fallbackLng: APP_LOCALE,      // idioma por defecto
         interpolation: {
             escapeValue: false,  // React ya hace escaping
         },

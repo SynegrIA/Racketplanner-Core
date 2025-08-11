@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { DOMINIO_BACKEND } from "../config/config.js";
+import { DOMINIO_BACKEND, NUMBER_PREFIX } from "../config/config.js";
 import { useTranslation } from 'react-i18next';
 
 export default function ReservaUnirse() {
@@ -19,7 +19,7 @@ export default function ReservaUnirse() {
   // Datos del formulario
   const [nombreInvitado, setNombreInvitado] = useState("");
   const [numeroInvitado, setNumeroInvitado] = useState("");
-  const [codigoPais, setCodigoPais] = useState("212"); // Por defecto España
+  const [codigoPais, setCodigoPais] = useState(NUMBER_PREFIX); // Por defecto España
   // Se elimina la opción de tipo de unión, solo permitimos con notificaciones
   const tipoUnion = "new"; // Fijo a "new" = con notificaciones
 
