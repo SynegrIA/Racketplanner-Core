@@ -3,6 +3,7 @@ import { JugadoresModel } from '../../models/jugadores.js';
 import { createCheckoutSession, constructWebhookEvent } from '../services/stripe.js';
 import { enviarMensajeWhatsApp } from '../services/builderBot.js';
 import { PagosModel } from '../../models/pagos.js';
+import { shortenUrl } from '../../api/services/acortarURL.js'
 
 export class PagosController {
     // POST /pagos/reserva/:eventId/generar
@@ -22,9 +23,10 @@ export class PagosController {
             const results = [];
             for (const parte of partes) {
                 const existente = await PagosModel.findPendientePorReservaYTelefono(eventId, parte.telefono);
+                const shortURL = shortenUrl(existente.stripe_session_url)
                 if (existente?.stripe_session_url) {
                     results.push({ ...parte, url: existente.stripe_session_url, reused: true });
-                    if (enviar) await enviarMensajeWhatsApp('pagos.link', parte.telefono, { enlace: existente.stripe_session_url });
+                    if (enviar) await enviarMensajeWhatsApp('pagos.link', parte.telefono, { enlace: shortURL });
                     continue;
                 }
 
@@ -66,7 +68,7 @@ export class PagosController {
                 });
 
                 if (enviar) {
-                    await enviarMensajeWhatsApp('pagos.link', parte.telefono, { enlace: session.url });
+                    await enviarMensajeWhatsApp('pagos.link', parte.telefono, { enlace: shortenUrl(session.url) });
                 }
 
                 results.push({ ...parte, url: session.url, reused: false });
