@@ -24,7 +24,7 @@ export class PagosController {
             for (const parte of partes) {
                 const existente = await PagosModel.findPendientePorReservaYTelefono(eventId, parte.telefono);
                 if (existente?.stripe_session_url) {
-                    const shortURL = shortenUrl(existente.stripe_session_url)
+                    const shortURL = await shortenUrl(existente.stripe_session_url)
                     results.push({ ...parte, url: existente.stripe_session_url, reused: true });
                     if (enviar) await enviarMensajeWhatsApp('pagos.link', parte.telefono, { enlace: shortURL });
                     continue;
@@ -66,9 +66,9 @@ export class PagosController {
                     "club_id": reserva['club_id'] || null,
                     "concepto": `Reserva ${reserva['ID Partida']}`
                 });
-
+                const shortURL = await shortenUrl(session.url)
                 if (enviar) {
-                    await enviarMensajeWhatsApp('pagos.link', parte.telefono, { enlace: shortenUrl(session.url) });
+                    await enviarMensajeWhatsApp('pagos.link', parte.telefono, { enlace: shortURL });
                 }
 
                 results.push({ ...parte, url: session.url, reused: false });
