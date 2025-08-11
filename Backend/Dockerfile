@@ -18,8 +18,8 @@ RUN chown -R appuser:appgroup /app
 USER appuser
 
 #ENV NODE_ENV=production
-ARG VITE_NODE_ENV=production
-ENV VITE_NODE_ENV=$VITE_NODE_ENV
+ARG NODE_ENV=production
+ENV NODE_ENV=$NODE_ENV
 
 EXPOSE 3000
 CMD ["node", "app.js"]
