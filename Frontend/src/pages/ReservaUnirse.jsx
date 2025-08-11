@@ -19,7 +19,7 @@ export default function ReservaUnirse() {
   // Datos del formulario
   const [nombreInvitado, setNombreInvitado] = useState("");
   const [numeroInvitado, setNumeroInvitado] = useState("");
-  const [codigoPais, setCodigoPais] = useState(NUMBER_PREFIX); // Por defecto España
+  const [codigoPais, setCodigoPais] = useState(NUMBER_PREFIX);
   // Se elimina la opción de tipo de unión, solo permitimos con notificaciones
   const tipoUnion = "new"; // Fijo a "new" = con notificaciones
 

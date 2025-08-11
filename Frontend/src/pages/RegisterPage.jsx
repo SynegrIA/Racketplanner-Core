@@ -13,7 +13,7 @@ export default function RegisterPage() {
 
   // Estados para los campos del formulario
   const [nombre, setNombre] = useState("");
-  const [codigoPais, setCodigoPais] = useState(NUMBER_PREFIX); // Por defecto España
+  const [codigoPais, setCodigoPais] = useState(NUMBER_PREFIX);
   const [numero, setNumero] = useState("");
   const [nivel, setNivel] = useState(1);
   const [notificacionesActivas, setNotificacionesActivas] = useState(true);
