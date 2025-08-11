@@ -1,4 +1,3 @@
-import { processLock } from "@supabase/supabase-js";
 import dotenv from "dotenv";
 
 dotenv.config()
