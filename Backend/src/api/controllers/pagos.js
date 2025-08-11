@@ -23,8 +23,8 @@ export class PagosController {
             const results = [];
             for (const parte of partes) {
                 const existente = await PagosModel.findPendientePorReservaYTelefono(eventId, parte.telefono);
-                const shortURL = shortenUrl(existente.stripe_session_url)
                 if (existente?.stripe_session_url) {
+                    const shortURL = shortenUrl(existente.stripe_session_url)
                     results.push({ ...parte, url: existente.stripe_session_url, reused: true });
                     if (enviar) await enviarMensajeWhatsApp('pagos.link', parte.telefono, { enlace: shortURL });
                     continue;
