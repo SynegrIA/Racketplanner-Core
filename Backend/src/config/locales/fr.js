@@ -73,6 +73,12 @@ export default {
             error: "Une erreur s'est produite lors de la suppression de vos données du système, veuillez réessayer plus tard"
         }
     },
+    pagos: {
+        link: "💳 Finalisez votre part du paiement ici : {{enlace}}",
+        autorizado: "✅ Paiement autorisé pour le match {{idPartida}}. Il sera capturé automatiquement avant le début.",
+        capturado: "💰 Paiement capturé pour le match {{idPartida}}. Merci !",
+        cancelado: "❌ Votre paiement a été annulé pour le match {{idPartida}}."
+    },
     fecha: {
         dias: {
             lunes: "Lundi",

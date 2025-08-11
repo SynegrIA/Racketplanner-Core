@@ -73,6 +73,12 @@ export default {
             error: "Ha habido un error eliminando tus datos del sistema, vuelva a intentarlo más tarde"
         }
     },
+    pagos: {
+        link: "💳 Completa tu parte del pago aquí: {{enlace}}",
+        autorizado: "✅ Pago autorizado para la partida {{idPartida}}. Se capturará automáticamente antes de empezar.",
+        capturado: "💰 Pago capturado para la partida {{idPartida}}. ¡Gracias!",
+        cancelado: "❌ Tu pago ha sido cancelado para la partida {{idPartida}}."
+    },
     fecha: {
         dias: {
             lunes: "Lunes",
