@@ -5,7 +5,10 @@ export class PagosModel {
     static #ALLOWED_FIELDS = new Set([
         'Fecha ISO', 'Pista', 'Nivel', 'Nº Actuales', 'Nº Faltantes', 'Estado',
         'ID Event', 'Payment_Intent 1', 'Payment Intent 2', 'Payment Intent 3', 'Payment Intent 4',
-        'Cobrado', 'ID Partida', 'club_id', 'Monto', 'jugador_id'
+        'Cobrado', 'ID Partida', 'club_id', 'Monto', 'jugador_id',
+        // Nuevas columnas usadas por tu flujo
+        'stripe_session_id', 'stripe_session_url', 'stripe_payment_intent_id',
+        'jugador_telefono', 'jugador_nombre', 'Fecha Cobro', 'concepto'
     ]);
 
     static #sanitize(payload) {
