@@ -1,6 +1,10 @@
-import express from 'express';
-import { PagosController } from '../controllers/pagos.js'
+import { Router } from 'express';
+import { PagosController } from '../controllers/pagos.js';
 
-const pagosRouter = express.Router();
+const pagosRouter = Router();
 
-export default pagosRouter;
+pagosRouter.post('/reserva/:eventId/generar', PagosController.generarLinksReserva);
+// Importante: esta ruta debe usar express.raw en app principal
+pagosRouter.post('/stripe/webhook', PagosController.stripeWebhook);
+
+export default pagosRouter

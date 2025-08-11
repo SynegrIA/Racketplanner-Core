@@ -2,6 +2,15 @@ import { supabase } from '../api/services/supabase.js'
 
 export class ReservasModel {
 
+    static async getByEventId(eventId) {
+        const { data } = await supabase
+            .from('Reservas')
+            .select('*')
+            .eq('ID Event', eventId)
+            .single();
+        return data || null;
+    }
+
     static async create(object) {
         // object debe contener los campos necesarios para la tabla reservas
         const { data, error } = await supabase
