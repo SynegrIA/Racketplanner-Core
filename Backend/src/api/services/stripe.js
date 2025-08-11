@@ -4,8 +4,8 @@ import { STRIPE_API_KEY, STRIPE_WEBHOOK_SECRET, DOMINIO_FRONTEND } from '../../c
 export const stripe = new Stripe(STRIPE_API_KEY, { apiVersion: '2024-06-20' });
 
 // amount en céntimos
-export async function createCheckoutSession({ amount, currency = 'EUR', customer_email, metadata, description }) {
-    return await stripe.checkout.sessions.create({
+export async function createCheckoutSession({ amount, currency = 'EUR', customer_email, metadata, description, idempotencyKey }) {
+    const params = {
         mode: 'payment',
         payment_method_types: ['card'],
         customer_email,
@@ -20,7 +20,6 @@ export async function createCheckoutSession({ amount, currency = 'EUR', customer
                 }
             }
         }],
-        // clave: autorización sin captura
         payment_intent_data: {
             capture_method: 'manual',
             metadata
@@ -28,7 +27,9 @@ export async function createCheckoutSession({ amount, currency = 'EUR', customer
         success_url: `${DOMINIO_FRONTEND}`,
         cancel_url: `${DOMINIO_FRONTEND}`,
         metadata
-    });
+    };
+    const opts = idempotencyKey ? { idempotencyKey } : undefined;
+    return await stripe.checkout.sessions.create(params, opts);
 }
 
 export async function capturePaymentIntent(paymentIntentId) {

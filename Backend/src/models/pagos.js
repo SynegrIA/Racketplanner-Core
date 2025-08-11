@@ -40,6 +40,20 @@ export class PagosModel {
             .maybeSingle();
         return data || null;
     }
+
+    static async findActivoPorReservaYTelefono(eventId, telefono) {
+        const { data } = await supabase
+            .from('Pagos')
+            .select('*')
+            .eq('ID Event', eventId)
+            .eq('jugador_telefono', telefono)
+            .in('Estado', ['pendiente', 'autorizado'])
+            .order('ID Pago', { ascending: false })
+            .limit(1)
+            .maybeSingle();
+        return data || null;
+    }
+
     static async marcarAutorizadoPorSession(sessionId, updates = {}) {
         const { error } = await supabase
             .from('Pagos')

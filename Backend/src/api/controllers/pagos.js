@@ -22,9 +22,10 @@ export class PagosController {
 
             const results = [];
             for (const parte of partes) {
-                const existente = await PagosModel.findPendientePorReservaYTelefono(eventId, parte.telefono);
+                // Reutiliza si ya hay un pago activo (pendiente o autorizado)
+                const existente = await PagosModel.findActivoPorReservaYTelefono(eventId, parte.telefono);
                 if (existente?.stripe_session_url) {
-                    const shortURL = await shortenUrl(existente.stripe_session_url)
+                    const shortURL = await shortenUrl(existente.stripe_session_url);
                     results.push({ ...parte, url: existente.stripe_session_url, reused: true });
                     if (enviar) await enviarMensajeWhatsApp('pagos.link', parte.telefono, { enlace: shortURL });
                     continue;
@@ -42,35 +43,49 @@ export class PagosController {
                     shareCount: String(parte.shareCount)
                 };
 
+                const idempotencyKey = `checkout:${eventId}:${parte.telefono}`;
                 const session = await createCheckoutSession({
                     amount: parte.amountCents,
                     currency,
                     customer_email: email || undefined,
                     description: `Pago ${metadata.shareCount}/4 - Pista ${reserva['Pista']} - ${reserva['Fecha ISO']} ${reserva['Inicio']}`,
-                    metadata
+                    metadata,
+                    idempotencyKey
                 });
 
-                await PagosModel.create({
-                    "ID Partida": reserva['ID Partida'],
-                    "ID Event": eventId,
-                    "Fecha ISO": reserva['Fecha ISO'],
-                    "Pista": reserva['Pista'],
-                    "Nivel": reserva['Nivel'],
-                    "Monto": parte.amountCents / 100,
-                    "Estado": 'pendiente',              // a la espera de completar checkout
-                    "Cobrado": false,
-                    "jugador_telefono": parte.telefono,
-                    "jugador_nombre": parte.nombre,
-                    "stripe_session_id": session.id,
-                    "stripe_session_url": session.url,
-                    "club_id": reserva['club_id'] || null,
-                    "concepto": `Reserva ${reserva['ID Partida']}`
-                });
-                const shortURL = await shortenUrl(session.url)
-                if (enviar) {
-                    await enviarMensajeWhatsApp('pagos.link', parte.telefono, { enlace: shortURL });
+                try {
+                    await PagosModel.create({
+                        "ID Partida": reserva['ID Partida'],
+                        "ID Event": eventId,
+                        "Fecha ISO": reserva['Fecha ISO'],
+                        "Pista": reserva['Pista'],
+                        "Nivel": reserva['Nivel'],
+                        "Monto": parte.amountCents / 100,
+                        "Estado": 'pendiente',
+                        "Cobrado": false,
+                        "jugador_telefono": parte.telefono,
+                        "jugador_nombre": parte.nombre,
+                        "stripe_session_id": session.id,
+                        "stripe_session_url": session.url,
+                        "club_id": reserva['club_id'] || null,
+                        "concepto": `Reserva ${reserva['ID Partida']}`
+                    });
+                } catch (e) {
+                    // Si otro proceso insertó en paralelo, cae aquí por índice único
+                    if (e?.code === '23505') {
+                        const ya = await PagosModel.findActivoPorReservaYTelefono(eventId, parte.telefono);
+                        if (ya?.stripe_session_url) {
+                            const shortURL = await shortenUrl(ya.stripe_session_url);
+                            results.push({ ...parte, url: ya.stripe_session_url, reused: true });
+                            if (enviar) await enviarMensajeWhatsApp('pagos.link', parte.telefono, { enlace: shortURL });
+                            continue;
+                        }
+                    }
+                    throw e;
                 }
 
+                const shortURL = await shortenUrl(session.url);
+                if (enviar) await enviarMensajeWhatsApp('pagos.link', parte.telefono, { enlace: shortURL });
                 results.push({ ...parte, url: session.url, reused: false });
             }
 
