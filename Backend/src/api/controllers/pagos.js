@@ -4,45 +4,6 @@ import { createCheckoutSession, constructWebhookEvent } from '../services/stripe
 import { enviarMensajeWhatsApp } from '../services/builderBot.js';
 import { PagosModel } from '../../models/pagos.js';
 
-// Prorrateo basado en "Invité de X (n)"
-function computeSharesFromReserva(reservaRow, totalAmountCents) {
-    const nombres = [reservaRow['Jugador 1'], reservaRow['Jugador 2'], reservaRow['Jugador 3'], reservaRow['Jugador 4']];
-    const telefonos = [reservaRow['Telefono 1'], reservaRow['Telefono 2'], reservaRow['Telefono 3'], reservaRow['Telefono 4']];
-    const organizerName = nombres[0];
-    const organizerPhone = telefonos[0];
-
-    const shares = new Map();
-    const addShare = (tel, nombre) => {
-        if (!tel) return;
-        const cur = shares.get(tel) || { telefono: tel, nombre, shareCount: 0 };
-        cur.shareCount += 1;
-        shares.set(tel, cur);
-    };
-
-    addShare(organizerPhone, organizerName);
-    for (let i = 1; i < 4; i++) {
-        const nombre = nombres[i];
-        const tel = telefonos[i];
-        if (!nombre) continue;
-
-        const invitadoDeMatch = nombre.match(/^Invité de\s+(.+?)\s*\(\d+\)$/i);
-        if (invitadoDeMatch && invitadoDeMatch[1].trim() === organizerName) {
-            addShare(organizerPhone, organizerName);
-            continue;
-        }
-        if (tel) addShare(tel, nombre);
-        else addShare(organizerPhone, organizerName);
-    }
-
-    const pricePerShare = Math.round(totalAmountCents / 4);
-    return Array.from(shares.values()).map(s => ({
-        telefono: s.telefono,
-        nombre: s.nombre,
-        shareCount: s.shareCount,
-        amountCents: s.shareCount * pricePerShare
-    }));
-}
-
 export class PagosController {
     // POST /pagos/reserva/:eventId/generar
     static async generarLinksReserva(req, res) {
@@ -145,4 +106,43 @@ export class PagosController {
             return res.status(400).send(`Webhook Error: ${err.message}`);
         }
     }
+}
+
+// Prorrateo basado en "Invité de X (n)"
+function computeSharesFromReserva(reservaRow, totalAmountCents) {
+    const nombres = [reservaRow['Jugador 1'], reservaRow['Jugador 2'], reservaRow['Jugador 3'], reservaRow['Jugador 4']];
+    const telefonos = [reservaRow['Telefono 1'], reservaRow['Telefono 2'], reservaRow['Telefono 3'], reservaRow['Telefono 4']];
+    const organizerName = nombres[0];
+    const organizerPhone = telefonos[0];
+
+    const shares = new Map();
+    const addShare = (tel, nombre) => {
+        if (!tel) return;
+        const cur = shares.get(tel) || { telefono: tel, nombre, shareCount: 0 };
+        cur.shareCount += 1;
+        shares.set(tel, cur);
+    };
+
+    addShare(organizerPhone, organizerName);
+    for (let i = 1; i < 4; i++) {
+        const nombre = nombres[i];
+        const tel = telefonos[i];
+        if (!nombre) continue;
+
+        const invitadoDeMatch = nombre.match(/^Invité de\s+(.+?)\s*\(\d+\)$/i);
+        if (invitadoDeMatch && invitadoDeMatch[1].trim() === organizerName) {
+            addShare(organizerPhone, organizerName);
+            continue;
+        }
+        if (tel) addShare(tel, nombre);
+        else addShare(organizerPhone, organizerName);
+    }
+
+    const pricePerShare = Math.round(totalAmountCents / 4);
+    return Array.from(shares.values()).map(s => ({
+        telefono: s.telefono,
+        nombre: s.nombre,
+        shareCount: s.shareCount,
+        amountCents: s.shareCount * pricePerShare
+    }));
 }
