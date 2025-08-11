@@ -9,3 +9,5 @@ export const DOMINIO_BACKEND = NODE_ENV == 'production' ? import.meta.env.VITE_D
 export const APP_LOCALE = import.meta.env.VITE_APP_LOCALE
 
 export const NUMBER_PREFIX = import.meta.env.VITE_NUMBER_PREFIX
+
+export const APP_THEME = import.meta.env.VITE_THEME || 'default';

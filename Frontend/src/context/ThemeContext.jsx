@@ -1,5 +1,6 @@
 import { createContext, useState, useEffect, useContext } from 'react';
 import themes from '../config/themeConfig.js';
+import { APP_THEME } from '../config/config.js';
 
 // Crear el contexto
 export const ThemeContext = createContext();
@@ -9,33 +10,34 @@ export const useTheme = () => useContext(ThemeContext);
 
 // Proveedor del tema
 export const ThemeProvider = ({ children }) => {
-    const [currentTheme, setCurrentTheme] = useState(themes.default);
+  const initialThemeId = themes[APP_THEME] ? APP_THEME : 'default';
+  const [currentTheme, setCurrentTheme] = useState(themes[initialThemeId]);
 
-    // Función para cambiar de tema
-    const changeTheme = (themeId) => {
-        if (themes[themeId]) {
-            setCurrentTheme(themes[themeId]);
-            localStorage.setItem('selectedTheme', themeId);
-        }
-    };
+  // Función para cambiar de tema
+  const changeTheme = (themeId) => {
+    if (themes[themeId]) {
+      setCurrentTheme(themes[themeId]);
+      localStorage.setItem('selectedTheme', themeId);
+    }
+  };
 
-    // Aplicar el tema usando variables CSS
-    useEffect(() => {
-        const root = document.documentElement;
+  // Aplicar el tema usando variables CSS
+  useEffect(() => {
+    const root = document.documentElement;
 
-        // Aplicar cada color como variable CSS
-        Object.entries(currentTheme).forEach(([key, value]) => {
-            if (typeof value === 'string' && (key.includes('Color') || key.includes('color'))) {
-                root.style.setProperty(`--${key}`, value);
-            }
-        });
+    // Aplicar cada color como variable CSS
+    Object.entries(currentTheme).forEach(([key, value]) => {
+      if (typeof value === 'string' && (key.includes('Color') || key.includes('color'))) {
+        root.style.setProperty(`--${key}`, value);
+      }
+    });
 
-        // También crear variables específicas para Bootstrap
-        root.style.setProperty('--bs-primary', currentTheme.primaryColor);
-        root.style.setProperty('--bs-secondary', currentTheme.secondaryColor);
+    // También crear variables específicas para Bootstrap
+    root.style.setProperty('--bs-primary', currentTheme.primaryColor);
+    root.style.setProperty('--bs-secondary', currentTheme.secondaryColor);
 
-        // Clases personalizadas para botones
-        document.head.innerHTML += `
+    // Clases personalizadas para botones
+    document.head.innerHTML += `
       <style>
         .btn-theme-primary {
           background-color: ${currentTheme.primaryColor};
@@ -64,19 +66,19 @@ export const ThemeProvider = ({ children }) => {
         }
       </style>
     `;
-    }, [currentTheme]);
+  }, [currentTheme]);
 
-    // Cargar tema guardado al inicio
-    useEffect(() => {
-        const savedTheme = localStorage.getItem('selectedTheme');
-        if (savedTheme && themes[savedTheme]) {
-            setCurrentTheme(themes[savedTheme]);
-        }
-    }, []);
+  // Cargar tema guardado al inicio
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('selectedTheme');
+    if (savedTheme && themes[savedTheme]) {
+      setCurrentTheme(themes[savedTheme]);
+    }
+  }, []);
 
-    return (
-        <ThemeContext.Provider value={{ currentTheme, changeTheme }}>
-            {children}
-        </ThemeContext.Provider>
-    );
+  return (
+    <ThemeContext.Provider value={{ currentTheme, changeTheme }}>
+      {children}
+    </ThemeContext.Provider>
+  );
 };
