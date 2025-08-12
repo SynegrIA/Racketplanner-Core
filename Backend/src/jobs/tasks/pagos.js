@@ -7,44 +7,65 @@ import { GoogleCalendarService } from '../../api/services/googleCalendar.js';
 
 const SELF_BASE_URL = process.env.SELF_BASE_URL || `http://localhost:${process.env.PORT || 3000}`;
 const MOTIVO = 'Organizador no autorizó el pago en los primeros 15 minutos';
+const MINUTOS_AUTORIZACION_INICIAL = 15;
 
 export async function enforceAutorizacionInicial() {
     try {
         const ahora = new Date();
-        // Reutilizamos método existente de reservas abiertas
-        const abiertas = await ReservasModel.getAllReservas(); // Debe devolver reservas no canceladas
-        if (!abiertas || !abiertas.length) return;
+        // Mejor: método que devuelva solo abiertas
+        const abiertas = await ReservasModel.getAllReservas()
+
+        if (!abiertas?.length) return;
 
         for (const r of abiertas) {
             try {
-                // Campos esperados en tu tabla
-                const fechaCreacionISO = r['Fecha Creación'] || r['Fecha Creacion'] || r['Fecha_Creación'];
-                if (!fechaCreacionISO) continue;
+                const estado = (r['Estado'] || '').toLowerCase();
+                if (estado !== 'abierta') continue; // solo abiertas
 
-                const createdAt = new Date(fechaCreacionISO);
+                // Intentar timestamp fiable
+                let rawCreacion = r['created_at'] || r['Created_At'] || r['Fecha Creación TS'] ||
+                    r['Fecha Creación'] || r['Fecha Creacion'];
+                if (!rawCreacion) continue;
+
+                // Ignorar si es solo fecha (YYYY-MM-DD) sin hora
+                if (rawCreacion.length === 10 && !rawCreacion.includes('T')) {
+                    // No tenemos hora -> no aplicamos enforcement para evitar falsos positivos
+                    continue;
+                }
+
+                const createdAt = new Date(rawCreacion);
                 if (isNaN(createdAt.getTime())) continue;
 
-                const mins = (ahora - createdAt) / 60000;
+                let mins = (ahora - createdAt) / 60000;
 
-                // Solo procesar si pasaron >=15 y aún no está cancelada
-                if (mins < 15) continue;
+                // (Opcional) Si quieres basarlo en la creación del pago del organizador:
+                const organizerPhone = r['Telefono 1'] || r['Teléfono 1'] || r['Telefono'] || r['Teléfono'];
+                if (!organizerPhone) continue;
 
-                // Evitar procesar reservas ya canceladas o sin ID Event
-                const estado = (r['Estado'] || '').toLowerCase();
-                if (estado === 'cancelada' || estado === 'cancelado') continue;
+                // Comprobar si ya autorizó
+                const autorizado = await PagosModel.existePagoAutorizadoOrganizador(r['ID Event'], organizerPhone);
+                if (autorizado) continue;
+
+                // Intentar obtener pago pendiente del organizador para usar su created_at (lo hace más justo)
+                const pagoOrgPend = await PagosModel.findActivoPorReservaYTelefono(r['ID Event'], organizerPhone);
+                if (pagoOrgPend?.created_at) {
+                    const pagoCreated = new Date(pagoOrgPend.created_at);
+                    if (!isNaN(pagoCreated.getTime())) {
+                        mins = (ahora - pagoCreated) / 60000;
+                    }
+                } else {
+                    // Si todavía NO se generó ni el pago pendiente, le damos más tiempo: no cancelar aún
+                    // (Descomenta si quieres forzar que exista el link antes de contar)
+                    // continue;
+                }
+
+                if (mins < MINUTOS_AUTORIZACION_INICIAL - 0.2) continue; // aún dentro del margen
 
                 const eventId = r['ID Event'];
                 const calendarId = r['calendarID'];
                 if (!eventId || !calendarId) continue;
 
-                // Verificar pago organizador autorizado
-                const organizerPhone = r['Telefono 1'] || r['Teléfono 1'] || r['Teléfono'] || r['Telefono'];
-                if (!organizerPhone) continue;
-
-                const autorizado = await PagosModel.existePagoAutorizadoOrganizador(eventId, organizerPhone);
-                if (autorizado) continue; // Ya autorizado -> no cancelar
-
-                // Cancelar usando el endpoint para reutilizar notificaciones
+                // Construir URL correcta (ver prefijo /api según tu app.use)
                 const base = SELF_BASE_URL.replace(/\/+$/, '');
                 const url = `${base}/reservas/cancelar/${encodeURIComponent(eventId)}`
                     + `?calendarId=${encodeURIComponent(calendarId)}`
@@ -55,26 +76,23 @@ export async function enforceAutorizacionInicial() {
                 try {
                     resp = await fetch(url, { method: 'DELETE' });
                 } catch (httpErr) {
-                    console.error('[enforceAutorizacionInicial] Error HTTP local', httpErr);
-                    // Fallback: cancelar manualmente (solo si endpoint falla)
-                    try {
-                        await GoogleCalendarService.deleteEvent(calendarId, eventId);
-                        await ReservasModel.markAsCancelled(eventId, MOTIVO);
-                    } catch (fallbackErr) {
-                        console.error('[enforceAutorizacionInicial] Fallback error', fallbackErr);
-                    }
-                    continue;
+                    console.error('[enforceAutorizacionInicial] fetch error', httpErr);
                 }
 
-                if (!resp.ok) {
-                    const txt = await resp.text();
-                    console.warn(`[enforceAutorizacionInicial] Endpoint cancelarReserva devolvió ${resp.status} -> ${txt}`);
+                if (!resp || !resp.ok) {
+                    if (resp) {
+                        const txt = await resp.text();
+                        console.warn(`[enforceAutorizacionInicial] cancelarReserva ${resp.status} -> ${txt}`);
+                    }
+                    // Fallback manual
+                    try { await GoogleCalendarService.deleteEvent(calendarId, eventId); } catch { }
+                    try { await ReservasModel.markAsCancelled(eventId, MOTIVO); } catch { }
                 } else {
-                    console.log(`[enforceAutorizacionInicial] Reserva ${eventId} cancelada por falta de autorización inicial.`);
+                    console.log(`[enforceAutorizacionInicial] Cancelada reserva ${eventId} (sin autorización en ${mins.toFixed(1)}m).`);
                 }
 
             } catch (resErr) {
-                console.error('[enforceAutorizacionInicial] Error reserva individual', resErr);
+                console.error('[enforceAutorizacionInicial] error reserva', resErr);
             }
         }
     } catch (e) {

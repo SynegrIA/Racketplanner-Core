@@ -75,6 +75,8 @@ export default {
     },
     pagos: {
         link: "💳 Completa tu parte del pago aquí: {{enlace}}",
+        linkOrganizador: "💳 Completa tu parte del pago aquí: {{enlace}}\n⏱️ Debes autorizar en los próximos {{minutos}} minutos o la reserva será cancelada automáticamente.",
+        linkJugador: "💳 Completa tu parte del pago aquí: {{enlace}}\n⏱️ Debes autorizar en los próximos {{minutos}} minutos o podrías ser eliminado de la reserva.",
         autorizado: "✅ Pago autorizado para la partida {{idPartida}}. Se capturará automáticamente antes de empezar.",
         capturado: "💰 Pago capturado para la partida {{idPartida}}. ¡Gracias!",
         cancelado: "❌ Tu pago ha sido cancelado para la partida {{idPartida}}.",

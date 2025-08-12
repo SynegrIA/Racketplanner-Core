@@ -5,6 +5,15 @@ import { enviarMensajeWhatsApp } from '../services/builderBot.js';
 import { PagosModel } from '../../models/pagos.js';
 import { shortenUrl } from '../../api/services/acortarURL.js'
 
+const MINUTOS_AUTORIZACION_INICIAL = Number(process.env.MINUTOS_AUTORIZACION_INICIAL || 15);
+
+// Helper para elegir clave de traducción según si es organizador
+function linkKeyForTelefono(reserva, telefono) {
+    const org = reserva['Telefono 1'] || reserva['Teléfono 1'] || reserva['Telefono'] || reserva['Teléfono'];
+    if (org && telefono === org) return 'pagos.linkOrganizador';
+    return 'pagos.link';  //return 'pagos.linkJugador';
+}
+
 export class PagosController {
     // POST /pagos/reserva/:eventId/generar
     static async generarLinksReserva(req, res) {
@@ -22,12 +31,17 @@ export class PagosController {
 
             const results = [];
             for (const parte of partes) {
-                // Reutiliza si ya hay un pago activo (pendiente o autorizado)
                 const existente = await PagosModel.findActivoPorReservaYTelefono(eventId, parte.telefono);
                 if (existente?.stripe_session_url) {
                     const shortURL = await shortenUrl(existente.stripe_session_url);
                     results.push({ ...parte, url: existente.stripe_session_url, reused: true });
-                    if (enviar) await enviarMensajeWhatsApp('pagos.link', parte.telefono, { enlace: shortURL });
+                    if (enviar) {
+                        await enviarMensajeWhatsApp(
+                            linkKeyForTelefono(reserva, parte.telefono),
+                            parte.telefono,
+                            { enlace: shortURL, minutos: MINUTOS_AUTORIZACION_INICIAL }
+                        );
+                    }
                     continue;
                 }
 
@@ -71,13 +85,18 @@ export class PagosController {
                         "concepto": `Reserva ${reserva['ID Partida']}`
                     });
                 } catch (e) {
-                    // Si otro proceso insertó en paralelo, cae aquí por índice único
                     if (e?.code === '23505') {
                         const ya = await PagosModel.findActivoPorReservaYTelefono(eventId, parte.telefono);
                         if (ya?.stripe_session_url) {
                             const shortURL = await shortenUrl(ya.stripe_session_url);
                             results.push({ ...parte, url: ya.stripe_session_url, reused: true });
-                            if (enviar) await enviarMensajeWhatsApp('pagos.link', parte.telefono, { enlace: shortURL });
+                            if (enviar) {
+                                await enviarMensajeWhatsApp(
+                                    linkKeyForTelefono(reserva, parte.telefono),
+                                    parte.telefono,
+                                    { enlace: shortURL, minutos: MINUTOS_AUTORIZACION_INICIAL }
+                                );
+                            }
                             continue;
                         }
                     }
@@ -85,7 +104,14 @@ export class PagosController {
                 }
 
                 const shortURL = await shortenUrl(session.url);
-                if (enviar) await enviarMensajeWhatsApp('pagos.link', parte.telefono, { enlace: shortURL });
+                if (enviar) {
+                    await enviarMensajeWhatsApp(
+                        linkKeyForTelefono(reserva, parte.telefono),
+                        parte.telefono,
+                        { enlace: shortURL, minutos: MINUTOS_AUTORIZACION_INICIAL }
+                    );
+                }
+
                 results.push({ ...parte, url: session.url, reused: false });
             }
 

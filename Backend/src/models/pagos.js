@@ -122,4 +122,28 @@ export class PagosModel {
         }
         return (count && count > 0);
     }
+
+    static async marcarAutorizadoPorSession(sessionId, updates = {}) {
+        const { error } = await supabase
+            .from('Pagos')
+            .update({ ...updates })
+            .eq('stripe_session_id', sessionId)
+            .eq('Estado', 'pendiente');
+        if (error) throw error;
+    }
+
+    static async findActivoPorReservaYTelefono(eventId, telefono) {
+        const { data, error } = await supabase
+            .from('Pagos')
+            .select('stripe_session_url,stripe_session_id,created_at')
+            .eq('ID Event', eventId)
+            .eq('jugador_telefono', telefono)
+            .in('Estado', ['pendiente', 'autorizado'])
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .maybeSingle();
+        if (error) return null;
+        return data || null;
+    }
+
 }
