@@ -10,7 +10,7 @@ export class PagosController {
     static async generarLinksReserva(req, res) {
         try {
             const { eventId } = req.params;
-            const { currency = 'EUR', totalAmountCents, enviar = true } = req.body;
+            const { currency = 'EUR', totalAmountCents = 2400, enviar = true } = req.body;
             if (!eventId || !totalAmountCents) {
                 return res.status(400).json({ status: 'error', message: 'eventId y totalAmountCents son obligatorios' });
             }
