@@ -77,7 +77,16 @@ export default {
         link: "💳 Finalisez votre part du paiement ici : {{enlace}}",
         autorizado: "✅ Paiement autorisé pour le match {{idPartida}}. Il sera capturé automatiquement avant le début.",
         capturado: "💰 Paiement capturé pour le match {{idPartida}}. Merci !",
-        cancelado: "❌ Votre paiement a été annulé pour le match {{idPartida}}."
+        cancelado: "❌ Votre paiement a été annulé pour le match {{idPartida}}.",
+        recordatorio: {
+            pendiente: "⏳ N'oubliez pas d'autoriser votre paiement pour le match {{idPartida}}. Il doit être autorisé au plus tard 3 jours avant.",
+            organizador: {
+                enforcement: "❌ Le match {{idPartida}} a été annulé car l’organisateur n’a pas autorisé le paiement à temps."
+            },
+            jugador: {
+                enforcement: "🚫 Vous avez été retiré du match {{idPartida}} pour ne pas avoir autorisé votre paiement à temps."
+            }
+        }
     },
     fecha: {
         dias: {

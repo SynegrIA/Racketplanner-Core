@@ -1,7 +1,7 @@
 import { cronManager } from './cronoManager.js';
 import { cierraPartidas } from './tasks/cierraPartidas.js';
 import { jugadoresSinConfirmar } from './tasks/jugadoresSinConfirmar.js';
-import { procesarCapturasPagos } from './tasks/pagos.js';
+import { procesarCapturasPagos, recordarPagos } from './tasks/pagos.js';
 
 /**
  * Inicializa y registra todas las tareas programadas
@@ -30,6 +30,26 @@ export const initializeJobs = () => {
                 console.error('[cron captura-pagos] error:', e);
             } finally {
                 capturaPagosRunning = false;
+            }
+        }
+    );
+
+    let recordarPagosRunning = false;
+    cronManager.register(
+        'recordar-pagos',
+        '*/30 * * * *',
+        async () => {
+            if (recordarPagosRunning) {
+                console.warn('[cron recordar-pagos] ejecución anterior en curso, se omite');
+                return;
+            }
+            recordarPagosRunning = true;
+            try {
+                await recordarPagos();
+            } catch (e) {
+                console.error('[cron recordar-pagos] error:', e);
+            } finally {
+                recordarPagosRunning = false;
             }
         }
     );

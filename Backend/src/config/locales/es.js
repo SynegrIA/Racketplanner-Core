@@ -77,7 +77,16 @@ export default {
         link: "💳 Completa tu parte del pago aquí: {{enlace}}",
         autorizado: "✅ Pago autorizado para la partida {{idPartida}}. Se capturará automáticamente antes de empezar.",
         capturado: "💰 Pago capturado para la partida {{idPartida}}. ¡Gracias!",
-        cancelado: "❌ Tu pago ha sido cancelado para la partida {{idPartida}}."
+        cancelado: "❌ Tu pago ha sido cancelado para la partida {{idPartida}}.",
+        recordatorio: {
+            pendiente: "⏳ Recuerda autorizar tu pago para la partida {{idPartida}}. Debe estar autorizado como máximo 3 días antes.",
+            organizador: {
+                enforcement: "❌ Se canceló la partida {{idPartida}} porque el organizador no autorizó el pago a tiempo."
+            },
+            jugador: {
+                enforcement: "🚫 Has sido eliminado de la partida {{idPartida}} por no autorizar tu pago antes del plazo."
+            }
+        }
     },
     fecha: {
         dias: {
