@@ -283,4 +283,14 @@ export class ReservasModel {
         }
     }
 
+    static async getAllReservas() {
+        const { data, error } = await supabase
+            .from('Reservas')
+            .select('*')
+            .in('Estado', ['Abierta', 'Completa'])
+            .not('ID Event', 'is', null);
+        if (error) throw error;
+        return data || [];
+    }
+
 }

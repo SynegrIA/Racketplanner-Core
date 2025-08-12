@@ -1,8 +1,86 @@
+import fetch from 'node-fetch'
 import { PagosModel } from '../../models/pagos.js';
 import { ReservasModel } from '../../models/reservas.js';
 import { capturePaymentIntent, cancelPaymentIntent } from '../../api/services/stripe.js';
 import { enviarMensajeWhatsApp } from '../../api/services/builderBot.js';
 import { GoogleCalendarService } from '../../api/services/googleCalendar.js';
+
+const SELF_BASE_URL = process.env.SELF_BASE_URL || `http://localhost:${process.env.PORT || 3000}`;
+const MOTIVO = 'Organizador no autorizó el pago en los primeros 15 minutos';
+
+export async function enforceAutorizacionInicial() {
+    try {
+        const ahora = new Date();
+        // Reutilizamos método existente de reservas abiertas
+        const abiertas = await ReservasModel.getAllReservas(); // Debe devolver reservas no canceladas
+        if (!abiertas || !abiertas.length) return;
+
+        for (const r of abiertas) {
+            try {
+                // Campos esperados en tu tabla
+                const fechaCreacionISO = r['Fecha Creación'] || r['Fecha Creacion'] || r['Fecha_Creación'];
+                if (!fechaCreacionISO) continue;
+
+                const createdAt = new Date(fechaCreacionISO);
+                if (isNaN(createdAt.getTime())) continue;
+
+                const mins = (ahora - createdAt) / 60000;
+
+                // Solo procesar si pasaron >=15 y aún no está cancelada
+                if (mins < 15) continue;
+
+                // Evitar procesar reservas ya canceladas o sin ID Event
+                const estado = (r['Estado'] || '').toLowerCase();
+                if (estado === 'cancelada' || estado === 'cancelado') continue;
+
+                const eventId = r['ID Event'];
+                const calendarId = r['calendarID'];
+                if (!eventId || !calendarId) continue;
+
+                // Verificar pago organizador autorizado
+                const organizerPhone = r['Telefono 1'] || r['Teléfono 1'] || r['Teléfono'] || r['Telefono'];
+                if (!organizerPhone) continue;
+
+                const autorizado = await PagosModel.existePagoAutorizadoOrganizador(eventId, organizerPhone);
+                if (autorizado) continue; // Ya autorizado -> no cancelar
+
+                // Cancelar usando el endpoint para reutilizar notificaciones
+                const base = SELF_BASE_URL.replace(/\/+$/, '');
+                const url = `${base}/reservas/cancelar/${encodeURIComponent(eventId)}`
+                    + `?calendarId=${encodeURIComponent(calendarId)}`
+                    + `&numero=${encodeURIComponent(organizerPhone)}`
+                    + `&motivo=${encodeURIComponent(MOTIVO)}`;
+
+                let resp;
+                try {
+                    resp = await fetch(url, { method: 'DELETE' });
+                } catch (httpErr) {
+                    console.error('[enforceAutorizacionInicial] Error HTTP local', httpErr);
+                    // Fallback: cancelar manualmente (solo si endpoint falla)
+                    try {
+                        await GoogleCalendarService.deleteEvent(calendarId, eventId);
+                        await ReservasModel.markAsCancelled(eventId, MOTIVO);
+                    } catch (fallbackErr) {
+                        console.error('[enforceAutorizacionInicial] Fallback error', fallbackErr);
+                    }
+                    continue;
+                }
+
+                if (!resp.ok) {
+                    const txt = await resp.text();
+                    console.warn(`[enforceAutorizacionInicial] Endpoint cancelarReserva devolvió ${resp.status} -> ${txt}`);
+                } else {
+                    console.log(`[enforceAutorizacionInicial] Reserva ${eventId} cancelada por falta de autorización inicial.`);
+                }
+
+            } catch (resErr) {
+                console.error('[enforceAutorizacionInicial] Error reserva individual', resErr);
+            }
+        }
+    } catch (e) {
+        console.error('[enforceAutorizacionInicial] Error general', e);
+    }
+}
 
 export async function procesarCapturasPagos() {
     const pagos = await PagosModel.listarAutorizadosPendientes();

@@ -103,4 +103,23 @@ export class PagosModel {
         if (error) return null;
         return data || null;
     }
+
+    static async existePagoAutorizadoOrganizador(eventId, organizerPhone) {
+        if (!eventId || !organizerPhone) return false;
+        // Usamos una columna sin espacios para evitar el problema (no seleccionamos "ID Pago")
+        // head:true + count:'exact' permite consulta ligera (solo COUNT) si tu versión soporta.
+        let query = supabase
+            .from('Pagos')
+            .select('stripe_payment_intent_id', { count: 'exact', head: true })
+            .eq('ID Event', eventId)
+            .eq('jugador_telefono', organizerPhone)
+            .in('Estado', ['autorizado', 'Autorizado', 'AUTORIZADO']); // por seguridad ante variaciones
+
+        const { error, count } = await query;
+        if (error) {
+            console.error('[PagosModel.existePagoAutorizadoOrganizador] error', error);
+            return false;
+        }
+        return (count && count > 0);
+    }
 }
