@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { DOMINIO_BACKEND, NUMBER_PREFIX } from "../config/config.js";
 import { useTranslation } from 'react-i18next';
+import { PASARELA } from "../config/config.js";
 
 export default function ReservaConfirmar() {
   const [searchParams] = useSearchParams();
@@ -27,6 +28,63 @@ export default function ReservaConfirmar() {
   const [needsRegistration, setNeedsRegistration] = useState(false);
   const navigate = useNavigate();
   const { t } = useTranslation()
+
+  const PASARELA_ENABLED = PASARELA === 'true';
+  const [paymentLink, setPaymentLink] = useState(null);
+  const [paymentLoading, setPaymentLoading] = useState(false);
+  const [paymentError, setPaymentError] = useState(null);
+  const [paymentReused, setPaymentReused] = useState(false);
+
+  function resolveEventId() {
+    return (
+      reservaData?.eventoId ||        // backend actual
+      reservaData?.eventId ||         // por si cambias
+      partida?.eventoId ||
+      partida?.eventId ||
+      searchParams.get('eventId') ||
+      null
+    );
+  }
+
+  async function generarLinkPago(forcedId) {
+    const realEventId = forcedId || resolveEventId();
+    if (!PASARELA_ENABLED) return;
+    if (!realEventId) {
+      console.warn('[pago] sin eventId');
+      setPaymentError('error-link-sin-evento');
+      return;
+    }
+    if (paymentLink || paymentLoading) return;
+    try {
+      setPaymentLoading(true);
+      setPaymentError(null);
+      const resp = await fetch(`${DOMINIO_BACKEND}/pagos/reserva/${encodeURIComponent(realEventId)}/generar`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ enviar: true })
+      });
+      const raw = await resp.text();
+      let data; try { data = JSON.parse(raw); } catch { data = {}; }
+      if (!resp.ok) throw new Error(data.message || 'error-link-pago');
+      let link = null; let reused = false;
+      if (Array.isArray(data.pagos) && data.pagos.length) {
+        const fullPhone = `${codigoPais}${numero}`;
+        const propio = data.pagos.find(p => p.telefono === fullPhone) || data.pagos[0];
+        link = propio?.url; reused = !!propio?.reused;
+      } else {
+        link = data.url || data.paymentLink;
+        reused = !!data.reused;
+      }
+      if (!link) throw new Error('error-link-pago');
+      setPaymentLink(link);
+      setPaymentReused(reused);
+    } catch (e) {
+      console.error('[pago] fallo', e);
+      setPaymentError(e.message || 'error-link-pago');
+    } finally {
+      setPaymentLoading(false);
+    }
+  }
 
   useEffect(() => {
     setNivel(t('nivel-noEspecificado'))
@@ -161,11 +219,19 @@ export default function ReservaConfirmar() {
 
       // Si llegamos aquí, es porque no es un 401, procesamos normalmente
       const data = await response.json();
-      if (data.status === "success") {
-        setNombre(data.data.nombre);
-        setReservaConfirmada(true);
+      if (data.status === 'success') {
+        const payload = data.data;
+        setReservaData(payload); // guarda objeto completo (tiene eventoId)
+        setNombre(payload.nombre);
         setMensaje('mensaje-reservaConfirmada');
-        setReservaData(data.data);
+        // Intentar link preexistente si en el futuro lo añades:
+        const pre = payload.paymentLink;
+        if (pre) {
+          setPaymentLink(pre);
+        } else if (PASARELA_ENABLED) {
+          const evId = payload.eventoId || payload.eventId;
+          generarLinkPago(evId);
+        }
       } else {
         setMensaje('error-reserva');
         setTipoMensaje("danger");
@@ -222,39 +288,82 @@ export default function ReservaConfirmar() {
 
   // Pantalla de reserva confirmada exitosamente
   if (reservaConfirmada) {
-    return <div className="container min-vh-100 d-flex align-items-center">
-      <div className="row w-100">
-        <div className="col-12 col-md-8 col-lg-6 mx-auto">
-          <div className="card shadow">
-            <div className="card-body text-center">
-              <div className="display-1 mb-4">{t("key_2")}</div>
-              <div className="alert alert-success">
-                <h4 className="alert-heading">{t('reserva-confirmada')}</h4>
-                <p>{t('mensaje-reservaConfirmada')}</p>
+    const evId = reservaData?.eventId || reservaData?.['ID Event'] || partida?.eventId;
+    return (
+      <div className="container min-vh-100 d-flex align-items-center">
+        <div className="row w-100">
+          <div className="col-12 col-md-8 col-lg-6 mx-auto">
+            <div className="card shadow">
+              <div className="card-body text-center">
+                <div className="display-1 mb-4">{t("key_2")}</div>
+                <div className="alert alert-success">
+                  <h4 className="alert-heading">{t('reserva-confirmada')}</h4>
+                  <p>{t('mensaje-reservaConfirmada')}</p>
+                </div>
+                <ul className="list-group mb-4 text-start">
+                  <li className="list-group-item">{t("fecha")} {new Date(partida.inicio).toLocaleDateString("es-ES", { timeZone: 'Europe/Madrid' })}</li>
+                  <li className="list-group-item">{t("hora")} {new Date(partida.inicio).toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit", timeZone: 'Europe/Madrid' })}</li>
+                  <li className="list-group-item">{t("nivel_3")} {nivel}</li>
+                  <li className="list-group-item">{t("pista_1")} {partida.pista}</li>
+                  <li className="list-group-item">{t("a-tu-nombre")} {nombre}</li>
+                  <li className="list-group-item">{t("jugadores-que-faltan")} {jugadoresFaltan}</li>
+                </ul>
+
+                {PASARELA_ENABLED && (
+                  <div className="mb-3">
+                    {!paymentLink && !paymentError && (
+                      <button
+                        type="button"
+                        className="btn btn-outline-success w-100"
+                        disabled={paymentLoading}
+                        onClick={() => generarLinkPago()}
+                      >
+                        {paymentLoading ? t('generando-link-pago') : t('generar-link-pago')}
+                      </button>
+                    )}
+                    {paymentError && (
+                      <div className="alert alert-danger py-2 mt-2">
+                        {t(paymentError)}
+                        <button
+                          className="btn btn-sm btn-outline-danger mt-2"
+                          onClick={() => generarLinkPago()}
+                        >{t('reintentar')}</button>
+                      </div>
+                    )}
+                    {paymentLink && (
+                      <div className="alert alert-info py-2 mt-2">
+                        <p className="mb-2">{paymentReused ? t('link-pago-reutilizado') : t('link-pago-disponible')}</p>
+                        <button
+                          type="button"
+                          className="btn btn-success w-100"
+                          onClick={() => window.location.href = paymentLink}
+                        >
+                          {t('ir-a-pasarela')}
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                <div className="d-flex gap-2 justify-content-center">
+                  <button onClick={() => navigate('/home')} className="btn btn-primary">{t("cerrar")}</button>
+                  {paymentLink && (
+                    <button
+                      type="button"
+                      className="btn btn-outline-success"
+                      onClick={() => window.location.href = paymentLink}
+                    >
+                      {t("pagar")}
+                    </button>
+                  )}
+                </div>
+
               </div>
-              <ul className="list-group mb-4 text-start">
-                <li className="list-group-item">{t("fecha")} {new Date(partida.inicio).toLocaleDateString("es-ES", {
-                  timeZone: 'Europe/Madrid'
-                })}</li>
-                <li className="list-group-item">{t("hora")} {new Date(partida.inicio).toLocaleTimeString("es-ES", {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                  timeZone: 'Europe/Madrid'
-                })}</li>
-                <li className="list-group-item">{t("nivel_3")} {nivel}</li>
-                <li className="list-group-item">{t("pista_1")} {partida.pista}</li>
-                <li className="list-group-item">{t("a-tu-nombre")} {nombre}</li>
-                <li className="list-group-item">{t("jugadores-que-faltan")} {jugadoresFaltan}</li>
-              </ul>
-              <div className="alert alert-info mb-4">
-                <p className="mb-0">{t("se-ha-enviado-una-confirmacion-a-tu-numero-de-what")}</p>
-              </div>
-              <button onClick={() => navigate('/home')} className="btn btn-primary mt-3">{t("cerrar")}</button>
             </div>
           </div>
         </div>
       </div>
-    </div>;
+    );
   }
 
   // Formulario de confirmación de reserva

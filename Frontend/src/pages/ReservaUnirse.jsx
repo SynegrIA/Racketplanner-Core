@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { DOMINIO_BACKEND, NUMBER_PREFIX } from "../config/config.js";
 import { useTranslation } from 'react-i18next';
+import { PASARELA } from "../config/config.js";
 
 export default function ReservaUnirse() {
   const [searchParams] = useSearchParams();
@@ -22,6 +23,12 @@ export default function ReservaUnirse() {
   const [codigoPais, setCodigoPais] = useState(NUMBER_PREFIX);
   // Se elimina la opción de tipo de unión, solo permitimos con notificaciones
   const tipoUnion = "new"; // Fijo a "new" = con notificaciones
+
+  const PASARELA_ENABLED = PASARELA === 'true';
+  const [paymentLink, setPaymentLink] = useState(null);
+  const [paymentLoading, setPaymentLoading] = useState(false);
+  const [paymentError, setPaymentError] = useState(null);
+  const [paymentReused, setPaymentReused] = useState(false);
 
   // Obtener parámetros de la URL
   const eventId = searchParams.get("eventId");
@@ -95,6 +102,40 @@ export default function ReservaUnirse() {
     cargarDetallesPartida();
   }, [eventId, calendarId]);
 
+  async function generarLinkPago(eventId) {
+    if (!PASARELA_ENABLED || !eventId) return;
+    if (paymentLink || paymentLoading) return;
+    try {
+      setPaymentLoading(true);
+      setPaymentError(null);
+      const resp = await fetch(`${DOMINIO_BACKEND}/pagos/reserva/${encodeURIComponent(eventId)}/generar`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ enviar: true })
+      });
+      const data = await resp.json().catch(() => ({}));
+      if (!resp.ok) throw new Error(data.message || 'error-link-pago');
+      let link = null;
+      let reused = false;
+      if (data?.pagos?.length) {
+        const numeroCompleto = `${codigoPais}${numeroInvitado}`;
+        const propio = data.pagos.find(p => p.telefono === numeroCompleto) || data.pagos[0];
+        link = propio?.url;
+        reused = !!propio?.reused;
+      } else {
+        link = data.url || data.paymentLink;
+        reused = !!data.reused;
+      }
+      if (!link) throw new Error('error-link-pago');
+      setPaymentLink(link);
+      setPaymentReused(reused);
+    } catch (e) {
+      setPaymentError(e.message || 'error-link-pago');
+    } finally {
+      setPaymentLoading(false);
+    }
+  }
+
   // Manejador para unirse a la partida
   const handleSubmit = e => {
     e.preventDefault();
@@ -151,6 +192,15 @@ export default function ReservaUnirse() {
       if (responseData.status === "success") {
         setMensaje(true);
         setConfirmando(false);
+        // Intentar capturar link ya devuelto
+        const preLink = responseData.paymentLink || responseData.linkPago;
+        if (preLink) {
+          setPaymentLink(preLink);
+          setPaymentReused(!!responseData.paymentReused);
+        } else {
+          const evId = responseData.data?.eventId || responseData.eventId || eventId;
+          if (PASARELA_ENABLED) generarLinkPago(evId);
+        }
       } else if (responseData.status === "unauthorized") {
         // Detectar específicamente el error de usuario no registrado
         setError('message-union-error');
@@ -220,21 +270,67 @@ export default function ReservaUnirse() {
 
   // Renderizar mensaje de éxito
   if (mensaje) {
-    return <div className="container min-vh-100 d-flex align-items-center">
-      <div className="row w-100">
-        <div className="col-12 col-md-8 col-lg-6 mx-auto">
-          <div className="card shadow">
-            <div className="card-body text-center">
-              <div className="display-1 mb-4">{t("key_2")}</div>
-              <h3 className="text-success mb-3">{t("te-has-unido-a-la-partida")}</h3>
-              {/* <p className="lead">{t(mensaje)}</p> */}
-              <p>{t("se-ha-enviado-una-confirmacion-a-tu-numero-de-what")}</p>
-              <button onClick={() => navigate('/home')} className="btn btn-primary mt-3">{t("cerrar")}</button>
+    const evId = partida?.eventId || eventId;
+    return (
+      <div className="container min-vh-100 d-flex align-items-center">
+        <div className="row w-100">
+          <div className="col-12 col-md-8 col-lg-6 mx-auto">
+            <div className="card shadow">
+              <div className="card-body text-center">
+                <div className="display-1 mb-4">{t("key_2")}</div>
+                <h3 className="text-success mb-3">{t("te-has-unido-a-la-partida")}</h3>
+                <p>{t("se-ha-enviado-una-confirmacion-a-tu-numero-de-what")}</p>
+
+                {PASARELA_ENABLED && (
+                  <div className="mt-3">
+                    {!paymentLink && !paymentError && (
+                      <button
+                        className="btn btn-outline-success w-100"
+                        disabled={paymentLoading}
+                        onClick={() => generarLinkPago(evId)}
+                      >
+                        {paymentLoading ? t("generando-link-pago") : t("generar-link-pago")}
+                      </button>
+                    )}
+                    {paymentError && (
+                      <div className="alert alert-danger py-2 mt-3">
+                        {t(paymentError)}
+                        <div>
+                          <button
+                            className="btn btn-sm btn-outline-danger mt-2"
+                            onClick={() => generarLinkPago(evId)}
+                          >{t("reintentar")}</button>
+                        </div>
+                      </div>
+                    )}
+                    {paymentLink && (
+                      <div className="alert alert-info py-2 mt-3">
+                        <p className="mb-2">{paymentReused ? t("link-pago-reutilizado") : t("link-pago-disponible")}</p>
+                        <button
+                          className="btn btn-success w-100"
+                          onClick={() => window.location.href = paymentLink}
+                        >{t("ir-a-pasarela")}</button>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                <div className="d-flex gap-2 justify-content-center mt-3">
+                  <button onClick={() => navigate('/home')} className="btn btn-primary">{t("cerrar")}</button>
+                  {paymentLink && (
+                    <button
+                      className="btn btn-outline-success"
+                      onClick={() => window.location.href = paymentLink}
+                    >{t("pagar")}</button>
+                  )}
+                </div>
+
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>;
+    );
   }
 
   // Validar si hay datos de partida

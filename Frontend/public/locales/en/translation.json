@@ -244,5 +244,15 @@
   "btn-confirmar-eliminacion-jugador": "Confirm deletion",
 
   "filtrar-por-pista": "Filter by court:",
-  "no-hay-slots-para-las-pistas-seleccionadas": "No slots available for the selected courts"
+  "no-hay-slots-para-las-pistas-seleccionadas": "No slots available for the selected courts",
+
+  "generar-link-pago": "Generate payment link",
+  "generando-link-pago": "Generating link...",
+  "error-link-pago": "Could not generate payment link",
+  "link-pago-disponible": "Payment link available",
+  "link-pago-reutilizado": "Existing active link reused",
+  "ir-a-pasarela": "Go to payment",
+  "pagar": "Authorize payment",
+  "reintentar": "Retry",
+  "error-link-sin-evento": "Could not determine reservation identifier to generate payment link"
 }

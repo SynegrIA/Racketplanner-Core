@@ -244,5 +244,15 @@
   "btn-confirmar-eliminacion-jugador": "Confirmar eliminación",
 
   "filtrar-por-pista": "Filtrar por pista:",
-  "no-hay-slots-para-las-pistas-seleccionadas": "No hay slots disponibles para las pistas seleccionadas"
+  "no-hay-slots-para-las-pistas-seleccionadas": "No hay slots disponibles para las pistas seleccionadas",
+
+  "generar-link-pago": "Generar link de pago",
+  "generando-link-pago": "Generando link...",
+  "error-link-pago": "No se pudo generar el link de pago",
+  "link-pago-disponible": "Link de pago disponible",
+  "link-pago-reutilizado": "Ya tenías un link activo, se ha reutilizado",
+  "ir-a-pasarela": "Ir a pago",
+  "pagar": "Autorizar pago",
+  "reintentar": "Reintentar",
+  "error-link-sin-evento": "No se pudo determinar el identificador de la reserva para generar el pago"
 }

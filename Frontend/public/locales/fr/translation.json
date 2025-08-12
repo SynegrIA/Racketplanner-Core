@@ -244,5 +244,15 @@
   "btn-confirmar-eliminacion-jugador": "Confirmer la suppression",
 
   "filtrar-por-pista": "Filtrer par court:",
-  "no-hay-slots-para-las-pistas-seleccionadas": "Aucun créneau disponible pour les courts sélectionnés"
+  "no-hay-slots-para-las-pistas-seleccionadas": "Aucun créneau disponible pour les courts sélectionnés",
+
+  "generar-link-pago": "Générer le lien de paiement",
+  "generando-link-pago": "Génération...",
+  "error-link-pago": "Impossible de générer le lien de paiement",
+  "link-pago-disponible": "Lien de paiement disponible",
+  "link-pago-reutilizado": "Un lien actif existait déjà, réutilisé",
+  "ir-a-pasarela": "Aller au paiement",
+  "pagar": "Autoriser le paiement",
+  "reintentar": "Réessayer",
+  "error-link-sin-evento": "Impossible de déterminer l’identifiant de la réservation pour générer le lien de paiement"
 }
