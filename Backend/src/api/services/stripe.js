@@ -4,11 +4,21 @@ import { STRIPE_API_KEY, STRIPE_WEBHOOK_SECRET, DOMINIO_FRONTEND } from '../../c
 export const stripe = new Stripe(STRIPE_API_KEY, { apiVersion: '2024-06-20' });
 
 // amount en céntimos
-export async function createCheckoutSession({ amount, currency = 'EUR', customer_email, metadata, description, idempotencyKey }) {
+export async function createCheckoutSession({
+    amount,
+    currency = 'EUR',
+    customer_email,
+    metadata,
+    description,
+    idempotencyKey,
+    paymentMethodTypes,          // opcional: lista extra si quitas captura manual
+    manualCapture = true         // flag para alternar estrategia
+}) {
+    const basePaymentMethodTypes = paymentMethodTypes || ['card']; // 'card' incluye Apple/Google Pay
     const params = {
         mode: 'payment',
-        payment_method_types: ['card'],
         customer_email,
+        payment_method_types: basePaymentMethodTypes,
         line_items: [{
             quantity: 1,
             price_data: {
@@ -16,16 +26,16 @@ export async function createCheckoutSession({ amount, currency = 'EUR', customer
                 unit_amount: amount,
                 product_data: {
                     name: 'Reserva de pista',
-                    description: description || `Pago de reserva ${metadata?.idPartida || ''}`
+                    description: description || `Pago reserva ${metadata?.idPartida || ''}`
                 }
             }
         }],
-        payment_intent_data: {
-            capture_method: 'manual',
-            metadata
-        },
         success_url: `${DOMINIO_FRONTEND}`,
         cancel_url: `${DOMINIO_FRONTEND}`,
+        payment_intent_data: {
+            capture_method: manualCapture ? 'manual' : 'automatic',
+            metadata
+        },
         metadata
     };
     const opts = idempotencyKey ? { idempotencyKey } : undefined;
