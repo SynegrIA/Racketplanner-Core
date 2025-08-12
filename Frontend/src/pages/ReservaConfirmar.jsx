@@ -50,7 +50,6 @@ export default function ReservaConfirmar() {
     const realEventId = forcedId || resolveEventId();
     if (!PASARELA_ENABLED) return;
     if (!realEventId) {
-      console.warn('[pago] sin eventId');
       setPaymentError('error-link-sin-evento');
       return;
     }
@@ -58,28 +57,49 @@ export default function ReservaConfirmar() {
     try {
       setPaymentLoading(true);
       setPaymentError(null);
+      const body = {
+        enviar: true,
+        totalAmountCents: 2400,
+        currency: 'EUR'
+      };
       const resp = await fetch(`${DOMINIO_BACKEND}/pagos/reserva/${encodeURIComponent(realEventId)}/generar`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ enviar: true })
+        body: JSON.stringify(body)
       });
       const raw = await resp.text();
       let data; try { data = JSON.parse(raw); } catch { data = {}; }
+
       if (!resp.ok) throw new Error(data.message || 'error-link-pago');
-      let link = null; let reused = false;
-      if (Array.isArray(data.pagos) && data.pagos.length) {
-        const fullPhone = `${codigoPais}${numero}`;
-        const propio = data.pagos.find(p => p.telefono === fullPhone) || data.pagos[0];
-        link = propio?.url; reused = !!propio?.reused;
+
+      // Nuevo: normalizar formatos posibles
+      // Formato actual: { status:"success", data:[ { telefono, url, reused } ] }
+      let collection = [];
+      if (Array.isArray(data)) collection = data;
+      else if (Array.isArray(data.data)) collection = data.data;
+      else if (Array.isArray(data.pagos)) collection = data.pagos;
+      else if (Array.isArray(data.links)) collection = data.links;
+
+      let link = null;
+      let reused = false;
+
+      if (collection.length) {
+        const fullPhone = `${codigoPais}${numero}`.replace(/^\+/, '');
+        let propio = collection.find(p => (p.telefono || '').replace(/^\+/, '') === fullPhone);
+        if (!propio) propio = collection[0];
+        link = propio?.url || propio?.stripe_session_url || propio?.link;
+        reused = !!propio?.reused;
       } else {
-        link = data.url || data.paymentLink;
-        reused = !!data.reused;
+        // fallback si algún día viene como objeto
+        link = data.url || data.paymentLink || data.data?.url;
+        reused = !!(data.reused || data.data?.reused);
       }
+
       if (!link) throw new Error('error-link-pago');
+
       setPaymentLink(link);
       setPaymentReused(reused);
     } catch (e) {
-      console.error('[pago] fallo', e);
       setPaymentError(e.message || 'error-link-pago');
     } finally {
       setPaymentLoading(false);
@@ -221,17 +241,13 @@ export default function ReservaConfirmar() {
       const data = await response.json();
       if (data.status === 'success') {
         const payload = data.data;
-        setReservaData(payload); // guarda objeto completo (tiene eventoId)
+        setReservaData(payload);
         setNombre(payload.nombre);
         setMensaje('mensaje-reservaConfirmada');
-        // Intentar link preexistente si en el futuro lo añades:
-        const pre = payload.paymentLink;
-        if (pre) {
-          setPaymentLink(pre);
-        } else if (PASARELA_ENABLED) {
-          const evId = payload.eventoId || payload.eventId;
-          generarLinkPago(evId);
-        }
+        setTipoMensaje('success');
+        setReservaConfirmada(true);            // <-- IMPORTANTE
+        const evId = payload.eventoId || payload.eventId;
+        if (PASARELA_ENABLED) await generarLinkPago(evId);
       } else {
         setMensaje('error-reserva');
         setTipoMensaje("danger");
@@ -347,15 +363,6 @@ export default function ReservaConfirmar() {
 
                 <div className="d-flex gap-2 justify-content-center">
                   <button onClick={() => navigate('/home')} className="btn btn-primary">{t("cerrar")}</button>
-                  {paymentLink && (
-                    <button
-                      type="button"
-                      className="btn btn-outline-success"
-                      onClick={() => window.location.href = paymentLink}
-                    >
-                      {t("pagar")}
-                    </button>
-                  )}
                 </div>
 
               </div>
