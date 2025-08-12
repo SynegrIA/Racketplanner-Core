@@ -102,31 +102,58 @@ export default function ReservaUnirse() {
     cargarDetallesPartida();
   }, [eventId, calendarId]);
 
-  async function generarLinkPago(eventId) {
-    if (!PASARELA_ENABLED || !eventId) return;
+  async function generarLinkPago(forcedEventId) {
+    const realEventId = forcedEventId || eventId;
+    if (!PASARELA_ENABLED || !realEventId) return;
     if (paymentLink || paymentLoading) return;
     try {
       setPaymentLoading(true);
       setPaymentError(null);
-      const resp = await fetch(`${DOMINIO_BACKEND}/pagos/reserva/${encodeURIComponent(eventId)}/generar`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ enviar: true })
-      });
-      const data = await resp.json().catch(() => ({}));
+
+      const body = {
+        enviar: true,
+        totalAmountCents: 2400,
+        currency: 'EUR'
+      };
+
+      const resp = await fetch(
+        `${DOMINIO_BACKEND}/pagos/reserva/${encodeURIComponent(realEventId)}/generar`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        }
+      );
+
+      const raw = await resp.text();
+      let data; try { data = JSON.parse(raw); } catch { data = {}; }
+
       if (!resp.ok) throw new Error(data.message || 'error-link-pago');
+
+      // Formato actual: { status:"success", data:[ { telefono, url, reused } ] }
+      let collection = [];
+      if (Array.isArray(data)) collection = data;
+      else if (Array.isArray(data.data)) collection = data.data;
+      else if (Array.isArray(data.pagos)) collection = data.pagos;
+      else if (Array.isArray(data.links)) collection = data.links;
+
       let link = null;
       let reused = false;
-      if (data?.pagos?.length) {
-        const numeroCompleto = `${codigoPais}${numeroInvitado}`;
-        const propio = data.pagos.find(p => p.telefono === numeroCompleto) || data.pagos[0];
-        link = propio?.url;
+
+      if (collection.length) {
+        const fullPhone = `${codigoPais}${numeroInvitado}`.replace(/^\+/, '');
+        let propio = collection.find(p => (p.telefono || '').replace(/^\+/, '') === fullPhone);
+        if (!propio) propio = collection[0];
+        link = propio?.url || propio?.stripe_session_url || propio?.link;
         reused = !!propio?.reused;
       } else {
-        link = data.url || data.paymentLink;
-        reused = !!data.reused;
+        // fallback (por si en el futuro cambia)
+        link = data.url || data.paymentLink || data.data?.url;
+        reused = !!(data.reused || data.data?.reused);
       }
+
       if (!link) throw new Error('error-link-pago');
+
       setPaymentLink(link);
       setPaymentReused(reused);
     } catch (e) {
@@ -192,14 +219,14 @@ export default function ReservaUnirse() {
       if (responseData.status === "success") {
         setMensaje(true);
         setConfirmando(false);
-        // Intentar capturar link ya devuelto
+        // Intentar link directo (por si algún día backend lo añade así)
         const preLink = responseData.paymentLink || responseData.linkPago;
         if (preLink) {
           setPaymentLink(preLink);
           setPaymentReused(!!responseData.paymentReused);
-        } else {
-          const evId = responseData.data?.eventId || responseData.eventId || eventId;
-          if (PASARELA_ENABLED) generarLinkPago(evId);
+        } else if (PASARELA_ENABLED) {
+          const evId = responseData.eventoId || responseData.eventId || responseData.data?.eventoId || responseData.data?.eventId || eventId;
+          generarLinkPago(evId);
         }
       } else if (responseData.status === "unauthorized") {
         // Detectar específicamente el error de usuario no registrado
@@ -317,12 +344,12 @@ export default function ReservaUnirse() {
 
                 <div className="d-flex gap-2 justify-content-center mt-3">
                   <button onClick={() => navigate('/home')} className="btn btn-primary">{t("cerrar")}</button>
-                  {paymentLink && (
+                  {/* {paymentLink && (
                     <button
                       className="btn btn-outline-success"
                       onClick={() => window.location.href = paymentLink}
                     >{t("pagar")}</button>
-                  )}
+                  )} */}
                 </div>
 
               </div>
