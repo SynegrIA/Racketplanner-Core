@@ -30,7 +30,7 @@ export default function ReservaConfirmar() {
   const { t } = useTranslation()
 
   // Verificar si los niveles están habilitados
-  const nivelesJugadoresEnabled = NIVELES_JUGADORES === true || NIVELES_JUGADORES === "true";
+  const nivelesJugadoresEnabled = NIVELES_JUGADORES
 
   const PASARELA_ENABLED = PASARELA === 'true';
   const [paymentLink, setPaymentLink] = useState(null);

@@ -12,7 +12,7 @@ export default function RegisterPage() {
   } = useTheme();
   const navigate = useNavigate();
 
-  const nivelesJugadoresEnabled = NIVELES_JUGADORES === true || NIVELES_JUGADORES === "true";
+  const nivelesJugadoresEnabled = NIVELES_JUGADORES
 
   // Estados para los campos del formulario
   const [nombre, setNombre] = useState("");

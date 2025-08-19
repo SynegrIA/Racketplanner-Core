@@ -14,4 +14,4 @@ export const APP_THEME = import.meta.env.VITE_THEME || 'default';
 
 export const PASARELA = import.meta.env.VITE_PASARELA
 
-export const NIVELES_JUGADORES = import.meta.env.VITE_NIVELES_JUGADORES
+export const NIVELES_JUGADORES = import.meta.env.VITE_NIVELES_JUGADORES === "true"
