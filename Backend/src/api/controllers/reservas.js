@@ -1566,6 +1566,22 @@ Jugador 4: ${jugador4}
 
 
 
+export async function obtenerSlotsDisponiblesPorFecha(fecha) {
+    try {
+        // Validar la fecha
+        const fechaObj = new Date(fecha);
+        if (isNaN(fechaObj.getTime())) {
+            console.error("Fecha inválida para búsqueda de slots");
+            return [];
+        }
+
+        const slotsDisponibles = await buscarTodosLosSlotsDisponibles(fechaObj);
+        return slotsDisponibles;
+    } catch (error) {
+        console.error("Error al obtener slots disponibles:", error);
+        return [];
+    }
+}
 
 function verificarRestriccionesHorario(slotInicio, slotFin, restricciones) {
     if (!restricciones || restricciones.length === 0) {
@@ -2127,7 +2143,7 @@ async function buscarPartidasAbiertas(fecha) {
     return partidas;
 }
 
-async function obtenerCalendariosActivos(clubId = CLUB_ID) {
+export async function obtenerCalendariosActivos(clubId = CLUB_ID) {
     try {
         const clubsModel = new ClubsModel();
         const configCalendarios = await clubsModel.getCalendarConfigFromSettings(clubId);

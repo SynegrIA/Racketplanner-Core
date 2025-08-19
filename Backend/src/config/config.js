@@ -22,7 +22,8 @@ export const BUILDERBOT_KEY = process.env.BUILDERBOT_KEY
 export const WHATSAPP_GROUPS = {
     nivel1: process.env.WHATS_GROUP_LVL1,
     nivel2: process.env.WHATS_GROUP_LVL2,
-    nivel3: process.env.WHATS_GROUP_LVL3
+    nivel3: process.env.WHATS_GROUP_LVL3,
+    notifications: process.env.WHATS_GROUP_LVL1
 }
 export const NIVELES_JUGADORES = process.env.NIVELES_JUGADORES
 

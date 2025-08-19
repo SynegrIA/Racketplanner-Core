@@ -125,5 +125,17 @@ export default {
     estado_otro: "Pendiente",
     fecha_separador: " a las ",
 
-    invitado_de: "Invitado de"
+    invitado_de: "Invitado de",
+
+    informeDiario: {
+        cabecera: "🌟 ¡Hola familia Padel Point! 🌟\n\nTe esperamos mañana para compartir buenos momentos en nuestras pistas 🎾\n💡 Tarifa vigente: la partida está a 360 DHS – ¡siempre con el mejor ambiente!\n\n📅 Programa para mañana – {{fecha}}",
+        reservasConfirmadas: "✅ Reservas confirmadas",
+        pistaTitulo: "➡️ Pista {{pista}}",
+        reservaLinea: "* {{hora}} – {{organizador}}",
+        sinReservas: "* Todavía no hay reservas confirmadas para mañana",
+        slotsLibres: "📌 Franjas horarias aún disponibles",
+        slotLinea: "* {{cantidad}} pista(s) a las {{hora}}",
+        sinSlots: "* No hay horarios disponibles para mañana",
+        promocion: "🥤 Para refrescarte y equiparte:\n* ☕ Café: 10 DHS\n* 💧 Agua: 5 DHS\n* ⚡ Bebida energética RAZE: 25 DHS\n* 🥤 RedBull: 22 DHS\n* 🍫 Snickers / Mars / Twix / KitKat: 10 DHS\n* 💪 Barra proteica: 25 DHS\n* 🎾 Alquiler de raqueta: 20 DHS\n* 🟡 Tubo de pelotas Head/Wilson/Bullpadel/Adidas: 75 DHS\n* 🧤 Overgrip Wilson/Adidas: 25 DHS\n\n\n📲 ¡Reserva ya tu horario y ven a compartir un gran momento deportivo y amistoso en las pistas de Padel Point Rabat! 😎"
+    },
 };

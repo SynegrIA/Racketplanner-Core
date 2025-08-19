@@ -125,5 +125,17 @@ export default {
     estado_otro: "En attente",
     fecha_separador: " à ",
 
-    invitado_de: "Invité de"
+    invitado_de: "Invité de",
+
+    informeDiario: {
+        cabecera: "🌟 Hello la famille Padel Point! 🌟\n\nOn vous attend demain pour partager de bons moments sur nos terrains 🎾\n💡 Tarif en vigueur: la partie est à 360 DHS – toujours avec la même ambiance au top!\n\n📅 Programme pour demain – {{fecha}}",
+        reservasConfirmadas: "✅ Réservations confirmées",
+        pistaTitulo: "➡️ Terrain {{pista}}",
+        reservaLinea: "* {{hora}} – {{organizador}}",
+        sinReservas: "* Pas encore de réservations confirmées pour demain",
+        slotsLibres: "📌 Créneaux encore libres",
+        slotLinea: "* {{cantidad}} terrain(s) à {{hora}}",
+        sinSlots: "* Pas de créneaux disponibles pour demain",
+        promocion: "🥤 Pour vous rafraîchir et vous équiper:\n* ☕ Café : 10 DHS\n* 💧 Eau : 5 DHS\n* ⚡ Boisson énergisante RAZE : 25 DHS\n* 🥤 RedBull : 22 DHS\n* 🍫 Snickers / Mars / Twix / KitKat : 10 DHS\n* 💪 Barre protéinée : 25 DHS\n* 🎾 Location raquette : 20 DHS\n* 🟡 Tube de balles Head/Wilson/Bullpadel/Adidas : 75 DHS\n* 🧤 Overgrip Wilson/Adidas : 25 DHS\n\n\n📲 Réservez vite votre créneau et venez partager un super moment sportif et convivial sur les terrains Padel Point Rabat 😎"
+    },
 };
