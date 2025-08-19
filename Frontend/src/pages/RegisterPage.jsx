@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useTheme } from "../context/ThemeContext";
 import { DOMINIO_BACKEND, NUMBER_PREFIX } from "../config/config.js";
 import { useTranslation } from 'react-i18next';
+import { NIVELES_JUGADORES } from "../config/config.js";
 
 export default function RegisterPage() {
   const { t } = useTranslation()
@@ -10,6 +11,8 @@ export default function RegisterPage() {
     currentTheme
   } = useTheme();
   const navigate = useNavigate();
+
+  const nivelesJugadoresEnabled = NIVELES_JUGADORES === true || NIVELES_JUGADORES === "true";
 
   // Estados para los campos del formulario
   const [nombre, setNombre] = useState("");
@@ -201,16 +204,18 @@ export default function RegisterPage() {
                 </div>
 
                 {/* Selector de Nivel */}
-                <div className="mb-4">
-                  <label htmlFor={t("nivel_2")} className="form-label fw-medium">
-                    <i className="bi bi-bar-chart me-2"></i>{t("nivel-de-juego_1")}</label>
-                  <select className="form-select" id="nivel" value={nivel} onChange={e => setNivel(parseInt(e.target.value))} required>
-                    <option value={t("1")}>{t("nivel-1-principiante")}</option>
-                    <option value={t("2")}>{t("nivel-2-intermedio")}</option>
-                    <option value={t("3")}>{t("nivel-3-avanzado")}</option>
-                  </select>
-                  <div className="form-text">{t("selecciona-tu-nivel-actual-de-juego")}</div>
-                </div>
+                {nivelesJugadoresEnabled && (
+                  <div className="mb-4">
+                    <label htmlFor={t("nivel_2")} className="form-label fw-medium">
+                      <i className="bi bi-bar-chart me-2"></i>{t("nivel-de-juego_1")}</label>
+                    <select className="form-select" id="nivel" value={nivel} onChange={e => setNivel(parseInt(e.target.value))} required>
+                      <option value={t("1")}>{t("nivel-1-principiante")}</option>
+                      <option value={t("2")}>{t("nivel-2-intermedio")}</option>
+                      <option value={t("3")}>{t("nivel-3-avanzado")}</option>
+                    </select>
+                    <div className="form-text">{t("selecciona-tu-nivel-actual-de-juego")}</div>
+                  </div>
+                )}
 
                 {/* Activar/desactivar notificaciones */}
                 <div className="mb-4">

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { DOMINIO_BACKEND, NUMBER_PREFIX } from "../config/config.js";
 import { useTranslation } from 'react-i18next';
-import { PASARELA } from "../config/config.js";
+import { PASARELA, NIVELES_JUGADORES } from "../config/config.js";
 
 export default function ReservaConfirmar() {
   const [searchParams] = useSearchParams();
@@ -28,6 +28,9 @@ export default function ReservaConfirmar() {
   const [needsRegistration, setNeedsRegistration] = useState(false);
   const navigate = useNavigate();
   const { t } = useTranslation()
+
+  // Verificar si los niveles están habilitados
+  const nivelesJugadoresEnabled = NIVELES_JUGADORES === true || NIVELES_JUGADORES === "true";
 
   const PASARELA_ENABLED = PASARELA === 'true';
   const [paymentLink, setPaymentLink] = useState(null);
@@ -107,7 +110,13 @@ export default function ReservaConfirmar() {
   }
 
   useEffect(() => {
-    setNivel(t('nivel-noEspecificado'))
+    // Si los niveles no están habilitados, establecer nivel en 1
+    if (!nivelesJugadoresEnabled) {
+      setNivel("1");
+    } else {
+      setNivel(t('nivel-noEspecificado'));
+    }
+
     // Solo inicializar los datos una vez
     if (!datosInicializados) {
       try {
@@ -166,7 +175,12 @@ export default function ReservaConfirmar() {
               setNumero(numStr);
             }
           }
-          if (partidaData.nivel) setNivel(partidaData.nivel);
+
+          // Si los niveles están habilitados, usar el de la partida
+          if (nivelesJugadoresEnabled && partidaData.nivel) {
+            setNivel(partidaData.nivel);
+          }
+
           if (partidaData.jugadores_faltan) setJugadoresFaltan(partidaData.jugadores_faltan);
         }
         // Marcar que ya se inicializaron los datos
@@ -176,16 +190,21 @@ export default function ReservaConfirmar() {
         setDatosInicializados(true);
       }
     }
-  }, [searchParams, datosInicializados]);
+  }, [searchParams, datosInicializados, nivelesJugadoresEnabled, t]);
 
   const handleSubmit = async e => {
     e.preventDefault();
-    const nivelesValidos = [t("1"), t("2"), t("3"), "1", "2", "3"];
-    if (!nivel || !nivelesValidos.includes(nivel)) {
-      setMensaje('mensaje-especificarNivel');
-      setTipoMensaje("danger");
-      return;
+
+    // Solo validar el nivel si los niveles están habilitados
+    if (nivelesJugadoresEnabled) {
+      const nivelesValidos = [t("1"), t("2"), t("3"), "1", "2", "3"];
+      if (!nivel || !nivelesValidos.includes(nivel)) {
+        setMensaje('mensaje-especificarNivel');
+        setTipoMensaje("danger");
+        return;
+      }
     }
+
     if (!jugadoresFaltan || jugadoresFaltan === "?" || jugadoresFaltan === "") {
       setMensaje('mensaje-especificaJugadores');
       setTipoMensaje("danger");
@@ -202,7 +221,7 @@ export default function ReservaConfirmar() {
       tipoPartida = "completa";
     }
     try {
-      // Crear objeto de datos para la reserva (lo usaremos tanto para la solicitud como para localStorage)
+      // Crear objeto de datos para la reserva
       const reservaData = {
         pista: partida?.pista,
         inicio: partida?.inicio,
@@ -210,7 +229,7 @@ export default function ReservaConfirmar() {
         nombre,
         numero: numeroCompleto,
         partida: tipoPartida,
-        nivel,
+        nivel: nivelesJugadoresEnabled ? nivel : "1", // Usar nivel 1 si los niveles están desactivados
         jugadores_faltan: jugadoresFaltan
       };
 
@@ -269,7 +288,7 @@ export default function ReservaConfirmar() {
           nombre,
           numero: numeroCompleto,
           partida: tipoPartida,
-          nivel,
+          nivel: nivelesJugadoresEnabled ? nivel : "1", // Usar nivel 1 si los niveles están desactivados
           jugadores_faltan: jugadoresFaltan
         }));
 
@@ -319,7 +338,10 @@ export default function ReservaConfirmar() {
                 <ul className="list-group mb-4 text-start">
                   <li className="list-group-item">{t("fecha")} {new Date(partida.inicio).toLocaleDateString("es-ES", { timeZone: 'Europe/Madrid' })}</li>
                   <li className="list-group-item">{t("hora")} {new Date(partida.inicio).toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit", timeZone: 'Europe/Madrid' })}</li>
-                  <li className="list-group-item">{t("nivel_3")} {nivel}</li>
+                  {/* Solo mostrar el nivel si está habilitado */}
+                  {nivelesJugadoresEnabled && (
+                    <li className="list-group-item">{t("nivel_3")} {nivel}</li>
+                  )}
                   <li className="list-group-item">{t("pista_1")} {partida.pista}</li>
                   <li className="list-group-item">{t("a-tu-nombre")} {nombre}</li>
                   <li className="list-group-item">{t("jugadores-que-faltan")} {jugadoresFaltan}</li>
@@ -395,21 +417,29 @@ export default function ReservaConfirmar() {
                 timeZone: 'Europe/Madrid'
               })}</li>
 
-              {!modoEdicion ? <li className="list-group-item">
-                {t("nivel_3") + " "}
-                {nivel === "1" ? t("1-principiante") :
-                  nivel === "2" ? t("2-intermedio") :
-                    nivel === "3" ? t("3-avanzado") : nivel}
-              </li> : <li className="list-group-item">                <div className="input-group">
-                <span className="input-group-text">{t("nivel_3")}</span>
-                <select className="form-select" value={nivel} onChange={e => setNivel(e.target.value)} required>
-                  <option value="">{t("selecciona-nivel")}</option>
-                  <option value={t("1")}>{t("1-principiante")}</option>
-                  <option value={t("2")}>{t("2-intermedio")}</option>
-                  <option value={t("3")}>{t("3-avanzado")}</option>
-                </select>
-              </div>
-              </li>}
+              {/* Solo mostrar el nivel si está habilitado */}
+              {nivelesJugadoresEnabled && (
+                !modoEdicion ? (
+                  <li className="list-group-item">
+                    {t("nivel_3") + " "}
+                    {nivel === "1" ? t("1-principiante") :
+                      nivel === "2" ? t("2-intermedio") :
+                        nivel === "3" ? t("3-avanzado") : nivel}
+                  </li>
+                ) : (
+                  <li className="list-group-item">
+                    <div className="input-group">
+                      <span className="input-group-text">{t("nivel_3")}</span>
+                      <select className="form-select" value={nivel} onChange={e => setNivel(e.target.value)} required>
+                        <option value="">{t("selecciona-nivel")}</option>
+                        <option value={t("1")}>{t("1-principiante")}</option>
+                        <option value={t("2")}>{t("2-intermedio")}</option>
+                        <option value={t("3")}>{t("3-avanzado")}</option>
+                      </select>
+                    </div>
+                  </li>
+                )
+              )}
 
               <li className="list-group-item">{t("pista_1") + " "}{partida.pista}</li>
 
@@ -428,15 +458,6 @@ export default function ReservaConfirmar() {
             </ul>
 
             <form onSubmit={handleSubmit}>
-              {/* <div className="mb-3">
-                                    <label className="form-label">Tu nombre</label>
-                                    <input
-                                        className="form-control"
-                                        value={nombre}
-                                        onChange={(e) => setNombre(e.target.value)}
-                                        required
-                                    />
-                                 </div> */}
               <div className="mb-3">
                 <label className="form-label">{t("tu-numero-de-telefono")}</label>
                 <div className="input-group">
