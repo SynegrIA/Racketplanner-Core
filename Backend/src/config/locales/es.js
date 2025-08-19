@@ -4,7 +4,8 @@ export default {
             exito: "✅ ¡Tu reserva para {{nombre}} ha sido confirmada!\n📅 Fecha: {{fecha}}\n🕒 Hora: {{horaInicio}} - {{horaFin}}\n🎾 Pista: {{pista}}\n\n📱 Puedes cancelar tu reserva aquí: \n👉🏼 [Cancelar Reserva]({{urlCancelar}})\n\n🔄 Número de jugadores que faltan: {{jugadores_faltan}}\n📈 Estado de la partida: {{estado}}\n\n🚫 Si deseas eliminar a algún invitado, pulsa aquí: [Eliminar {{textoReserva}}]({{urlEliminar}}).",
             invitacion: "👉🏼 Si deseas invitar a un jugador, envía este mensaje a la persona: [Unirse a Partida]({{urlInvitar}})",
             grupo: {
-                invitacion: "🎾 ¡Nueva partida abierta de nivel {{nivel}}!\n\n🗓️ Fecha: {{fecha}}\n⏰ Hora: {{horaInicio}} - {{horaFin}}\n🏟️ Pista: {{pista}}\n👤 Organizador: {{organizador}}\n\n¿Quieres unirte? Haz clic aquí: {{urlInvitar}}"
+                invitacion: "🎾 ¡Nueva partida abierta de nivel {{nivel}}!\n\n🗓️ Fecha: {{fecha}}\n⏰ Hora: {{horaInicio}} - {{horaFin}}\n🏟️ Pista: {{pista}}\n👤 Organizador: {{organizador}}\n\n¿Quieres unirte? Haz clic aquí: {{urlInvitar}}",
+                completa: "🎾 ¡Nueva partida completa de nivel {{nivel}}!\n\n🗓️ Fecha: {{fecha}}\n⏰ Hora: {{horaInicio}} - {{horaFin}}\n🏟️ Pista: {{pista}}\n👤 Organizador: {{organizador}}\n\n✅ Partida completa con 4 jugadores"
             }
         },
         unirse: {
@@ -13,7 +14,8 @@ export default {
             partidaCompleta: "✅ ¡La partida está completa!"
         },
         cancelacion: {
-            exito: "✅ Tu reserva ha sido cancelada con éxito.\n\n📅 Detalles de la reserva cancelada:\n📆 Fecha: {{fecha}}\n🕒 Hora: {{hora}}\n🎾 Pista: {{pista}}{{motivoTexto}}"
+            exito: "✅ Tu reserva ha sido cancelada con éxito.\n\n📅 Detalles de la reserva cancelada:\n📆 Fecha: {{fecha}}\n🕒 Hora: {{hora}}\n🎾 Pista: {{pista}}{{motivoTexto}}",
+            grupo: "❌ Partida cancelada de nivel {{nivel}}\n\n🗓️ Fecha: {{fecha}}\n⏰ Hora: {{horaInicio}} - {{horaFin}}\n🏟️ Pista: {{pista}}\n👤 Organizador: {{organizador}}{{motivoTexto}}"
         },
         disponibilidad: {
             noDisponible: "😔 Lo sentimos, no hay disponibilidad ni alternativas cercanas.",

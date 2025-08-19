@@ -24,10 +24,9 @@ export const WHATSAPP_GROUPS = {
     nivel2: process.env.WHATS_GROUP_LVL2,
     nivel3: process.env.WHATS_GROUP_LVL3
 }
+export const NIVELES_JUGADORES = process.env.NIVELES_JUGADORES
 
 export const GOOGLE_CLIENT_EMAIL = process.env.GOOGLE_CLIENT_EMAIL
 export const GOOGLE_PRIVATE_KEY = process.env.GOOGLE_PRIVATE_KEY
 
 export const PASARELA = process.env.PASARELA
-
-export const CALENDARS_CLUB = process.env.CALENDARS_CLUB

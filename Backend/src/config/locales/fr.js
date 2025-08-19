@@ -4,7 +4,8 @@ export default {
             exito: "✅ Votre réservation pour {{nombre}} a été confirmée!\n📅 Date: {{fecha}}\n🕒 Horaire: {{horaInicio}} - {{horaFin}}\n🎾 Terrain: {{pista}}\n\n📱 Vous pouvez annuler votre réservation ici: \n👉🏼 [Annuler la réservation]({{urlCancelar}})\n\n🔄 Nombre de joueurs manquants: {{jugadores_faltan}}\n📈 État du match: {{estado}}\n\n🚫 Si vous souhaitez supprimer un invité, cliquez ici: ({{urlEliminar}}).",
             invitacion: "👉🏼 Si vous souhaitez inviter un joueur, envoyez ce message à la personne : [Rejoindre le match]({{urlInvitar}})",
             grupo: {
-                invitacion: "🎾 Nouvelle partie ouverte niveau {{nivel}}!\n\n🗓️ Date: {{fecha}}\n⏰ Horaire: {{horaInicio}} - {{horaFin}}\n🏟️ Terrain: {{pista}}\n👤 Organisateur: {{organizador}}\n\nVous souhaitez rejoindre? Cliquez ici: {{urlInvitar}}"
+                invitacion: "🎾 Nouvelle partie ouverte niveau {{nivel}}!\n\n🗓️ Date: {{fecha}}\n⏰ Horaire: {{horaInicio}} - {{horaFin}}\n🏟️ Terrain: {{pista}}\n👤 Organisateur: {{organizador}}\n\nVous souhaitez rejoindre? Cliquez ici: {{urlInvitar}}",
+                completa: "🎾 Nouvelle partie complète niveau {{nivel}}!\n\n🗓️ Date: {{fecha}}\n⏰ Horaire: {{horaInicio}} - {{horaFin}}\n🏟️ Terrain: {{pista}}\n👤 Organisateur: {{organizador}}\n\n✅ Partie complète avec 4 joueurs"
             }
         },
         unirse: {
@@ -13,7 +14,8 @@ export default {
             partidaCompleta: "✅ La partie est complète!"
         },
         cancelacion: {
-            exito: "✅ Votre réservation a été annulée avec succès.\n\n📅 Détails de la réservation annulée:\n📆 Date: {{fecha}}\n🕒 Heure: {{hora}}\n🎾 Terrain: {{pista}}{{motivoTexto}}"
+            exito: "✅ Votre réservation a été annulée avec succès.\n\n📅 Détails de la réservation annulée:\n📆 Date: {{fecha}}\n🕒 Heure: {{hora}}\n🎾 Terrain: {{pista}}{{motivoTexto}}",
+            grupo: "❌ Partie annulée niveau {{nivel}}\n\n🗓️ Date: {{fecha}}\n⏰ Horaire: {{horaInicio}} - {{horaFin}}\n🏟️ Terrain: {{pista}}\n👤 Organisateur: {{organizador}}{{motivoTexto}}"
         },
         disponibilidad: {
             noDisponible: "😔 Désolé, il n'y a pas de disponibilité ni d'alternatives proches.",

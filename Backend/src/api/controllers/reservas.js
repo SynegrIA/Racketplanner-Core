@@ -7,7 +7,7 @@ import { ReservasModel } from '../../models/reservas.js'
 import { JugadoresModel } from '../../models/jugadores.js'
 import { NODE_ENV } from '../../config/config.js'
 import { ClubsModel } from '../../models/clubs.js';
-import { WHATSAPP_GROUPS } from '../../config/config.js'
+import { WHATSAPP_GROUPS, NIVELES_JUGADORES } from '../../config/config.js'
 
 export class ReservasController {
 
@@ -294,7 +294,7 @@ export class ReservasController {
 
         try {
             console.log("Datos recibidos en confirmarReserva:", req.body);
-            const { pista, inicio, fin, numero, partida, nivel, jugadores_faltan } = req.body;
+            const { pista, inicio, fin, numero, partida, nivel: nivelRecibido, jugadores_faltan } = req.body;
 
             // 1. Validación básica
             if (!pista || !inicio || !fin || !numero) {
@@ -313,9 +313,14 @@ export class ReservasController {
                 });
             }
 
-            // Si no se recibe el nivel en el body lo extraemos del organizador
-            if (!nivel) {
-                const nivel = organizador.Nivel
+            let nivel;
+            if (NIVELES_JUGADORES === 'false') {
+                nivel = '1';
+                console.log('NIVELES_JUGADORES está desactivado, asignando nivel 1 por defecto');
+            } else if (nivelRecibido) {
+                nivel = nivelRecibido;
+            } else {
+                nivel = organizador.Nivel || '1';
             }
 
             const nombre = organizador["Nombre Real"]
@@ -535,41 +540,81 @@ Jugador 4: ${jugador4}
             });
 
             // 15. Enviar mensaje al grupo de WhatsApp del nivel adecuado
-            if (partida == "Abierta" || partida == "abierta") {
-                try {
-                    // Determinar el grupo según el nivel (asegúrate de que nivel sea 1, 2 o 3)
-                    const nivelNum = parseInt(nivel);
-                    const grupoId = WHATSAPP_GROUPS[`nivel${nivelNum}`];
+            try {
+                // Determinar el grupo según el nivel
+                const nivelNum = parseInt(nivel);
+                const grupoId = WHATSAPP_GROUPS[`nivel${nivelNum}`];
 
-                    if (grupoId) {
-                        // Prepara los datos para la plantilla
-                        const datosPlantilla = {
-                            nivel: nivelNum,
-                            fecha: fechaFormateada,      // Ejemplo: "31/07/2025"
-                            horaInicio: horaInicio,      // Ejemplo: "18:00"
-                            horaFin: horaFin,            // Ejemplo: "19:30"
-                            pista: pista,          // Ejemplo: "Pista 2"
-                            organizador: nombre,         // Nombre del organizador
-                            urlInvitar: urlInvitarCorta  // Enlace corto para invitar
-                        };
+                if (grupoId) {
+                    // Preparar los datos para la plantilla
+                    const datosPlantilla = {
+                        nivel: nivelNum,
+                        fecha: fechaFormateada,
+                        horaInicio: horaInicio,
+                        horaFin: horaFin,
+                        pista: pista,
+                        organizador: nombre,
+                        urlInvitar: urlInvitarCorta,
+                        tipoPartida: partida.toLowerCase() === "abierta" ? "abierta" : "completa"
+                    };
 
-                        // Obtén el mensaje traducido usando la plantilla
-                        const mensajeGrupo = await enviarMensajeWhatsApp(
-                            'reservas.confirmacion.grupo.invitacion',
-                            '',
-                            datosPlantilla,
-                            true // Solo obtener el texto traducido, no enviar a un número
-                        );
+                    // Seleccionar la plantilla correcta según el tipo de partida
+                    const clavePlantilla = partida.toLowerCase() === "abierta" ?
+                        'reservas.confirmacion.grupo.invitacion' :
+                        'reservas.confirmacion.grupo.completa';
 
-                        // Envía el mensaje al grupo usando builderbot
-                        await enviarMensajeWhatsApp(mensajeGrupo, grupoId);
-                    } else {
-                        console.warn(`No se encontró grupo de WhatsApp para el nivel ${nivelNum}`);
-                    }
-                } catch (error) {
-                    console.error("Error al enviar mensaje al grupo de WhatsApp:", error);
+                    // Obtener el mensaje traducido usando la plantilla adecuada
+                    const mensajeGrupo = await enviarMensajeWhatsApp(
+                        clavePlantilla,
+                        '',
+                        datosPlantilla,
+                        true // Solo obtener el texto traducido, no enviar a un número
+                    );
+
+                    // Enviar el mensaje al grupo usando builderbot
+                    await enviarMensajeWhatsApp(mensajeGrupo, grupoId);
+                    console.log(`Mensaje enviado al grupo de nivel ${nivelNum} para partida ${partida.toLowerCase()}`);
+                } else {
+                    console.warn(`No se encontró grupo de WhatsApp para el nivel ${nivelNum}`);
                 }
+            } catch (error) {
+                console.error("Error al enviar mensaje al grupo de WhatsApp:", error);
             }
+            // if (partida == "Abierta" || partida == "abierta") {
+            //     try {
+            //         // Determinar el grupo según el nivel (asegúrate de que nivel sea 1, 2 o 3)
+            //         const nivelNum = parseInt(nivel);
+            //         const grupoId = WHATSAPP_GROUPS[`nivel${nivelNum}`];
+
+            //         if (grupoId) {
+            //             // Prepara los datos para la plantilla
+            //             const datosPlantilla = {
+            //                 nivel: nivelNum,
+            //                 fecha: fechaFormateada,      // Ejemplo: "31/07/2025"
+            //                 horaInicio: horaInicio,      // Ejemplo: "18:00"
+            //                 horaFin: horaFin,            // Ejemplo: "19:30"
+            //                 pista: pista,          // Ejemplo: "Pista 2"
+            //                 organizador: nombre,         // Nombre del organizador
+            //                 urlInvitar: urlInvitarCorta  // Enlace corto para invitar
+            //             };
+
+            //             // Obtén el mensaje traducido usando la plantilla
+            //             const mensajeGrupo = await enviarMensajeWhatsApp(
+            //                 'reservas.confirmacion.grupo.invitacion',
+            //                 '',
+            //                 datosPlantilla,
+            //                 true // Solo obtener el texto traducido, no enviar a un número
+            //             );
+
+            //             // Envía el mensaje al grupo usando builderbot
+            //             await enviarMensajeWhatsApp(mensajeGrupo, grupoId);
+            //         } else {
+            //             console.warn(`No se encontró grupo de WhatsApp para el nivel ${nivelNum}`);
+            //         }
+            //     } catch (error) {
+            //         console.error("Error al enviar mensaje al grupo de WhatsApp:", error);
+            //     }
+            // }
 
 
             // Intentar cerrar la partida según se crea?
@@ -741,6 +786,123 @@ Jugador 4: ${jugador4}
                     console.error("Error al enviar mensaje WhatsApp:", whatsappError);
                     // No bloqueamos la respuesta por un error en WhatsApp
                 }
+            }
+
+            // 6.5 Notificar la cancelación al grupo de WhatsApp correspondiente
+            try {
+                // Crear la fecha formateada que falta
+                const fechaEvento = new Date(evento.start.dateTime);
+
+                // Formatear la fecha según el locale configurado
+                // Obtener traducciones para el día y mes
+                const diasSemana = ['domingo', 'lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado'];
+                const meses = [
+                    'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+                    'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'
+                ];
+                const diaClave = diasSemana[fechaEvento.getDay()];
+                const mesClave = meses[fechaEvento.getMonth()];
+
+                // Traducir usando el sistema de internacionalización
+                const diaTraducido = await enviarMensajeWhatsApp(`fecha.dias.${diaClave}`, '', {}, true);
+                const mesTraducido = await enviarMensajeWhatsApp(`fecha.meses.${mesClave}`, '', {}, true);
+                const preposicionDe = await enviarMensajeWhatsApp('conectores.de', '', {}, true);
+
+                // Formatear la fecha: "Día, DD de Mes de AAAA"
+                const fechaFormateada = `${diaTraducido}, ${fechaEvento.getDate()} ${preposicionDe} ${mesTraducido} ${preposicionDe} ${fechaEvento.getFullYear()}`;
+
+                // Obtener la hora de inicio formateada
+                const horaInicio = fechaEvento.toLocaleTimeString('es-ES', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    timeZone: 'Europe/Madrid'
+                });
+
+                // Extraer información desde la descripción del evento
+                let nivel = '1'; // Valor por defecto
+                let nombrePista = "No especificada"; // Valor por defecto para la pista
+                let organizador = ""; // Valor por defecto para el organizador
+
+                if (evento.description) {
+                    const descripcionLineas = evento.description.split('\n');
+                    for (const linea of descripcionLineas) {
+                        // Extraer nivel
+                        if (linea.startsWith('Nivel:')) {
+                            nivel = linea.split(':')[1].trim();
+                        }
+                        // Extraer pista
+                        else if (linea.startsWith('Pista:')) {
+                            nombrePista = linea.split(':')[1].trim();
+                        }
+                        // Extraer organizador
+                        else if (linea.startsWith('Jugador Principal:')) {
+                            organizador = linea.split(':')[1].trim();
+                        }
+                    }
+                }
+
+                // Usar el título del evento como respaldo si no encontramos la pista en la descripción
+                if (nombrePista === "No especificada" && evento.summary) {
+                    // Muchas veces el summary contiene "Reserva - Nombre de la Pista"
+                    const partes = evento.summary.split(' - ');
+                    if (partes.length > 1) {
+                        nombrePista = partes[1].trim();
+                    } else {
+                        nombrePista = evento.summary.trim();
+                    }
+                }
+
+                // Si NIVELES_JUGADORES es false, siempre usamos nivel 1
+                if (NIVELES_JUGADORES === 'false') {
+                    nivel = '1';
+                }
+
+                // Determinar el grupo según el nivel
+                const nivelNum = parseInt(nivel);
+                const grupoId = WHATSAPP_GROUPS[`nivel${nivelNum}`];
+
+                if (grupoId) {
+                    // Hora fin desde el evento
+                    const horaFin = new Date(evento.end.dateTime).toLocaleTimeString('es-ES', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        timeZone: 'Europe/Madrid'
+                    });
+
+                    // Verificar si hay motivo de cancelación
+                    let motivoTexto = "";
+                    if (typeof motivo !== 'undefined' && motivo) {
+                        motivoTexto = `\n\n📝 Motivo: ${motivo}`;
+                    }
+
+                    // Preparar los datos para la plantilla
+                    const datosPlantilla = {
+                        nivel: nivelNum,
+                        fecha: fechaFormateada,
+                        horaInicio: horaInicio,
+                        horaFin: horaFin,
+                        pista: nombrePista,
+                        organizador: organizador,
+                        motivoTexto: motivoTexto
+                    };
+
+                    // Obtener el mensaje traducido
+                    const mensajeGrupo = await enviarMensajeWhatsApp(
+                        'reservas.cancelacion.grupo',
+                        '',
+                        datosPlantilla,
+                        true // Solo obtener el texto traducido
+                    );
+
+                    // Enviar el mensaje al grupo
+                    await enviarMensajeWhatsApp(mensajeGrupo, grupoId);
+                    console.log(`Mensaje de cancelación enviado al grupo de nivel ${nivelNum}`);
+                } else {
+                    console.warn(`No se encontró grupo de WhatsApp para el nivel ${nivelNum}`);
+                }
+            } catch (grupoError) {
+                console.error("Error al enviar notificación al grupo:", grupoError);
+                // No bloqueamos la respuesta por este error
             }
 
             // 7. Devolver respuesta exitosa
