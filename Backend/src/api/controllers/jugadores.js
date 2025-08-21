@@ -40,7 +40,7 @@ export class JugadoresController {
     }
 
     static async registrarJugador(req, res) {
-        const { nombre, telefono, nivel, notificaciones, frecuenciaSemanal, preferencias } = req.body;
+        const { nombre, telefono, nivel, notificaciones, frecuenciaSemanal, preferencias, genero } = req.body;
 
         // 1. Validación de datos de entrada
         if (!nombre || !telefono || nivel === undefined) {
@@ -74,7 +74,8 @@ export class JugadoresController {
                 'Nivel': nivel,
                 'Notificaciones': notificaciones !== undefined ? notificaciones : true,
                 'Máximo de invitaciones semanales': notificaciones ? frecuenciaSemanal || 3 : 0,
-                'Horario Preferencia': horarioPreferencias
+                'Horario Preferencia': horarioPreferencias,
+                'Género': genero
             };
 
             // 4. Crear el jugador en la base de datos
