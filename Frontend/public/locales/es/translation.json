@@ -254,5 +254,10 @@
   "ir-a-pasarela": "Ir a pago",
   "pagar": "Autorizar pago",
   "reintentar": "Reintentar",
-  "error-link-sin-evento": "No se pudo determinar el identificador de la reserva para generar el pago"
+  "error-link-sin-evento": "No se pudo determinar el identificador de la reserva para generar el pago",
+
+  "genero": "Género",
+  "hombre": "Hombre",
+  "mujer": "Mujer",
+  "selecciona-tu-genero": "Selecciona tu género para mejorar la experiencia"
 }

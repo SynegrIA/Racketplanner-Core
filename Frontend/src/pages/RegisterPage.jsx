@@ -19,6 +19,7 @@ export default function RegisterPage() {
   const [codigoPais, setCodigoPais] = useState(NUMBER_PREFIX);
   const [numero, setNumero] = useState("");
   const [nivel, setNivel] = useState(1);
+  const [genero, setGenero] = useState(""); // Nuevo estado para el género
   const [notificacionesActivas, setNotificacionesActivas] = useState(true);
   const [frecuenciaSemanal, setFrecuenciaSemanal] = useState(3);
   const [preferencias, setPreferencias] = useState({
@@ -79,6 +80,7 @@ export default function RegisterPage() {
         nombre,
         telefono: `${codigoPais}${numero}`,
         nivel,
+        genero,
         notificaciones: notificacionesActivas,
         frecuenciaSemanal: notificacionesActivas ? frecuenciaSemanal : 0,
         preferencias: notificacionesActivas ? preferencias : {
@@ -203,6 +205,133 @@ export default function RegisterPage() {
                   <div className="form-text">{t("recibiras-confirmaciones-por-whatsapp")}</div>
                 </div>
 
+                {/* Selección de Género - Versión con estilos en línea optimizada */}
+                <div className="mb-4">
+                  <label htmlFor="genero" className="form-label fw-medium">
+                    <i className="bi bi-person-badge me-2"></i>{t("genero")}
+                  </label>
+                  <div style={{
+                    display: 'flex',
+                    gap: '16px',
+                    width: '100%',
+                    marginTop: '8px'
+                  }}>
+                    <div
+                      onClick={() => setGenero("hombre")}
+                      style={{
+                        flex: 1,
+                        position: 'relative',
+                        padding: '12px 8px', // Reducido de 20px 10px
+                        borderRadius: '12px',
+                        border: `2px solid ${genero === "hombre" ? currentTheme.primaryColor : '#e9ecef'}`,
+                        textAlign: 'center',
+                        cursor: 'pointer',
+                        transition: 'all 0.3s ease',
+                        backgroundColor: genero === "hombre" ? `${currentTheme.primaryColor}08` : 'white',
+                        overflow: 'hidden',
+                        transform: genero === "hombre" ? 'translateY(-2px)' : 'none',
+                        boxShadow: genero === "hombre" ? '0 5px 15px rgba(0, 0, 0, 0.08)' : 'none'
+                      }}
+                    >
+                      <input
+                        type="radio"
+                        name="genero"
+                        id="generoHombre"
+                        value="hombre"
+                        checked={genero === "hombre"}
+                        onChange={() => setGenero("hombre")}
+                        style={{ position: 'absolute', opacity: 0 }}
+                        required
+                      />
+                      <div style={{
+                        fontSize: '1.8rem', // Reducido de 2.5rem
+                        marginBottom: '5px', // Reducido de 10px
+                        color: genero === "hombre" ? '#0056b3' : '#007bff',
+                        transition: 'all 0.3s ease'
+                      }}>
+                        <i className="bi bi-gender-male"></i>
+                      </div>
+                      <div style={{
+                        fontWeight: 600,
+                        fontSize: '0.95rem', // Reducido de 1.1rem
+                        color: genero === "hombre" ? currentTheme.primaryColor : '#495057',
+                        transition: 'all 0.3s ease'
+                      }}>
+                        {t("hombre")}
+                      </div>
+                      <div style={{
+                        position: 'absolute',
+                        top: '8px', // Reducido de 10px
+                        right: '8px', // Reducido de 10px
+                        color: currentTheme.primaryColor,
+                        opacity: genero === "hombre" ? 1 : 0,
+                        transition: 'all 0.3s ease',
+                        transform: genero === "hombre" ? 'scale(1)' : 'scale(0)',
+                        fontSize: '1rem' // Reducido de 1.2rem
+                      }}>
+                        <i className="bi bi-check-circle-fill"></i>
+                      </div>
+                    </div>
+
+                    <div
+                      onClick={() => setGenero("mujer")}
+                      style={{
+                        flex: 1,
+                        position: 'relative',
+                        padding: '12px 8px', // Reducido de 20px 10px
+                        borderRadius: '12px',
+                        border: `2px solid ${genero === "mujer" ? currentTheme.primaryColor : '#e9ecef'}`,
+                        textAlign: 'center',
+                        cursor: 'pointer',
+                        transition: 'all 0.3s ease',
+                        backgroundColor: genero === "mujer" ? `${currentTheme.primaryColor}08` : 'white',
+                        overflow: 'hidden',
+                        transform: genero === "mujer" ? 'translateY(-2px)' : 'none',
+                        boxShadow: genero === "mujer" ? '0 5px 15px rgba(0, 0, 0, 0.08)' : 'none'
+                      }}
+                    >
+                      <input
+                        type="radio"
+                        name="genero"
+                        id="generoMujer"
+                        value="mujer"
+                        checked={genero === "mujer"}
+                        onChange={() => setGenero("mujer")}
+                        style={{ position: 'absolute', opacity: 0 }}
+                        required
+                      />
+                      <div style={{
+                        fontSize: '1.8rem', // Reducido de 2.5rem
+                        marginBottom: '5px', // Reducido de 10px
+                        color: genero === "mujer" ? '#c21f6a' : '#e83e8c',
+                        transition: 'all 0.3s ease'
+                      }}>
+                        <i className="bi bi-gender-female"></i>
+                      </div>
+                      <div style={{
+                        fontWeight: 600,
+                        fontSize: '0.95rem', // Reducido de 1.1rem
+                        color: genero === "mujer" ? currentTheme.primaryColor : '#495057',
+                        transition: 'all 0.3s ease'
+                      }}>
+                        {t("mujer")}
+                      </div>
+                      <div style={{
+                        position: 'absolute',
+                        top: '8px', // Reducido de 10px
+                        right: '8px', // Reducido de 10px
+                        color: currentTheme.primaryColor,
+                        opacity: genero === "mujer" ? 1 : 0,
+                        transition: 'all 0.3s ease',
+                        transform: genero === "mujer" ? 'scale(1)' : 'scale(0)',
+                        fontSize: '1rem' // Reducido de 1.2rem
+                      }}>
+                        <i className="bi bi-check-circle-fill"></i>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="form-text">{t("selecciona-tu-genero")}</div>
+                </div>
                 {/* Selector de Nivel */}
                 {nivelesJugadoresEnabled && (
                   <div className="mb-4">

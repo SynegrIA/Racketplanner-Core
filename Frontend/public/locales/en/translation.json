@@ -254,5 +254,10 @@
   "ir-a-pasarela": "Go to payment",
   "pagar": "Authorize payment",
   "reintentar": "Retry",
-  "error-link-sin-evento": "Could not determine reservation identifier to generate payment link"
+  "error-link-sin-evento": "Could not determine reservation identifier to generate payment link",
+
+  "genero": "Gender",
+  "hombre": "Male",
+  "mujer": "Female",
+  "selecciona-tu-genero": "Select your gender to enhance the experience"
 }

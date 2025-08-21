@@ -254,5 +254,10 @@
   "ir-a-pasarela": "Aller au paiement",
   "pagar": "Autoriser le paiement",
   "reintentar": "Réessayer",
-  "error-link-sin-evento": "Impossible de déterminer l’identifiant de la réservation pour générer le lien de paiement"
+  "error-link-sin-evento": "Impossible de déterminer l’identifiant de la réservation pour générer le lien de paiement",
+
+  "genero": "Genre",
+  "hombre": "Homme",
+  "mujer": "Femme",
+  "selecciona-tu-genero": "Sélectionnez votre genre pour améliorer l'expérience"
 }
