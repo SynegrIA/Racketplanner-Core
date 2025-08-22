@@ -26,6 +26,7 @@ export const WHATSAPP_GROUPS = {
     notifications: process.env.WHATS_GROUP_LVL1
 }
 export const NIVELES_JUGADORES = process.env.NIVELES_JUGADORES
+export const GENDER_CONSTRAINT = process.env.GENDER_CONSTRAINT === 'true'
 
 export const GOOGLE_CLIENT_EMAIL = process.env.GOOGLE_CLIENT_EMAIL
 export const GOOGLE_PRIVATE_KEY = process.env.GOOGLE_PRIVATE_KEY

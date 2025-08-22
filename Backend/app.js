@@ -6,7 +6,6 @@ import invitacionesRouter from './src/api/routes/invitaciones.js';
 import pagosRouter from './src/api/routes/pagos.js';
 import { PagosController } from './src/api/controllers/pagos.js';
 import utilsRouter from './src/api/routes/utils.js';
-import { DOMINIO_FRONTEND } from './src/config/config.js';
 import { initializeJobs } from './src/jobs/index.js';
 
 const app = express();
