@@ -23,7 +23,7 @@ export const WHATSAPP_GROUPS = {
     nivel1: process.env.WHATS_GROUP_LVL1,
     nivel2: process.env.WHATS_GROUP_LVL2,
     nivel3: process.env.WHATS_GROUP_LVL3,
-    notifications: process.env.WHATS_GROUP_LVL1
+    notifications: process.env.WHATS_GROUP_NOTIFICATIONS
 }
 export const NIVELES_JUGADORES = process.env.NIVELES_JUGADORES
 
