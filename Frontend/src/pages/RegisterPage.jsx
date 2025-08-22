@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useTheme } from "../context/ThemeContext";
 import { DOMINIO_BACKEND, NUMBER_PREFIX } from "../config/config.js";
 import { useTranslation } from 'react-i18next';
-import { NIVELES_JUGADORES } from "../config/config.js";
+import { NIVELES_JUGADORES, NIVELES_LIMIT } from "../config/config.js";
 
 export default function RegisterPage() {
   const { t } = useTranslation()
@@ -332,15 +332,27 @@ export default function RegisterPage() {
                   </div>
                   <div className="form-text">{t("selecciona-tu-genero")}</div>
                 </div>
+                
                 {/* Selector de Nivel */}
                 {nivelesJugadoresEnabled && (
                   <div className="mb-4">
                     <label htmlFor={t("nivel_2")} className="form-label fw-medium">
                       <i className="bi bi-bar-chart me-2"></i>{t("nivel-de-juego_1")}</label>
-                    <select className="form-select" id="nivel" value={nivel} onChange={e => setNivel(parseInt(e.target.value))} required>
-                      <option value={t("1")}>{t("nivel-1-principiante")}</option>
-                      <option value={t("2")}>{t("nivel-2-intermedio")}</option>
-                      <option value={t("3")}>{t("nivel-3-avanzado")}</option>
+                    <select
+                      className="form-select"
+                      id="nivel"
+                      value={nivel}
+                      onChange={e => setNivel(parseInt(e.target.value))}
+                      required
+                    >
+                      {Array.from(
+                        { length: (parseInt(NIVELES_LIMIT.MAX) - parseInt(NIVELES_LIMIT.MIN) + 1) },
+                        (_, i) => parseInt(NIVELES_LIMIT.MIN) + i
+                      ).map(num => (
+                        <option key={num} value={num}>
+                          {`${t("nivel")} ${num}`}
+                        </option>
+                      ))}
                     </select>
                     <div className="form-text">{t("selecciona-tu-nivel-actual-de-juego")}</div>
                   </div>
