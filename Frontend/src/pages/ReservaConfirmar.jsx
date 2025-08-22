@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { DOMINIO_BACKEND, NUMBER_PREFIX } from "../config/config.js";
 import { useTranslation } from 'react-i18next';
-import { PASARELA, NIVELES_JUGADORES } from "../config/config.js";
+import { PASARELA } from "../config/config.js";
 
 export default function ReservaConfirmar() {
   const [searchParams] = useSearchParams();
@@ -12,13 +12,10 @@ export default function ReservaConfirmar() {
   const [nombre, setNombre] = useState("");
   const [numero, setNumero] = useState("");
   const [codigoPais, setCodigoPais] = useState(NUMBER_PREFIX);
-  const [nivel, setNivel] = useState("");
   const [jugadoresFaltan, setJugadoresFaltan] = useState("");
   const [mensaje, setMensaje] = useState("");
   const [tipoMensaje, setTipoMensaje] = useState("success");
   const [enviando, setEnviando] = useState(false);
-  // Estado para controlar modo de edición de campos adicionales
-  const [modoEdicion, setModoEdicion] = useState(false);
   // Bandera para controlar la inicialización de datos
   const [datosInicializados, setDatosInicializados] = useState(false);
   // Estado para controlar si la reserva fue confirmada exitosamente
@@ -28,9 +25,6 @@ export default function ReservaConfirmar() {
   const [needsRegistration, setNeedsRegistration] = useState(false);
   const navigate = useNavigate();
   const { t } = useTranslation()
-
-  // Verificar si los niveles están habilitados
-  const nivelesJugadoresEnabled = NIVELES_JUGADORES
 
   const PASARELA_ENABLED = PASARELA === 'true';
   const [paymentLink, setPaymentLink] = useState(null);
@@ -110,13 +104,6 @@ export default function ReservaConfirmar() {
   }
 
   useEffect(() => {
-    // Si los niveles no están habilitados, establecer nivel en 1
-    if (!nivelesJugadoresEnabled) {
-      setNivel("1");
-    } else {
-      setNivel(t('nivel-noEspecificado'));
-    }
-
     // Solo inicializar los datos una vez
     if (!datosInicializados) {
       try {
@@ -176,11 +163,6 @@ export default function ReservaConfirmar() {
             }
           }
 
-          // Si los niveles están habilitados, usar el de la partida
-          if (nivelesJugadoresEnabled && partidaData.nivel) {
-            setNivel(partidaData.nivel);
-          }
-
           if (partidaData.jugadores_faltan) setJugadoresFaltan(partidaData.jugadores_faltan);
         }
         // Marcar que ya se inicializaron los datos
@@ -190,20 +172,10 @@ export default function ReservaConfirmar() {
         setDatosInicializados(true);
       }
     }
-  }, [searchParams, datosInicializados, nivelesJugadoresEnabled, t]);
+  }, [searchParams, datosInicializados, t]);
 
   const handleSubmit = async e => {
     e.preventDefault();
-
-    // Solo validar el nivel si los niveles están habilitados
-    if (nivelesJugadoresEnabled) {
-      const nivelesValidos = [t("1"), t("2"), t("3"), "1", "2", "3"];
-      if (!nivel || !nivelesValidos.includes(nivel)) {
-        setMensaje('mensaje-especificarNivel');
-        setTipoMensaje("danger");
-        return;
-      }
-    }
 
     if (!jugadoresFaltan || jugadoresFaltan === "?" || jugadoresFaltan === "") {
       setMensaje('mensaje-especificaJugadores');
@@ -229,7 +201,6 @@ export default function ReservaConfirmar() {
         nombre,
         numero: numeroCompleto,
         partida: tipoPartida,
-        nivel: nivelesJugadoresEnabled ? nivel : "1", // Usar nivel 1 si los niveles están desactivados
         jugadores_faltan: jugadoresFaltan
       };
 
@@ -288,7 +259,6 @@ export default function ReservaConfirmar() {
           nombre,
           numero: numeroCompleto,
           partida: tipoPartida,
-          nivel: nivelesJugadoresEnabled ? nivel : "1", // Usar nivel 1 si los niveles están desactivados
           jugadores_faltan: jugadoresFaltan
         }));
 
@@ -338,10 +308,6 @@ export default function ReservaConfirmar() {
                 <ul className="list-group mb-4 text-start">
                   <li className="list-group-item">{t("fecha")} {new Date(partida.inicio).toLocaleDateString("es-ES", { timeZone: 'Europe/Madrid' })}</li>
                   <li className="list-group-item">{t("hora")} {new Date(partida.inicio).toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit", timeZone: 'Europe/Madrid' })}</li>
-                  {/* Solo mostrar el nivel si está habilitado */}
-                  {nivelesJugadoresEnabled && (
-                    <li className="list-group-item">{t("nivel_3")} {nivel}</li>
-                  )}
                   <li className="list-group-item">{t("pista_1")} {partida.pista}</li>
                   <li className="list-group-item">{t("a-tu-nombre")} {nombre}</li>
                   <li className="list-group-item">{t("jugadores-que-faltan")} {jugadoresFaltan}</li>
@@ -402,11 +368,6 @@ export default function ReservaConfirmar() {
         <div className="card shadow">
           <div className="card-body">
             <h3 className="mb-4 text-center">{t("detalles-de-la-partida")}</h3>
-            <div className="d-flex justify-content-end mb-2">
-              <button type={t("button")} className={`btn btn-sm ${modoEdicion ? 'btn-outline-secondary' : 'btn-outline-primary'}`} onClick={() => setModoEdicion(!modoEdicion)}>
-                {modoEdicion ? t('btn-cancelarEdicion') : t('btn-editarDetalles')}
-              </button>
-            </div>
             <ul className="list-group mb-4">
               <li className="list-group-item">{t("fecha")} {new Date(partida.inicio).toLocaleDateString("es-ES", {
                 timeZone: 'Europe/Madrid'
@@ -416,45 +377,21 @@ export default function ReservaConfirmar() {
                 minute: "2-digit",
                 timeZone: 'Europe/Madrid'
               })}</li>
-
-              {/* Solo mostrar el nivel si está habilitado */}
-              {nivelesJugadoresEnabled && (
-                !modoEdicion ? (
-                  <li className="list-group-item">
-                    {t("nivel_3") + " "}
-                    {nivel === "1" ? t("1-principiante") :
-                      nivel === "2" ? t("2-intermedio") :
-                        nivel === "3" ? t("3-avanzado") : nivel}
-                  </li>
-                ) : (
-                  <li className="list-group-item">
-                    <div className="input-group">
-                      <span className="input-group-text">{t("nivel_3")}</span>
-                      <select className="form-select" value={nivel} onChange={e => setNivel(e.target.value)} required>
-                        <option value="">{t("selecciona-nivel")}</option>
-                        <option value={t("1")}>{t("1-principiante")}</option>
-                        <option value={t("2")}>{t("2-intermedio")}</option>
-                        <option value={t("3")}>{t("3-avanzado")}</option>
-                      </select>
-                    </div>
-                  </li>
-                )
-              )}
-
               <li className="list-group-item">{t("pista_1") + " "}{partida.pista}</li>
-
-              {!modoEdicion ? <li className="list-group-item">{t("jugadores-faltantes") + " "}{jugadoresFaltan || "?"}</li> : <li className="list-group-item">
-                <div className="input-group">
-                  <span className="input-group-text">{t("jugadores-faltantes")}</span>
-                  <select className="form-select" value={jugadoresFaltan} onChange={e => setJugadoresFaltan(e.target.value)} required>
-                    <option value="">{t("selecciona-cantidad")}</option>
-                    <option value={t("0")}>{t("0-jugadores")}</option>
-                    <option value={t("1")}>{t("1-jugador")}</option>
-                    <option value={t("2")}>{t("2-jugadores")}</option>
-                    <option value={t("3")}>{t("3-jugadores")}</option>
-                  </select>
+              <li className="list-group-item">
+                <div className="d-flex align-items-center">
+                  <div className="flex-grow-1">{t("jugadores-faltantes")}</div>
+                  <div className="w-50">
+                    <select className="form-select form-select-sm" value={jugadoresFaltan} onChange={e => setJugadoresFaltan(e.target.value)} required>
+                      <option value="">{t("selecciona-cantidad")}</option>
+                      <option value={t("0")}>{t("0-jugadores")}</option>
+                      <option value={t("1")}>{t("1-jugador")}</option>
+                      <option value={t("2")}>{t("2-jugadores")}</option>
+                      <option value={t("3")}>{t("3-jugadores")}</option>
+                    </select>
+                  </div>
                 </div>
-              </li>}
+              </li>
             </ul>
 
             <form onSubmit={handleSubmit}>
