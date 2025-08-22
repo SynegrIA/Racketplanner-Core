@@ -543,7 +543,7 @@ Jugador 4: ${jugador4}
             try {
                 // Determinar el grupo según el nivel
                 const nivelNum = parseInt(nivel);
-                const grupoId = WHATSAPP_GROUPS[`nivel${nivelNum}`];
+                const grupoId = WHATSAPP_GROUPS[`nivel${nivelNum}`] || WHATSAPP_GROUPS.notifications;
 
                 if (grupoId) {
                     // Preparar los datos para la plantilla
@@ -580,52 +580,6 @@ Jugador 4: ${jugador4}
             } catch (error) {
                 console.error("Error al enviar mensaje al grupo de WhatsApp:", error);
             }
-            // if (partida == "Abierta" || partida == "abierta") {
-            //     try {
-            //         // Determinar el grupo según el nivel (asegúrate de que nivel sea 1, 2 o 3)
-            //         const nivelNum = parseInt(nivel);
-            //         const grupoId = WHATSAPP_GROUPS[`nivel${nivelNum}`];
-
-            //         if (grupoId) {
-            //             // Prepara los datos para la plantilla
-            //             const datosPlantilla = {
-            //                 nivel: nivelNum,
-            //                 fecha: fechaFormateada,      // Ejemplo: "31/07/2025"
-            //                 horaInicio: horaInicio,      // Ejemplo: "18:00"
-            //                 horaFin: horaFin,            // Ejemplo: "19:30"
-            //                 pista: pista,          // Ejemplo: "Pista 2"
-            //                 organizador: nombre,         // Nombre del organizador
-            //                 urlInvitar: urlInvitarCorta  // Enlace corto para invitar
-            //             };
-
-            //             // Obtén el mensaje traducido usando la plantilla
-            //             const mensajeGrupo = await enviarMensajeWhatsApp(
-            //                 'reservas.confirmacion.grupo.invitacion',
-            //                 '',
-            //                 datosPlantilla,
-            //                 true // Solo obtener el texto traducido, no enviar a un número
-            //             );
-
-            //             // Envía el mensaje al grupo usando builderbot
-            //             await enviarMensajeWhatsApp(mensajeGrupo, grupoId);
-            //         } else {
-            //             console.warn(`No se encontró grupo de WhatsApp para el nivel ${nivelNum}`);
-            //         }
-            //     } catch (error) {
-            //         console.error("Error al enviar mensaje al grupo de WhatsApp:", error);
-            //     }
-            // }
-
-
-            // Intentar cerrar la partida según se crea?
-            // await fetch(N8N_WEBHOOK_URL, {
-            //     method: 'POST',
-            //     headers: {
-            //         'Content-Type': 'application/json'
-            //     },
-            //     body: JSON.stringify({ eventId: evento.id, calendarId: pistaConfig.id })
-            // });
-
             // 15. Devolver respuesta al frontend
             return res.json({
                 status: "success",
