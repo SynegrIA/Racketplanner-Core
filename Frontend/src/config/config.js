@@ -15,3 +15,7 @@ export const APP_THEME = import.meta.env.VITE_THEME || 'default';
 export const PASARELA = import.meta.env.VITE_PASARELA
 
 export const NIVELES_JUGADORES = import.meta.env.VITE_NIVELES_JUGADORES === "true"
+export const NIVELES_LIMIT = {
+    MIN: import.meta.env.VITE_NIVEL_MIN,
+    MAX: import.meta.env.VITE_NIVEL_MAX
+}
