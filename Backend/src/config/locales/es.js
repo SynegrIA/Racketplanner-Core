@@ -11,7 +11,9 @@ export default {
         unirse: {
             exito: "✅ *¡Te has unido a la partida exitosamente!*\n\n📋 *Detalles de la partida*:\n🆔 ID Partida: {{idPartida}}\n📅 Fecha: {{fecha}}\n⏰ Horario: {{horaInicio}} - {{horaFin}}\n🎾 Pista: {{pista}}\n🏆 Nivel: {{nivel}}\n👑 Organizador: {{organizador}}\n\n👥 *Jugadores* ({{jugadoresActuales}}/4)",
             jugadoresFaltan: "⚠️ Aún faltan {{cantidad}} jugador(es)",
-            partidaCompleta: "✅ ¡La partida está completa!"
+            partidaCompleta: "✅ ¡La partida está completa!",
+            error_genero_hombres: "Lo sentimos, esta partida es solo para hombres.",
+            error_genero_mujeres: "Lo sentimos, esta partida es solo para mujeres."
         },
         cancelacion: {
             exito: "✅ Tu reserva ha sido cancelada con éxito.\n\n📅 Detalles de la reserva cancelada:\n📆 Fecha: {{fecha}}\n🕒 Hora: {{hora}}\n🎾 Pista: {{pista}}{{motivoTexto}}",

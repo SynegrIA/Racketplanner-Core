@@ -5,7 +5,7 @@ import { shortenUrl } from '../../api/services/acortarURL.js'
 import { CLUB_ID, DOMINIO_FRONTEND } from '../../config/config.js'
 import { ReservasModel } from '../../models/reservas.js'
 import { JugadoresModel } from '../../models/jugadores.js'
-import { NODE_ENV } from '../../config/config.js'
+import { NODE_ENV, GENDER_CONSTRAINT } from '../../config/config.js'
 import { ClubsModel } from '../../models/clubs.js';
 import { WHATSAPP_GROUPS, NIVELES_JUGADORES } from '../../config/config.js'
 
@@ -944,6 +944,73 @@ Jugador 4: ${jugador4}
                 });
             }
             const nombreInvitado = datosInvitado["Nombre Real"]
+
+            // Si la restricción por género está activa, verificar compatibilidad
+            if (GENDER_CONSTRAINT === true) {
+                console.log('Restricción por género activada. Verificando compatibilidad...');
+
+                // Obtener el género del jugador invitado
+                const generoInvitado = datosInvitado["Género"];
+                if (!generoInvitado) {
+                    console.log('El jugador invitado no tiene género definido');
+                } else {
+                    console.log(`Género del jugador invitado: ${generoInvitado}`);
+                }
+
+                // Obtener datos del organizador
+                let generoOrganizador;
+                if (numeroOrganizador) {
+                    const datosOrganizador = await JugadoresModel.getJugador(numeroOrganizador);
+                    if (datosOrganizador) {
+                        generoOrganizador = datosOrganizador["Género"];
+                        console.log(`Género del organizador (por número): ${generoOrganizador}`);
+                    }
+                } else {
+                    // Si no tenemos el número directamente, intentamos extraerlo del evento
+                    const evento = await GoogleCalendarService.getEvent(calendarId, eventId);
+                    if (evento && evento.description) {
+                        const infoMap = {};
+                        evento.description.split('\n').forEach(line => {
+                            if (line.includes(':')) {
+                                const [key, value] = line.split(':', 2);
+                                infoMap[key.trim()] = value.trim();
+                            }
+                        });
+
+                        const telefonoOrganizador = infoMap['Teléfono'];
+                        if (telefonoOrganizador) {
+                            const datosOrganizador = await JugadoresModel.getJugador(telefonoOrganizador);
+                            if (datosOrganizador) {
+                                generoOrganizador = datosOrganizador["Género"];
+                                console.log(`Género del organizador (por teléfono del evento): ${generoOrganizador}`);
+                            }
+                        }
+                    }
+                }
+
+                // Verificar compatibilidad de géneros
+                if (generoInvitado && generoOrganizador && generoInvitado !== generoOrganizador) {
+                    console.log('Los géneros no coinciden. Rechazando la unión.');
+
+                    // Usar clave de traducción directa según el género del organizador
+                    const claveTraduccion = generoOrganizador === 'hombre'
+                        ? 'reservas.unirse.error_genero_hombres'
+                        : 'reservas.unirse.error_genero_mujeres';
+
+                    // Obtener mensaje traducido usando el servicio de builderBot
+                    const mensajeTraducido = await enviarMensajeWhatsApp(
+                        claveTraduccion,
+                        '',
+                        {},
+                        true // Solo traducir, no enviar mensaje
+                    );
+
+                    return res.status(403).json({
+                        status: "error",
+                        message: mensajeTraducido || "Esta partida es solo para jugadores del mismo género."
+                    });
+                }
+            }
 
             // Si es una unión de tipo "new" (con número de teléfono), verificar si el usuario está registrado
             if (tipoUnion === "new" && numeroInvitado) {

@@ -11,7 +11,13 @@ export default {
         unirse: {
             exito: "✅ *Vous avez rejoint le match avec succès!*\n\n📋 *Détails du match*:\n🆔 ID du match: {{idPartida}}\n📅 Date: {{fecha}}\n⏰ Horaire: {{horaInicio}} - {{horaFin}}\n🎾 Terrain: {{pista}}\n🏆 Niveau: {{nivel}}\n👑 Organisateur: {{organizador}}\n\n👥 *Joueurs* ({{jugadoresActuales}}/4)",
             jugadoresFaltan: "⚠️ Il manque encore {{cantidad}} joueur(s)",
-            partidaCompleta: "✅ La partie est complète!"
+            partidaCompleta: "✅ La partie est complète!",
+            error_genero_hombres: "Désolé, cette partie est réservée uniquement aux hommes.",
+            error_genero_mujeres: "Désolé, cette partie est réservée uniquement aux femmes."
+        },
+        genero: {
+            hombres: "hommes",
+            mujeres: "femmes"
         },
         cancelacion: {
             exito: "✅ Votre réservation a été annulée avec succès.\n\n📅 Détails de la réservation annulée:\n📆 Date: {{fecha}}\n🕒 Heure: {{hora}}\n🎾 Terrain: {{pista}}{{motivoTexto}}",
