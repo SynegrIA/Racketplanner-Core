@@ -32,6 +32,17 @@ const themes = {
         logoUrl: '/PadelPointRabatLogo.jpeg',
         isPremium: false
     },
+    hergonpadel: {
+        id: 'hergonpadel',
+        nombre: 'Hergon Padel',
+        primaryColor: '#e97739',
+        secondaryColor: '#4b746e',
+        accentColor: '#4b746e',
+        backgroundColor: '#FFFFFF',
+        textColor: '#333333',
+        logoUrl: '/HergonPadelLogoEditado.png',
+        isPremium: false
+    },
     dark: {
         id: 'dark',
         nombre: 'PadelPlanner Dark',
