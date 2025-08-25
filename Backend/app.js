@@ -7,6 +7,7 @@ import pagosRouter from './src/api/routes/pagos.js';
 import { PagosController } from './src/api/controllers/pagos.js';
 import utilsRouter from './src/api/routes/utils.js';
 import { initializeJobs } from './src/jobs/index.js';
+import { NODE_ENV, PARTIDAS_MIXTAS_OPTION } from './src/config/config.js';
 
 const app = express();
 app.disable("x-powered-by");
@@ -29,7 +30,7 @@ app.use("/invitaciones", invitacionesRouter);
 app.use("/pagos", pagosRouter);
 app.use("/utils", utilsRouter);
 
-initializeJobs();
+if (NODE_ENV === 'production') { initializeJobs(); }
 
 // Arranca el servidor
 app.listen(PORT, () => {
