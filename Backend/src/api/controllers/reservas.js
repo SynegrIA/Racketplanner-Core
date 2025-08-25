@@ -478,7 +478,7 @@ Jugador 4: ${jugador4}
                     "Link Join": urlInvitarCorta,
                     "Link Delete": urlEliminarCorta,
                     "Link Cancel": urlCancelarCorta,
-                    ...(PARTIDAS_MIXTAS_OPTION === 'true' ? { "mixta": mixta !== undefined ? Boolean(mixta) : true } : {})
+                    ...(PARTIDAS_MIXTAS_OPTION ? { "mixta": mixta !== undefined ? Boolean(mixta) : true } : {})
                 };
 
                 // Guardar en la base de datos
@@ -581,6 +581,23 @@ Jugador 4: ${jugador4}
             } catch (error) {
                 console.error("Error al enviar mensaje al grupo de WhatsApp:", error);
             }
+
+            console.log({
+                data: {
+                    idPartida,
+                    eventoId: evento.id,
+                    pista,
+                    fechaInicio: fechaInicio.toISOString(),
+                    fechaFin: fechaFin.toISOString(),
+                    nombre: organizador["Nombre Real"],
+                    ...(PARTIDAS_MIXTAS_OPTION ? { mixta: mixta !== undefined ? Boolean(mixta) : true } : {}),
+                    enlaces: {
+                        cancelar: urlCancelarCorta,
+                        eliminar: urlEliminarCorta,
+                        invitar: urlInvitarCorta
+                    }
+                }
+            })
             // 15. Devolver respuesta al frontend
             return res.json({
                 status: "success",
@@ -592,7 +609,7 @@ Jugador 4: ${jugador4}
                     fechaInicio: fechaInicio.toISOString(),
                     fechaFin: fechaFin.toISOString(),
                     nombre: organizador["Nombre Real"],
-                    ...(PARTIDAS_MIXTAS_OPTION === 'true' ? { mixta: mixta !== undefined ? Boolean(mixta) : true } : {}),
+                    ...(PARTIDAS_MIXTAS_OPTION ? { mixta: mixta !== undefined ? Boolean(mixta) : true } : {}),
                     enlaces: {
                         cancelar: urlCancelarCorta,
                         eliminar: urlEliminarCorta,
