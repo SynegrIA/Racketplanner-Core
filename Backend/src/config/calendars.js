@@ -2,66 +2,69 @@ import { ClubsModel } from '../models/clubs.js';
 import { CLUB_ID } from './config.js';
 
 
-// Configuración base de los calendarios con IDs de Google Calendar (no modificar estos IDs)
-export const CALENDARS = [
-    {
-        id: "27ade49924d7fc44eb4e6ff76b294614600c7d783d68eb5db1a6b60340cec68c@group.calendar.google.com",
-        index: 1,
-        name: "Pista 1",
-        businessHours: {
-            weekdays: [
-                { start: "08:00", end: "15:30" },
-                { start: "15:30", end: "21:30" }
-            ],
-            weekends: [
-                { start: "09:00", end: "21:00" }
-            ]
-        },
-        avaliable: true,
-        slotDuration: 90
-    },
-    {
-        id: "b1f9669a07324fdf0d93c733f4615302a53c13b75adc4aeb936f4353cf0aed31@group.calendar.google.com",
-        index: 2,
-        name: "Pista 2",
-        businessHours: {
-            weekdays: [
-                { start: "08:00", end: "15:30" },
-                { start: "15:30", end: "21:30" }
-            ],
-            weekends: [
-                { start: "08:00", end: "21:30" }
-            ]
-        },
-        avaliable: true,
-        slotDuration: 90
-    }
-];
+// PadelPointRabat
 
-/**
- * HORARIOS DEL NEGOCIO
- * Configura aquí los horarios de apertura.
- * weekdays: Horarios de lunes a viernes
- * weekends: Horarios de fin de semana (vacío si está cerrado)
- */
-export const BUSINESS_HOURS = {
-    weekdays: [
-        { start: "08:00", end: "15:30" },
-        { start: "15:30", end: "21:30" }
-    ],
-    weekends: [
-        { start: "08:00", end: "15:30" },
-        { start: "15:30", end: "21:30" }
-    ],
-};
+// export const CALENDARS = [
+//     {
+//         id: "27ade49924d7fc44eb4e6ff76b294614600c7d783d68eb5db1a6b60340cec68c@group.calendar.google.com",
+//         index: 1,
+//         name: "Pista 1",
+//         businessHours: {
+//             weekdays: [
+//                 { start: "08:00", end: "15:30" },
+//                 { start: "15:30", end: "21:30" }
+//             ],
+//             weekends: [
+//                 { start: "09:00", end: "21:00" }
+//             ]
+//         },
+//         avaliable: true,
+//         slotDuration: 90
+//     },
+//     {
+//         id: "b1f9669a07324fdf0d93c733f4615302a53c13b75adc4aeb936f4353cf0aed31@group.calendar.google.com",
+//         index: 2,
+//         name: "Pista 2",
+//         businessHours: {
+//             weekdays: [
+//                 { start: "08:00", end: "15:30" },
+//                 { start: "15:30", end: "21:30" }
+//             ],
+//             weekends: [
+//                 { start: "08:00", end: "21:30" }
+//             ]
+//         },
+//         avaliable: true,
+//         slotDuration: 90
+//     }
+// ];
 
-/**
- * DURACIÓN DE RESERVAS
- * Tiempo en minutos que dura cada reserva
- */
-export let RESERVATION_DURATION_MINUTES = 90;
+// /**
+//  * HORARIOS DEL NEGOCIO
+//  * Configura aquí los horarios de apertura.
+//  * weekdays: Horarios de lunes a viernes
+//  * weekends: Horarios de fin de semana (vacío si está cerrado)
+//  */
+// export const BUSINESS_HOURS = {
+//     weekdays: [
+//         { start: "08:00", end: "15:30" },
+//         { start: "15:30", end: "21:30" }
+//     ],
+//     weekends: [
+//         { start: "08:00", end: "15:30" },
+//         { start: "15:30", end: "21:30" }
+//     ],
+// };
+
+// /**
+//  * DURACIÓN DE RESERVAS
+//  * Tiempo en minutos que dura cada reserva
+//  */
+// export let RESERVATION_DURATION_MINUTES = 90;
 
 
+
+// Pickleball
 
 // export const CALENDARS = [
 //     {
@@ -153,6 +156,100 @@ export let RESERVATION_DURATION_MINUTES = 90;
 //  * Tiempo en minutos que dura cada reserva
 //  */
 // export let RESERVATION_DURATION_MINUTES = 90;
+
+
+// HergonPadel
+
+export const CALENDARS = [
+    {
+        id: "c32e9cb6c517ebfb3e313e6b45308cd7d8b6e7466c3f813e84a4433137222b84@group.calendar.google.com",
+        name: "Pista 1",
+        index: 1,
+        businessHours: {
+            weekdays: [
+                { start: "09:00", end: "14:00" },
+                { start: "15:00", end: "22:00" }
+            ],
+            weekends: [
+                { start: "08:00", end: "23:00" }
+            ]
+        },
+        avaliable: true,
+        slotDuration: 90
+    },
+    {
+        id: "dc5bbfbd34d6a6d326fb7ddfa9e849c84b531ea41776573ec5e0f9eeb521b1d1@group.calendar.google.com",
+        name: "Pista 2",
+        index: 2,
+        businessHours: {
+            weekdays: [
+                { start: "09:00", end: "14:00" },
+                { start: "15:00", end: "22:00" }
+            ],
+            weekends: [
+                { start: "08:00", end: "23:00" }
+            ]
+        },
+        avaliable: true,
+        slotDuration: 90
+    },
+    {
+        id: "bf92651dedcf8951580aca58f2d4bca0eb657445b3106532656cf45d787727e7@group.calendar.google.com",
+        name: "Pista 3",
+        index: 3,
+        businessHours: {
+            weekdays: [
+                { start: "09:00", end: "14:00" },
+                { start: "15:00", end: "22:00" }
+            ],
+            weekends: [
+                { start: "08:00", end: "23:00" }
+            ]
+        },
+        avaliable: true,
+        slotDuration: 90
+    },
+    {
+        id: "cd79d2d4b775a14c818325525ee4af087cc7b805842dfa252bad6d47ca23a0e3@group.calendar.google.com",
+        name: "Pista 4",
+        index: 4,
+        businessHours: {
+            weekdays: [
+                { start: "09:00", end: "14:00" },
+                { start: "15:00", end: "22:00" }
+            ],
+            weekends: [
+                { start: "08:00", end: "23:00" }
+            ]
+        },
+        avaliable: true,
+        slotDuration: 90
+    },
+];
+
+/**
+ * HORARIOS DEL NEGOCIO
+ * Configura aquí los horarios de apertura.
+ * weekdays: Horarios de lunes a viernes
+ * weekends: Horarios de fin de semana (vacío si está cerrado)
+ */
+export const BUSINESS_HOURS = {
+    weekdays: [
+        { start: "09:00", end: "14:00" },
+        { start: "15:00", end: "22:00" }  // Horario de mañana
+        //{ start: "16:00", end: "23:00" },   Horario de tarde
+    ],
+    weekends: [
+        { start: "09:00", end: "14:00" },
+        { start: "15:00", end: "22:00" }
+    ], // Array vacío significa cerrado
+};
+
+/**
+ * DURACIÓN DE RESERVAS
+ * Tiempo en minutos que dura cada reserva
+ */
+export let RESERVATION_DURATION_MINUTES = 90;
 
 // Función para cargar la configuración dinámica desde la BD
 async function loadDynamicConfig() {
