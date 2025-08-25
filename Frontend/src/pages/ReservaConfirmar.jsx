@@ -316,7 +316,7 @@ export default function ReservaConfirmar() {
                   {/* Mostrar el tipo de partida si la opción está habilitada */}
                   {PARTIDAS_MIXTAS_OPTION && (
                     <li className="list-group-item">
-                      {t("tipo-de-partida")} {reservaData.mixta ? t("mixta") : t("restringida-por-genero")}
+                      ⚧️ {t("tipo-de-partida")}: {reservaData.mixta ? t("mixta") : t("restringida-por-genero")}
                     </li>
                   )}
                 </ul>
