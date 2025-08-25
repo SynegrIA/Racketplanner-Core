@@ -27,7 +27,9 @@ export const WHATSAPP_GROUPS = {
 }
 export const NIVELES_JUGADORES = process.env.NIVELES_JUGADORES
 
-export const GENDER_CONSTRAINT = process.env.GENDER_CONSTRAINT === 'true'
+export const GENDER_CONSTRAINT = process.env.GENDER_CONSTRAINT === 'true' || false
+
+export const PARTIDAS_MIXTAS_OPTION = process.env.PARTIDAS_MIXTAS_OPTION === 'true' || false
 
 export const GOOGLE_CLIENT_EMAIL = process.env.GOOGLE_CLIENT_EMAIL
 export const GOOGLE_PRIVATE_KEY = process.env.GOOGLE_PRIVATE_KEY
