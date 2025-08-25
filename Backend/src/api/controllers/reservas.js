@@ -7,7 +7,7 @@ import { ReservasModel } from '../../models/reservas.js'
 import { JugadoresModel } from '../../models/jugadores.js'
 import { NODE_ENV, GENDER_CONSTRAINT } from '../../config/config.js'
 import { ClubsModel } from '../../models/clubs.js';
-import { WHATSAPP_GROUPS, NIVELES_JUGADORES } from '../../config/config.js'
+import { WHATSAPP_GROUPS, NIVELES_JUGADORES, PARTIDAS_MIXTAS_OPTION } from '../../config/config.js'
 
 export class ReservasController {
 
@@ -294,7 +294,7 @@ export class ReservasController {
 
         try {
             console.log("Datos recibidos en confirmarReserva:", req.body);
-            const { pista, inicio, fin, numero, partida, nivel: nivelRecibido, jugadores_faltan } = req.body;
+            const { pista, inicio, fin, numero, partida, nivel: nivelRecibido, jugadores_faltan, mixta } = req.body;
 
             // 1. Validación básica
             if (!pista || !inicio || !fin || !numero) {
@@ -477,7 +477,8 @@ Jugador 4: ${jugador4}
                     "Lista_invitados": "",
                     "Link Join": urlInvitarCorta,
                     "Link Delete": urlEliminarCorta,
-                    "Link Cancel": urlCancelarCorta
+                    "Link Cancel": urlCancelarCorta,
+                    ...(PARTIDAS_MIXTAS_OPTION === 'true' ? { "mixta": mixta !== undefined ? Boolean(mixta) : true } : {})
                 };
 
                 // Guardar en la base de datos
@@ -591,6 +592,7 @@ Jugador 4: ${jugador4}
                     fechaInicio: fechaInicio.toISOString(),
                     fechaFin: fechaFin.toISOString(),
                     nombre: organizador["Nombre Real"],
+                    ...(PARTIDAS_MIXTAS_OPTION === 'true' ? { mixta: mixta !== undefined ? Boolean(mixta) : true } : {}),
                     enlaces: {
                         cancelar: urlCancelarCorta,
                         eliminar: urlEliminarCorta,
