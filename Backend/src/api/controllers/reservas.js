@@ -918,9 +918,29 @@ Jugador 4: ${jugador4}
             }
             const nombreInvitado = datosInvitado["Nombre Real"]
 
-            // Si la restricción por género está activa, verificar compatibilidad
-            if (GENDER_CONSTRAINT === true) {
-                console.log('Restricción por género activada. Verificando compatibilidad...');
+            // NUEVO: Obtener la reserva desde Supabase para verificar si es mixta
+            let esMixta = true; // Por defecto, asumimos que es mixta si no hay configuración
+            if (PARTIDAS_MIXTAS_OPTION) {
+                try {
+                    // Recuperar la reserva desde la base de datos
+                    const reserva = await ReservasModel.getByEventId(eventId);
+
+                    // Verificar si el campo mixta existe y es false
+                    if (reserva && reserva.mixta === false) {
+                        esMixta = false;
+                        console.log(`Partida con ID ${eventId} configurada como NO mixta. Verificando compatibilidad de género.`);
+                    } else {
+                        console.log(`Partida con ID ${eventId} es mixta o no tiene preferencia configurada.`);
+                    }
+                } catch (dbError) {
+                    console.error("Error al recuperar datos de la reserva:", dbError);
+                    // En caso de error, mantener esMixta como true por defecto
+                }
+            }
+
+            // Si la restricción por género está activa Y la partida NO es mixta, verificar compatibilidad
+            if (GENDER_CONSTRAINT === true && PARTIDAS_MIXTAS_OPTION === true && !esMixta) {
+                console.log('Restricción por género activada para partida no mixta. Verificando compatibilidad...');
 
                 // Obtener el género del jugador invitado
                 const generoInvitado = datosInvitado["Género"];
@@ -961,9 +981,9 @@ Jugador 4: ${jugador4}
                     }
                 }
 
-                // Verificar compatibilidad de géneros
+                // Verificar compatibilidad de géneros para partidas no mixtas
                 if (generoInvitado && generoOrganizador && generoInvitado !== generoOrganizador) {
-                    console.log('Los géneros no coinciden. Rechazando la unión.');
+                    console.log('Los géneros no coinciden. Rechazando la unión para partida no mixta.');
 
                     // Usar clave de traducción directa según el género del organizador
                     const claveTraduccion = generoOrganizador === 'hombre'
@@ -983,6 +1003,8 @@ Jugador 4: ${jugador4}
                         message: mensajeTraducido || "Esta partida es solo para jugadores del mismo género."
                     });
                 }
+            } else if (GENDER_CONSTRAINT === true) {
+                console.log('Restricción general por género activada, pero la partida es mixta o la opción mixta no está habilitada.');
             }
 
             // Si es una unión de tipo "new" (con número de teléfono), verificar si el usuario está registrado
