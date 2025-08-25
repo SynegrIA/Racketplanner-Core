@@ -259,5 +259,13 @@
   "genero": "Género",
   "hombre": "Hombre",
   "mujer": "Mujer",
-  "selecciona-tu-genero": "Selecciona tu género para mejorar la experiencia"
+  "selecciona-tu-genero": "Selecciona tu género para mejorar la experiencia",
+
+  "tipo-de-partida": "Tipo de partida",
+  "partida-mixta": "Partida mixta",
+  "partida-restringida": "Partida por género",
+  "la-partida-permite-jugadores-de-cualquier-genero": "La partida permitirá jugadores de cualquier género",
+  "la-partida-solo-permite-jugadores-del-mismo-genero": "Solo se permitirán jugadores del mismo género que el organizador",
+  "mixta": "mixta",
+  "restringida-por-genero": "restringida por género"
 }

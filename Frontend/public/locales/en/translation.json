@@ -259,5 +259,13 @@
   "genero": "Gender",
   "hombre": "Male",
   "mujer": "Female",
-  "selecciona-tu-genero": "Select your gender to enhance the experience"
+  "selecciona-tu-genero": "Select your gender to enhance the experience",
+
+  "tipo-de-partida": "Match type",
+  "partida-mixta": "Mixed match",
+  "partida-restringida": "Gender-specific match",
+  "la-partida-permite-jugadores-de-cualquier-genero": "The match will allow players of any gender",
+  "la-partida-solo-permite-jugadores-del-mismo-genero": "Only players of the same gender as the organizer will be allowed",
+  "mixta": "mixed",
+  "restringida-por-genero": "gender restricted"
 }

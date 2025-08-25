@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { DOMINIO_BACKEND, NUMBER_PREFIX } from "../config/config.js";
 import { useTranslation } from 'react-i18next';
-import { PASARELA } from "../config/config.js";
+import { PASARELA, PARTIDAS_MIXTAS_OPTION } from "../config/config.js";
 
 export default function ReservaConfirmar() {
   const [searchParams] = useSearchParams();
@@ -16,6 +16,7 @@ export default function ReservaConfirmar() {
   const [mensaje, setMensaje] = useState("");
   const [tipoMensaje, setTipoMensaje] = useState("success");
   const [enviando, setEnviando] = useState(false);
+  const [esMixta, setEsMixta] = useState(true);
   // Bandera para controlar la inicialización de datos
   const [datosInicializados, setDatosInicializados] = useState(false);
   // Estado para controlar si la reserva fue confirmada exitosamente
@@ -201,7 +202,8 @@ export default function ReservaConfirmar() {
         nombre,
         numero: numeroCompleto,
         partida: tipoPartida,
-        jugadores_faltan: jugadoresFaltan
+        jugadores_faltan: jugadoresFaltan,
+        mixta: PARTIDAS_MIXTAS_OPTION ? esMixta : undefined
       };
 
       // Enviamos los datos al backend
@@ -311,6 +313,12 @@ export default function ReservaConfirmar() {
                   <li className="list-group-item">{t("pista_1")} {partida.pista}</li>
                   <li className="list-group-item">{t("a-tu-nombre")} {nombre}</li>
                   <li className="list-group-item">{t("jugadores-que-faltan")} {jugadoresFaltan}</li>
+                  {/* Mostrar el tipo de partida si la opción está habilitada */}
+                  {PARTIDAS_MIXTAS_OPTION && (
+                    <li className="list-group-item">
+                      {t("tipo-de-partida")} {reservaData.mixta ? t("mixta") : t("restringida-por-genero")}
+                    </li>
+                  )}
                 </ul>
 
                 {PASARELA_ENABLED && (
@@ -419,6 +427,60 @@ export default function ReservaConfirmar() {
                 </div>
                 <div className="form-text">{t("recibiras-notificaciones-por-whatsapp")}</div>
               </div>
+
+              {/* Nuevo selector de tipo de partida (mixta o restringida) */}
+              {PARTIDAS_MIXTAS_OPTION && (
+                <div className="mb-3">
+                  <label className="form-label d-flex align-items-center">
+                    <i className="bi bi-people me-2"></i>{t("tipo-de-partida")}
+                  </label>
+
+                  <div className="btn-group w-100" role="group" aria-label="Tipo de partida">
+                    <input
+                      type="radio"
+                      className="btn-check"
+                      name="tipoPartida"
+                      id="tipoMixta"
+                      autoComplete="off"
+                      checked={esMixta}
+                      onChange={() => setEsMixta(true)}
+                    />
+                    <label
+                      className="btn btn-outline-secondary d-flex align-items-center justify-content-center gap-2"
+                      htmlFor="tipoMixta"
+                    >
+                      <i className="bi bi-gender-ambiguous"></i>
+                      <span>{t("partida-mixta")}</span>
+                    </label>
+
+                    <input
+                      type="radio"
+                      className="btn-check"
+                      name="tipoPartida"
+                      id="tipoRestringida"
+                      autoComplete="off"
+                      checked={!esMixta}
+                      onChange={() => setEsMixta(false)}
+                    />
+                    <label
+                      className="btn btn-outline-secondary d-flex align-items-center justify-content-center gap-2"
+                      htmlFor="tipoRestringida"
+                    >
+                      <span className="d-flex align-items-center">
+                        <i className="bi bi-gender-male me-1"></i>
+                        <i className="bi bi-gender-female"></i>
+                      </span>
+                      <span>{t("partida-restringida")}</span>
+                    </label>
+                  </div>
+
+                  <div className="form-text small mt-2">
+                    {esMixta
+                      ? t("la-partida-permite-jugadores-de-cualquier-genero")
+                      : t("la-partida-solo-permite-jugadores-del-mismo-genero")}
+                  </div>
+                </div>
+              )}
 
               {mensaje && tipoMensaje === "danger" && <div className={`alert alert-${tipoMensaje} mb-3`}>{t(mensaje)}</div>}
 

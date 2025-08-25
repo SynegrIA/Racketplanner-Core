@@ -259,5 +259,13 @@
   "genero": "Genre",
   "hombre": "Homme",
   "mujer": "Femme",
-  "selecciona-tu-genero": "Sélectionnez votre genre pour améliorer l'expérience"
+  "selecciona-tu-genero": "Sélectionnez votre genre pour améliorer l'expérience",
+
+  "tipo-de-partida": "Type de partie",
+  "partida-mixta": "Partie mixte",
+  "partida-restringida": "Partie par genre",
+  "la-partida-permite-jugadores-de-cualquier-genero": "La partie permettra des joueurs de tous genres",
+  "la-partida-solo-permite-jugadores-del-mismo-genero": "Seuls les joueurs du même genre que l'organisateur seront autorisés",
+  "mixta": "mixte",
+  "restringida-por-genero": "restreinte par genre"
 }
