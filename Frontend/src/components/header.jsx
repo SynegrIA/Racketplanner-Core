@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext.jsx';
 import { useTranslation } from 'react-i18next';
@@ -29,11 +29,12 @@ export default function Header() {
         }
     }, []);
 
-    // Estilos actualizados incluyendo el selector de idioma
+    // Estilos actualizados para mantener el logo centrado en todos los tamaños
     const styleTag = `
         .navbar-brand-custom {
             text-decoration: none;
             transition: all 0.3s ease;
+            margin: 0;
         }
         .navbar-brand-custom span {
             color: #333;
@@ -76,13 +77,30 @@ export default function Header() {
             background-color: ${currentTheme.primaryColor}22; /* Color primario con alta transparencia */
         }
         
+        /* Estilos para el header grid */
+        .header-grid {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            width: 100%;
+        }
+        
+        .header-left {
+            justify-self: start;
+        }
+        
+        .header-center {
+            justify-self: center;
+            display: flex;
+            align-items: center;
+        }
+        
+        .header-right {
+            justify-self: end;
+        }
+        
         /* Estilos responsive */
         @media (min-width: 768px) {
-            .navbar-brand-custom {
-                position: absolute;
-                left: 50%;
-                transform: translateX(-50%);
-            }
             .btn-text-full {
                 display: inline;
             }
@@ -92,8 +110,8 @@ export default function Header() {
         }
         
         @media (max-width: 767px) {
-            .navbar-container {
-                justify-content: space-between !important;
+            .navbar-brand-text {
+                display: none;
             }
             .btn-registro, .language-selector .dropdown-toggle {
                 padding: 6px 8px !important;
@@ -104,6 +122,10 @@ export default function Header() {
             .btn-text-short {
                 display: inline;
             }
+            /* Ajustar tamaño del logo en móvil si es necesario */
+            .navbar-brand-custom img {
+                height: 35px;
+            }
         }
     `;
 
@@ -112,70 +134,74 @@ export default function Header() {
         <header className="navbar navbar-light bg-white shadow-sm" style={{
             borderBottom: `4px solid ${currentTheme.primaryColor}`
         }}>
-            <div className="container navbar-container position-relative d-flex align-items-center justify-content-between" style={{
-                height: "60px"
-            }}>
-                {/* Selector de idioma estilizado como el botón de registro */}
-                <div className="dropdown language-selector">
-                    <button
-                        className="btn dropdown-toggle"
-                        type="button"
-                        id="languageDropdown"
-                        data-bs-toggle="dropdown"
-                        aria-expanded="false"
-                        style={{
+            <div className="container" style={{ height: "60px" }}>
+                <div className="header-grid">
+                    {/* Columna izquierda - Selector de idioma */}
+                    <div className="header-left">
+                        <div className="dropdown language-selector">
+                            <button
+                                className="btn dropdown-toggle"
+                                type="button"
+                                id="languageDropdown"
+                                data-bs-toggle="dropdown"
+                                aria-expanded="false"
+                                style={{
+                                    padding: '6px 10px'
+                                }}
+                            >
+                                <i className="bi bi-translate me-1"></i>
+                                {i18n.language === 'es' ? 'ES' : i18n.language === 'fr' ? 'FR' : i18n.language.toUpperCase()}
+                            </button>
+                            <ul className="dropdown-menu" id="languageDropdownMenu" aria-labelledby="languageDropdown">
+                                <li>
+                                    <button
+                                        className="dropdown-item"
+                                        onClick={(e) => changeLanguage('es', e)}
+                                        aria-label="Cambiar a español"
+                                    >
+                                        ES (Español)
+                                    </button>
+                                </li>
+                                <li>
+                                    <button
+                                        className="dropdown-item"
+                                        onClick={(e) => changeLanguage('fr', e)}
+                                        aria-label="Cambiar a francés"
+                                    >
+                                        FR (Français)
+                                    </button>
+                                </li>
+                                <li>
+                                    <button
+                                        className="dropdown-item"
+                                        onClick={(e) => changeLanguage('en', e)}
+                                        aria-label="Cambiar a inglés"
+                                    >
+                                        EN (English)
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    {/* Columna central - Logo */}
+                    <div className="header-center">
+                        <Link className="navbar-brand-custom d-flex align-items-center" to="/">
+                            <img src={currentTheme.logoUrl} alt={currentTheme.nombre} height={40} className="me-2" />
+                            <span className="navbar-brand-text fw-bold fs-5">{currentTheme.nombre}</span>
+                        </Link>
+                    </div>
+
+                    {/* Columna derecha - Botón de registro */}
+                    <div className="header-right">
+                        <Link to="/signup" className="btn btn-registro" style={{
                             padding: '6px 10px'
-                        }}
-                    >
-                        <i className="bi bi-translate me-1"></i>
-                        {i18n.language === 'es' ? 'ES' : i18n.language === 'fr' ? 'FR' : i18n.language.toUpperCase()}
-                    </button>
-                    <ul className="dropdown-menu" id="languageDropdownMenu" aria-labelledby="languageDropdown">
-                        <li>
-                            <button
-                                className="dropdown-item"
-                                onClick={(e) => changeLanguage('es', e)}
-                                aria-label="Cambiar a español"
-                            >
-                                ES (Español)
-                            </button>
-                        </li>
-                        <li>
-                            <button
-                                className="dropdown-item"
-                                onClick={(e) => changeLanguage('fr', e)}
-                                aria-label="Cambiar a francés"
-                            >
-                                FR (Français)
-                            </button>
-                        </li>
-                        <li>
-                            <button
-                                className="dropdown-item"
-                                onClick={(e) => changeLanguage('en', e)}
-                                aria-label="Cambiar a inglés"
-                            >
-                                EN (English)
-                            </button>
-                        </li>
-                    </ul>
-                </div>
-
-                {/* Logo - centrado en desktop, oculto en móvil para dar espacio */}
-                <Link className="navbar-brand-custom d-none d-md-flex align-items-center" to="/">
-                    <img src={currentTheme.logoUrl} alt={currentTheme.nombre} height={40} className="me-2" />
-                    <span className="fw-bold fs-5">{currentTheme.nombre}</span>
-                </Link>
-
-                {/* Botón de registro a la derecha */}
-                <div className="ms-auto">
-                    <Link to="/signup" className="btn btn-registro" style={{
-                        padding: '6px 10px'
-                    }}>
-                        <i className="bi bi-person-plus me-1"></i>
-                        <span className="btn-text-short">{t("registrarse")}</span>
-                        <span className="btn-text-full">{t("registrar-jugador")}</span>
-                    </Link>
+                        }}>
+                            <i className="bi bi-person-plus me-1"></i>
+                            <span className="btn-text-short">{t("registrarse")}</span>
+                            <span className="btn-text-full">{t("registrar-jugador")}</span>
+                        </Link>
+                    </div>
                 </div>
             </div>
         </header>
