@@ -582,22 +582,6 @@ Jugador 4: ${jugador4}
                 console.error("Error al enviar mensaje al grupo de WhatsApp:", error);
             }
 
-            console.log({
-                data: {
-                    idPartida,
-                    eventoId: evento.id,
-                    pista,
-                    fechaInicio: fechaInicio.toISOString(),
-                    fechaFin: fechaFin.toISOString(),
-                    nombre: organizador["Nombre Real"],
-                    ...(PARTIDAS_MIXTAS_OPTION ? { mixta: mixta !== undefined ? Boolean(mixta) : true } : {}),
-                    enlaces: {
-                        cancelar: urlCancelarCorta,
-                        eliminar: urlEliminarCorta,
-                        invitar: urlInvitarCorta
-                    }
-                }
-            })
             // 15. Devolver respuesta al frontend
             return res.json({
                 status: "success",
