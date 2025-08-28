@@ -3,7 +3,7 @@ import { cierraPartidas } from './tasks/cierraPartidas.js';
 import { jugadoresSinConfirmar } from './tasks/jugadoresSinConfirmar.js';
 import { procesarCapturasPagos, recordarPagos, enforceAutorizacionInicial } from './tasks/pagos.js';
 import { dailyUpdate } from './tasks/dailyUpdate.js';
-import { PASARELA } from '../config/config.js';
+import { PASARELA, DAILY_NOTIFICATION } from '../config/config.js';
 
 /**
  * Inicializa y registra todas las tareas programadas
@@ -24,11 +24,13 @@ export const initializeJobs = () => {
     )
 
     // Tarea para el informe diario - se ejecuta todos los días a las 23:00 (11 PM)
-    cronManager.register(
-        'informe-diario',
-        '0 23 * * *',
-        () => dailyUpdate()
-    );
+    if (DAILY_NOTIFICATION) {
+        cronManager.register(
+            'informe-diario',
+            '0 23 * * *',
+            () => dailyUpdate()
+        );
+    }
 
     if (PASARELA === 'true') {
 

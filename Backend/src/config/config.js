@@ -25,6 +25,7 @@ export const WHATSAPP_GROUPS = {
     nivel3: process.env.WHATS_GROUP_LVL3,
     notifications: process.env.WHATS_GROUP_NOTIFICATIONS
 }
+export const DAILY_NOTIFICATION = process.env.DAILY_NOTIFICATION === 'true'
 export const NIVELES_JUGADORES = process.env.NIVELES_JUGADORES
 
 export const GENDER_CONSTRAINT = process.env.GENDER_CONSTRAINT === 'true' || false
