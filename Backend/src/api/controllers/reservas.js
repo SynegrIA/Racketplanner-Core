@@ -2,7 +2,7 @@ import { CALENDARS, BUSINESS_HOURS, RESERVATION_DURATION_MINUTES } from '../../c
 import { GoogleCalendarService } from '../../api/services/googleCalendar.js'
 import { enviarMensajeWhatsApp } from '../../api/services/builderBot.js'
 import { shortenUrl } from '../../api/services/acortarURL.js'
-import { CLUB_ID, DOMINIO_FRONTEND } from '../../config/config.js'
+import { CLUB_ID, DOMINIO_FRONTEND, INVITACIONES_PARTIDAS_ABIERTAS } from '../../config/config.js'
 import { ReservasModel } from '../../models/reservas.js'
 import { JugadoresModel } from '../../models/jugadores.js'
 import { NODE_ENV, GENDER_CONSTRAINT } from '../../config/config.js'
@@ -522,7 +522,10 @@ Jugador 4: ${jugador4}
 
             const textoReserva = estado === "Completa" ? "Jugador sin Cancelar" : "Reserva sin Cancelar";
 
-            await enviarMensajeWhatsApp('reservas.confirmacion.exito', numero, {
+            let mensaje;
+            if (INVITACIONES_PARTIDAS_ABIERTAS) { mensaje = 'reservas.confirmacion.exito' } else { mensaje = 'reservas.confirmacion.exitoCorto' }
+
+            await enviarMensajeWhatsApp(mensaje, numero, {
                 nombre: organizador["Nombre Real"],
                 fecha: fechaFormateada,
                 horaInicio: horaInicio,

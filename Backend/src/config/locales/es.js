@@ -2,6 +2,7 @@ export default {
     reservas: {
         confirmacion: {
             exito: "✅ ¡Tu reserva para {{nombre}} ha sido confirmada!\n📅 Fecha: {{fecha}}\n🕒 Hora: {{horaInicio}} - {{horaFin}}\n🎾 Pista: {{pista}}\n\n📱 Puedes cancelar tu reserva aquí: \n👉🏼 [Cancelar Reserva]({{urlCancelar}})\n\n🔄 Número de jugadores que faltan: {{jugadores_faltan}}\n📈 Estado de la partida: {{estado}}\n\n🚫 Si deseas eliminar a algún invitado, pulsa aquí: [Eliminar {{textoReserva}}]({{urlEliminar}}).",
+            exitoCorto: "✅ ¡Tu reserva para {{nombre}} ha sido confirmada!\n📅 Fecha: {{fecha}}\n🕒 Hora: {{horaInicio}} - {{horaFin}}\n🎾 Pista: {{pista}}",
             invitacion: "👉🏼 Si deseas invitar a un jugador, envía este mensaje a la persona: [Unirse a Partida]({{urlInvitar}})",
             grupo: {
                 invitacion: "🎾 ¡Nueva partida abierta de nivel {{nivel}}!\n\n🗓️ Fecha: {{fecha}}\n⏰ Hora: {{horaInicio}} - {{horaFin}}\n🏟️ Pista: {{pista}}\n👤 Organizador: {{organizador}}\n\n¿Quieres unirte? Haz clic aquí: {{urlInvitar}}",

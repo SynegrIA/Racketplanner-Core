@@ -3,18 +3,20 @@ import { cierraPartidas } from './tasks/cierraPartidas.js';
 import { jugadoresSinConfirmar } from './tasks/jugadoresSinConfirmar.js';
 import { procesarCapturasPagos, recordarPagos, enforceAutorizacionInicial } from './tasks/pagos.js';
 import { dailyUpdate } from './tasks/dailyUpdate.js';
-import { PASARELA, DAILY_NOTIFICATION } from '../config/config.js';
+import { PASARELA, DAILY_NOTIFICATION, INVITACIONES_PARTIDAS_ABIERTAS } from '../config/config.js';
 
 /**
  * Inicializa y registra todas las tareas programadas
  */
 export const initializeJobs = () => {
 
-    cronManager.register(
-        'cierre-partidas',
-        '0 * * * *', //Se ejecuta cada hora
-        () => cierraPartidas()
-    );
+    if (INVITACIONES_PARTIDAS_ABIERTAS) {
+        cronManager.register(
+            'cierre-partidas',
+            '0 * * * *', //Se ejecuta cada hora
+            () => cierraPartidas()
+        );
+    }
 
 
     cronManager.register(
