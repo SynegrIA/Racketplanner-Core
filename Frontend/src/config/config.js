@@ -21,3 +21,5 @@ export const NIVELES_LIMIT = {
 }
 
 export const PARTIDAS_MIXTAS_OPTION = import.meta.env.VITE_PARTIDAS_MIXTAS_OPTION === 'true' || false
+
+export const INVITACIONES_PARTIDAS_ABIERTAS = import.meta.env.VITE_INVITACIONES_PARTIDAS_ABIERTAS === 'true' || false

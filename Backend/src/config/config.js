@@ -37,4 +37,4 @@ export const GOOGLE_PRIVATE_KEY = process.env.GOOGLE_PRIVATE_KEY
 
 export const PASARELA = process.env.PASARELA
 
-export const INVITACIONES_PARTIDAS_ABIERTAS = process.env.INVITACIONES_PARTIDAS_ABIERTAS
+export const INVITACIONES_PARTIDAS_ABIERTAS = process.env.INVITACIONES_PARTIDAS_ABIERTAS === 'true' || false
