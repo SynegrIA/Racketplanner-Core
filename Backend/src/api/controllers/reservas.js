@@ -539,9 +539,11 @@ Jugador 4: ${jugador4}
             });
 
             // 14. Enviar mensaje adicional con enlace para invitar si es partida abierta
-            await enviarMensajeWhatsApp('reservas.confirmacion.invitacion', numero, {
-                urlInvitar: urlInvitarCorta
-            });
+            if (INVITACIONES_PARTIDAS_ABIERTAS) {
+                await enviarMensajeWhatsApp('reservas.confirmacion.invitacion', numero, {
+                    urlInvitar: urlInvitarCorta
+                });
+            }
 
             // 15. Enviar mensaje al grupo de WhatsApp del nivel adecuado
             try {
