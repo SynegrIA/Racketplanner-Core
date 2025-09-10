@@ -1634,6 +1634,113 @@ export async function obtenerSlotsDisponiblesPorFecha(fecha) {
     }
 }
 
+// Función para generar slots para una pista disponible 24 horas
+async function generarSlots24Horas(fecha, pista, slots, ahora) {
+    // Obtener la hora de inicio configurada o usar 00:00 por defecto
+    const horaInicioStr = pista.horaInicioSlot || '00:00';
+    const [startHour, startMinute] = horaInicioStr.split(':').map(Number);
+
+    console.log(`📅 Generando slots 24h para ${pista.name} con inicio en ${horaInicioStr}`);
+
+    // Crear fecha de inicio del día solicitado a las 00:00
+    const inicioDelDia = new Date(fecha);
+    inicioDelDia.setHours(0, 0, 0, 0);
+
+    // Crear fecha de fin del día solicitado a las 23:59:59.999
+    const finDelDia = new Date(fecha);
+    finDelDia.setHours(23, 59, 59, 999);
+
+    // Crear fecha de inicio del día siguiente a las 00:00
+    const inicioDiaSiguiente = new Date(inicioDelDia);
+    inicioDiaSiguiente.setDate(inicioDelDia.getDate() + 1);
+
+    // Calcular la duración de un slot en milisegundos
+    const duracionMs = pista.slotDuration * 60000;
+
+    // Crear punto de referencia para el ciclo de 24h (la hora configurada en el día actual)
+    const puntoReferencia = new Date(fecha);
+    puntoReferencia.setHours(startHour, startMinute, 0, 0);
+
+    // Crear punto final para el ciclo de 24h (la misma hora, pero del día siguiente)
+    const puntoFinalCiclo = new Date(puntoReferencia);
+    puntoFinalCiclo.setDate(puntoReferencia.getDate() + 1);
+
+    console.log(`- Ciclo 24h: desde ${puntoReferencia.toLocaleTimeString('es-ES')} hasta ${puntoFinalCiclo.toLocaleTimeString('es-ES')} del día siguiente`);
+
+    // Calcular cuántos slots hay en 24 horas
+    const slotsPorDia = Math.ceil(24 * 60 / pista.slotDuration);
+    console.log(`- Slots necesarios para 24h: ${slotsPorDia}`);
+
+    // Generar todos los slots para un ciclo completo de 24 horas
+    let slotActual = new Date(puntoReferencia);
+    let slotsGenerados = 0;
+
+    while (slotActual < puntoFinalCiclo) {
+        const slotFin = new Date(slotActual.getTime() + duracionMs);
+
+        // Un slot es relevante para el día actual si:
+        // 1. Comienza en el día actual, O
+        // 2. Termina en el día actual, O
+        // 3. Cruza el día actual (comienza antes y termina después)
+        const slotIniciaEnDia = slotActual >= inicioDelDia && slotActual <= finDelDia;
+        const slotTerminaEnDia = slotFin > inicioDelDia && slotFin <= finDelDia;
+        const slotCruzaDia = slotActual < inicioDelDia && slotFin > inicioDelDia;
+        // NUEVO: Para considerar slots que cruzan al día siguiente
+        const slotCruzaDiaSiguiente = slotActual <= finDelDia && slotFin > finDelDia;
+
+        // Si el slot es relevante para el día actual y está en el futuro
+        if ((slotIniciaEnDia || slotTerminaEnDia || slotCruzaDia || slotCruzaDiaSiguiente) && slotActual > ahora) {
+            try {
+                // Verificar restricciones antes de verificar eventos
+                const restriccion = verificarRestriccionesHorario(slotActual, slotFin, pista.restricciones);
+
+                if (restriccion) {
+                    console.log(`  🚫 Slot ${slotActual.toLocaleTimeString('es-ES')} - ${slotFin.toLocaleTimeString('es-ES')} bloqueado por ${restriccion.tipo}: ${restriccion.descripcion}`);
+                } else {
+                    // Verificar si hay eventos programados
+                    const eventos = await GoogleCalendarService.getEvents(
+                        pista.id,
+                        slotActual.toISOString(),
+                        slotFin.toISOString()
+                    );
+
+                    if (!eventos || eventos.length === 0) {
+                        console.log(`  ✅ Slot disponible: ${slotActual.toLocaleTimeString('es-ES')} - ${slotFin.toLocaleTimeString('es-ES')}`);
+                        slots.push({
+                            pista: pista.name,
+                            inicio: slotActual.toISOString(),
+                            fin: slotFin.toISOString(),
+                            enlace: null
+                        });
+                        slotsGenerados++;
+                    } else {
+                        console.log(`  ❌ Slot ocupado: ${slotActual.toLocaleTimeString('es-ES')} - ${slotFin.toLocaleTimeString('es-ES')}`);
+                    }
+                }
+            } catch (error) {
+                console.error(`  Error al verificar eventos para ${pista.name}:`, error);
+            }
+        } else if (slotActual <= ahora) {
+            console.log(`  ⏭️ Slot en el pasado: ${slotActual.toLocaleTimeString('es-ES')} - ${slotFin.toLocaleTimeString('es-ES')}`);
+        } else {
+            // Este slot es parte del ciclo de 24h pero no pertenece al día actual
+            // Lo marcamos como "no perteneciente al día" para debug
+            console.log(`  ⏭️ Slot no pertenece al día actual: ${slotActual.toLocaleTimeString('es-ES')} - ${slotFin.toLocaleTimeString('es-ES')}`);
+        }
+
+        // Avanzar al siguiente slot
+        slotActual = new Date(slotActual.getTime() + duracionMs);
+
+        // Seguridad para evitar bucles infinitos
+        if (++slotsGenerados > slotsPorDia * 2) {
+            console.warn('⚠️ Detectado posible bucle infinito, terminando generación de slots');
+            break;
+        }
+    }
+
+    console.log(`📊 Total slots generados para ${pista.name}: ${slotsGenerados}`);
+}
+
 function verificarRestriccionesHorario(slotInicio, slotFin, restricciones) {
     if (!restricciones || restricciones.length === 0) {
         return null; // No hay restricciones
@@ -1704,7 +1811,6 @@ async function buscarTodosLosSlotsDisponibles(fecha) {
     const diaSemana = getDiaSemana(dia);
     console.log(`Día de la semana para verificación: '${diaSemana}'`);
 
-
     const timeZoneOffset = -new Date().getTimezoneOffset() / 60;
     console.log(`Offset de zona horaria local: UTC${timeZoneOffset >= 0 ? '+' : ''}${timeZoneOffset}`);
 
@@ -1713,7 +1819,24 @@ async function buscarTodosLosSlotsDisponibles(fecha) {
     const calendariosFiltrados = await obtenerCalendariosActivos();
     console.log(`Usando ${calendariosFiltrados.length} pistas activas`);
 
-    const pistasHorarios = calendariosFiltrados.map(pista => {
+    // Separar pistas 24h de las normales
+    const pistas24h = calendariosFiltrados.filter(pista => pista.disponible24h === true);
+    const pistasNormales = calendariosFiltrados.filter(pista => !pista.disponible24h);
+
+    console.log(`🕐 Pistas 24h: ${pistas24h.length}`);
+    console.log(`📅 Pistas con horario normal: ${pistasNormales.length}`);
+
+    // Procesar pistas 24 horas
+    for (const pista of pistas24h) {
+        console.log(`\n🌟 Procesando pista 24h: ${pista.name}`);
+
+        // IMPORTANTE: Para pistas 24h, también consideramos el siguiente día para manejar slots que cruzan medianoche
+        const fechaConsulta = new Date(fecha);
+        await generarSlots24Horas(fechaConsulta, pista, slots, ahora);
+    }
+
+    // Procesar pistas con horarios normales
+    const pistasHorarios = pistasNormales.map(pista => {
         const horarios = isWeekend ? pista.businessHours.weekends : pista.businessHours.weekdays;
 
         console.log(`Configuración de ${pista.name}:`,
@@ -1759,13 +1882,13 @@ async function buscarTodosLosSlotsDisponibles(fecha) {
 
                 if (slotInicio > ahora) {
                     try {
-                        // NUEVO: Verificar restricciones antes de verificar eventos
+                        // Verificar restricciones antes de verificar eventos
                         const restriccion = verificarRestriccionesHorario(slotInicio, slotFin, pista.restricciones);
 
                         if (restriccion) {
                             console.log(`  🚫 Slot ${slotInicio.toLocaleTimeString('es-ES', { timeZone: 'Europe/Madrid' })} bloqueado por ${restriccion.tipo}: ${restriccion.descripcion}`);
                         } else {
-                            // Si no hay restricciones, verificar eventos programados
+                            // Verificar si hay eventos programados
                             const eventos = await GoogleCalendarService.getEvents(
                                 pista.id,
                                 slotInicio.toISOString(),
@@ -1778,7 +1901,7 @@ async function buscarTodosLosSlotsDisponibles(fecha) {
                                     pista: pista.name,
                                     inicio: slotInicio.toISOString(),
                                     fin: slotFin.toISOString(),
-                                    enlace: null // Se generará después si es necesario
+                                    enlace: null
                                 });
                             } else {
                                 console.log(`  ❌ Slot ocupado (${eventos.length} eventos): ${slotInicio.toLocaleTimeString('es-ES', { timeZone: 'Europe/Madrid' })}`);
@@ -1804,38 +1927,94 @@ async function buscarTodosLosSlotsDisponibles(fecha) {
 
 // Helper: Busca si la hora coincide exactamente con un slot y si hay pista libre
 async function buscarSlotDisponibleExacto(startDate) {
-    const dia = startDate.getDay()
-    const isWeekend = dia === 0 || dia === 6
+    const dia = startDate.getDay();
+    const isWeekend = dia === 0 || dia === 6;
 
     const calendariosFiltrados = await obtenerCalendariosActivos();
 
     // Para cada pista, comprobar si el horario solicitado está disponible
     for (const pista of calendariosFiltrados) {
-        const horarios = isWeekend ? pista.businessHours.weekends : pista.businessHours.weekdays
-        if (!horarios || horarios.length === 0) continue
+        // Si la pista es 24h, verificar disponibilidad diferente
+        if (pista.disponible24h) {
+            console.log(`Verificando pista 24h: ${pista.name}`);
+
+            // Calcular si la hora solicitada coincide con algún slot basado en horaInicioSlot
+            const [inicioHora, inicioMinuto] = (pista.horaInicioSlot || '00:00').split(':').map(Number);
+            const duracionMinutos = pista.slotDuration || 90;
+
+            // Crear punto de referencia (la hora configurada en el día actual)
+            const puntoReferencia = new Date(startDate);
+            puntoReferencia.setHours(inicioHora, inicioMinuto, 0, 0);
+
+            // Si la hora solicitada es anterior al punto de referencia, puede ser del día siguiente
+            // para completar el ciclo de 24h
+            let diffMs = startDate - puntoReferencia;
+
+            // Si es negativo, añadimos 24h para considerar que es del ciclo siguiente
+            if (diffMs < 0) {
+                diffMs += 24 * 60 * 60 * 1000;
+            }
+
+            // Convertir a minutos y verificar si es múltiplo de la duración del slot
+            const diffMinutos = diffMs / 60000;
+            const esSlotValido = diffMinutos % duracionMinutos === 0;
+
+            if (esSlotValido) {
+                const slotFin = new Date(startDate.getTime() + duracionMinutos * 60000);
+
+                // Verificar restricciones
+                const restriccion = verificarRestriccionesHorario(startDate, slotFin, pista.restricciones);
+
+                if (restriccion) {
+                    console.log(`Slot bloqueado por restricción en pista 24h ${pista.name}`);
+                    continue;
+                }
+
+                // Verificar disponibilidad
+                const eventos = await GoogleCalendarService.getEvents(
+                    pista.id,
+                    startDate.toISOString(),
+                    slotFin.toISOString()
+                );
+
+                if (!eventos || eventos.length === 0) {
+                    return {
+                        disponible: true,
+                        pista: pista,
+                        slotInicio: startDate,
+                        slotFin: slotFin
+                    };
+                }
+            }
+
+            continue; // Siguiente pista
+        }
+
+        // Lógica existente para pistas con horarios normales
+        const horarios = isWeekend ? pista.businessHours.weekends : pista.businessHours.weekdays;
+        if (!horarios || horarios.length === 0) continue;
 
         for (const rango of horarios) {
-            const [startHour, startMinute] = rango.start.split(":").map(Number)
-            const [endHour, endMinute] = rango.end.split(":").map(Number)
-            let slotInicio = new Date(startDate)
-            slotInicio.setHours(startHour, startMinute, 0, 0)
-            let slotFinRango = new Date(startDate)
-            slotFinRango.setHours(endHour, endMinute, 0, 0)
-            if (endHour === 0 && endMinute === 0) slotFinRango.setHours(24, 0, 0, 0)
+            const [startHour, startMinute] = rango.start.split(":").map(Number);
+            const [endHour, endMinute] = rango.end.split(":").map(Number);
+            let slotInicio = new Date(startDate);
+            slotInicio.setHours(startHour, startMinute, 0, 0);
+            let slotFinRango = new Date(startDate);
+            slotFinRango.setHours(endHour, endMinute, 0, 0);
+            if (endHour === 0 && endMinute === 0) slotFinRango.setHours(24, 0, 0, 0);
 
             while (slotInicio < slotFinRango) {
-                let slotFin = new Date(slotInicio.getTime() + pista.slotDuration * 60000)
-                if (slotFin > slotFinRango) break
+                let slotFin = new Date(slotInicio.getTime() + pista.slotDuration * 60000);
+                if (slotFin > slotFinRango) break;
 
                 // ¿La hora solicitada coincide exactamente con el inicio del slot?
                 if (Math.abs(slotInicio.getTime() - startDate.getTime()) < 60000) {
-                    // NUEVO: Verificar restricciones antes de comprobar eventos
+                    // Verificar restricciones antes de comprobar eventos
                     const restriccion = verificarRestriccionesHorario(slotInicio, slotFin, pista.restricciones);
 
                     if (restriccion) {
-                        // Slot bloqueado por restricción, pasar a la siguiente pista
-                        console.log(`Slot exacto bloqueado por ${restriccion.tipo} en ${pista.name}: ${restriccion.descripcion}`);
-                        break;
+                        console.log(`Slot bloqueado por restricción en ${pista.name}`);
+                        break; // Salir del while para esta pista
                     }
 
                     // Comprobar si está libre de eventos
@@ -1843,19 +2022,24 @@ async function buscarSlotDisponibleExacto(startDate) {
                         pista.id,
                         slotInicio.toISOString(),
                         slotFin.toISOString()
-                    )
+                    );
                     if (!eventos || eventos.length === 0) {
-                        return { pista, slotInicio, slotFin, disponible: true }
+                        return {
+                            disponible: true,
+                            pista: pista,
+                            slotInicio: slotInicio,
+                            slotFin: slotFin
+                        };
                     }
-                    // NO devolvemos si está ocupada, seguimos buscando en otras pistas
                     break; // Salimos del bucle while para esta pista y rango
                 }
-                slotInicio = new Date(slotInicio.getTime() + pista.slotDuration * 60000)
+                slotInicio = new Date(slotInicio.getTime() + pista.slotDuration * 60000);
             }
         }
     }
-    return null // Solo si ninguna pista está disponible en el horario exacto
+    return null; // Solo si ninguna pista está disponible en el horario exacto
 }
+
 // Añadir esta nueva función después de buscarSlotDisponibleExacto
 async function buscarAlternativasMismoHorario(startDate, nombre, numero, partida, nivel, jugadores_faltan) {
     const alternativas = [];
@@ -1867,6 +2051,68 @@ async function buscarAlternativasMismoHorario(startDate, nombre, numero, partida
 
     // Para cada pista activa, comprobar si el horario solicitado está disponible
     for (const pista of calendariosFiltrados) {
+        // Manejar pistas 24h de forma especial
+        if (pista.disponible24h) {
+            const [inicioHora, inicioMinuto] = (pista.horaInicioSlot || '00:00').split(':').map(Number);
+            const duracionMinutos = pista.slotDuration || 90;
+
+            // Crear una fecha de referencia con la hora de inicio
+            const fechaReferencia = new Date(startDate);
+            fechaReferencia.setHours(inicioHora, inicioMinuto, 0, 0);
+
+            // Calcular la diferencia en minutos
+            const diffMinutos = (startDate - fechaReferencia) / 60000;
+
+            // Verificar si coincide con algún slot (debe ser múltiplo de la duración)
+            const esSlotValido = diffMinutos % duracionMinutos === 0;
+
+            if (esSlotValido) {
+                const slotFin = new Date(startDate.getTime() + duracionMinutos * 60000);
+
+                // Verificar restricciones
+                const restriccion = verificarRestriccionesHorario(startDate, slotFin, pista.restricciones);
+
+                if (!restriccion) {
+                    // Verificar disponibilidad
+                    const eventos = await GoogleCalendarService.getEvents(
+                        pista.id,
+                        startDate.toISOString(),
+                        slotFin.toISOString()
+                    );
+
+                    if (!eventos || eventos.length === 0) {
+                        const reservaPayload = {
+                            pista: pista.name,
+                            inicio: startDate.toISOString(),
+                            fin: slotFin.toISOString(),
+                            nombre,
+                            numero,
+                            partida,
+                            nivel,
+                            jugadores_faltan
+                        };
+
+                        const urlReserva = `${DOMINIO_FRONTEND}/confirmar-reserva?data=${encodeURIComponent(JSON.stringify(reservaPayload))}`;
+                        let enlace;
+                        if (NODE_ENV === 'production') {
+                            enlace = await shortenUrl(urlReserva);
+                        } else {
+                            enlace = urlReserva;
+                        }
+
+                        alternativas.push({
+                            pista: pista.name,
+                            inicio: startDate.toISOString(),
+                            fin: slotFin.toISOString(),
+                            enlace
+                        });
+                    }
+                }
+            }
+            continue; // Siguiente pista
+        }
+
+        // Lógica existente para pistas normales
         const horarios = isWeekend ? pista.businessHours.weekends : pista.businessHours.weekdays;
         if (!horarios || horarios.length === 0) continue;
 
@@ -1949,6 +2195,73 @@ async function buscarAlternativasSlots(startDate, nombre, numero, partida, nivel
     const calendariosFiltrados = await obtenerCalendariosActivos();
 
     for (const pista of calendariosFiltrados) {
+        // Manejar pistas 24h de forma especial
+        if (pista.disponible24h) {
+            const duracionMs = pista.slotDuration * 60000;
+            const [inicioHora, inicioMinuto] = (pista.horaInicioSlot || '00:00').split(':').map(Number);
+
+            // Generar algunos slots hacia adelante desde la hora solicitada
+            let slotInicio = new Date(startDate);
+
+            // Alinear con el próximo slot válido
+            const fechaReferencia = new Date(startDate);
+            fechaReferencia.setHours(inicioHora, inicioMinuto, 0, 0);
+            const diffMinutos = (slotInicio - fechaReferencia) / 60000;
+            const slotsSaltados = Math.ceil(diffMinutos / pista.slotDuration);
+            slotInicio = new Date(fechaReferencia.getTime() + slotsSaltados * duracionMs);
+
+            // Generar hasta 5 slots hacia adelante
+            for (let i = 0; i < 5; i++) {
+                const slotFin = new Date(slotInicio.getTime() + duracionMs);
+
+                // Solo buscar en horarios diferentes al solicitado
+                if (Math.abs(slotInicio.getTime() - startDate.getTime()) > 60000) {
+                    const restriccion = verificarRestriccionesHorario(slotInicio, slotFin, pista.restricciones);
+
+                    if (!restriccion) {
+                        const eventos = await GoogleCalendarService.getEvents(
+                            pista.id,
+                            slotInicio.toISOString(),
+                            slotFin.toISOString()
+                        );
+
+                        if (!eventos || eventos.length === 0) {
+                            const reservaPayload = {
+                                pista: pista.name,
+                                inicio: slotInicio.toISOString(),
+                                fin: slotFin.toISOString(),
+                                nombre,
+                                numero,
+                                partida,
+                                nivel,
+                                jugadores_faltan
+                            };
+
+                            const urlReserva = `${DOMINIO_FRONTEND}/confirmar-reserva?data=${encodeURIComponent(JSON.stringify(reservaPayload))}`;
+                            let enlace;
+                            if (NODE_ENV === 'production') {
+                                enlace = await shortenUrl(urlReserva);
+                            } else {
+                                enlace = urlReserva;
+                            }
+
+                            alternativas.push({
+                                pista: pista.name,
+                                inicio: slotInicio.toISOString(),
+                                fin: slotFin.toISOString(),
+                                enlace
+                            });
+                        }
+                    }
+                }
+
+                slotInicio = new Date(slotInicio.getTime() + duracionMs);
+            }
+
+            continue; // Siguiente pista
+        }
+
+        // Lógica existente para pistas normales
         const horarios = isWeekend ? pista.businessHours.weekends : pista.businessHours.weekdays;
         if (!horarios || horarios.length === 0) continue;
 
@@ -2015,6 +2328,7 @@ async function buscarAlternativasSlots(startDate, nombre, numero, partida, nivel
     alternativas.sort((a, b) => new Date(a.inicio) - new Date(b.inicio));
     return alternativas.slice(0, 3);
 }
+
 async function actualizarPartidaConNuevoJugador(eventId, calendarId, nombreInvitado, numeroInvitado, tipoUnion) {
     try {
         // 1. Obtener evento actual
@@ -2203,19 +2517,25 @@ export async function obtenerCalendariosActivos(clubId = CLUB_ID) {
             console.log("No se encontró configuración de calendarios activos, usando configuración por defecto");
             return CALENDARS.filter(cal => cal.avaliable !== false).map(cal => ({
                 ...cal,
-                restricciones: [] // Añadir array de restricciones vacío
+                restricciones: [],
+                disponible24h: false,
+                horaInicioSlot: '08:00'
             }));
         }
 
-        // IMPORTANTE: Verificar que las restricciones existen antes de devolverlas
+        // IMPORTANTE: Verificar que las restricciones existen y añadir config 24h
         const calendarsWithRestrictions = configCalendarios.calendars.map(cal => {
-            if (!cal.restricciones) {
-                console.log(`⚠️ Calendario ${cal.name} sin array de restricciones, inicializando array vacío`);
-                cal.restricciones = [];
-            } else {
-                console.log(`✅ Calendario ${cal.name}: ${cal.restricciones.length} restricciones encontradas`);
-            }
-            return cal;
+            // Asegurar que tenga los campos de 24h
+            const calendario = {
+                ...cal,
+                restricciones: cal.restricciones || [],
+                disponible24h: cal.disponible24h || false,
+                horaInicioSlot: cal.horaInicioSlot || '08:00'
+            };
+
+            console.log(`Calendario ${cal.name}: 24h=${calendario.disponible24h}, inicio=${calendario.horaInicioSlot}`);
+
+            return calendario;
         });
 
         return calendarsWithRestrictions.filter(cal => cal.avaliable !== false);
@@ -2223,7 +2543,9 @@ export async function obtenerCalendariosActivos(clubId = CLUB_ID) {
         console.error("Error al obtener calendarios activos:", error);
         return CALENDARS.filter(cal => cal.avaliable !== false).map(cal => ({
             ...cal,
-            restricciones: [] // Añadir array de restricciones vacío
+            restricciones: [],
+            disponible24h: false,
+            horaInicioSlot: '08:00'
         }));
     }
 }
