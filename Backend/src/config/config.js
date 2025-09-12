@@ -2,6 +2,8 @@ import dotenv from "dotenv";
 
 dotenv.config()
 
+export const CLUB = process.env.CLUB
+
 export const NODE_ENV = process.env.NODE_ENV || 'development'
 
 export const DOMINIO_FRONTEND = NODE_ENV == 'production' ? process.env.DOMINIO_FRONTEND_PROD : process.env.DOMINIO_FRONTEND_DEV
