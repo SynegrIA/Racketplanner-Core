@@ -3,9 +3,9 @@ import { CLUB_ID } from './config.js';
 import { CLUB } from './config.js';
 
 
-let CALENDARS = [];
-let BUSINESS_HOURS = {};
-let RESERVATION_DURATION_MINUTES = 90;
+export let CALENDARS = [];
+export let BUSINESS_HOURS = {};
+export let RESERVATION_DURATION_MINUTES = 90;
 
 // PadelPointRabat
 if (CLUB === 'padelpointrabat') {
