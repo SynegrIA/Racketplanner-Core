@@ -58,67 +58,51 @@ export class ClubsModel {
                     };
                 }
 
-                // NUEVO: Detectar si la pista está configurada para 24 horas
-                // 1. Si el flag disponible24h está explícitamente establecido como true
-                // 2. Si los horarios de fin de semana son 00:00-00:00 (típica configuración 24h)
-                const es24HorasFds = pista.horario_inicio_fds === '00:00' && pista.horario_fin_fds === '00:00';
-                const es24HorasLaboral = pista.horario_inicio === '00:00' && pista.horario_fin === '00:00'
-                    && pista.horario_inicio2 === '00:00' && pista.horario_fin2 === '00:00';
-
-                // Si la pista está marcada como 24h explícitamente o implícitamente por sus horarios
-                const disponible24h = pista.disponible24h === true || es24HorasFds || es24HorasLaboral;
+                // IMPORTANTE: Solo marcar como 24h si está EXPLÍCITAMENTE configurado
+                const disponible24h = pista.disponible24h === true; // NO inferir de los horarios
 
                 // DÍAS LABORABLES: Crear intervalos de tiempo
                 const weekdayIntervals = [];
 
-                // Solo añadir intervalos si no es 24 horas
-                if (!disponible24h) {
-                    // Primer intervalo (horario de mañana)
-                    if (pista.horario_inicio && pista.horario_fin) {
-                        weekdayIntervals.push({
-                            start: pista.horario_inicio,
-                            end: pista.horario_fin
-                        });
-                    }
+                // Primer intervalo (horario de mañana)
+                if (pista.horario_inicio && pista.horario_fin) {
+                    weekdayIntervals.push({
+                        start: pista.horario_inicio,
+                        end: pista.horario_fin
+                    });
+                }
 
-                    // Segundo intervalo (horario de tarde)
-                    if (pista.horario_inicio2 && pista.horario_fin2) {
-                        weekdayIntervals.push({
-                            start: pista.horario_inicio2,
-                            end: pista.horario_fin2
-                        });
-                    }
+                // Segundo intervalo (horario de tarde)
+                if (pista.horario_inicio2 && pista.horario_fin2) {
+                    weekdayIntervals.push({
+                        start: pista.horario_inicio2,
+                        end: pista.horario_fin2
+                    });
                 }
 
                 // FIN DE SEMANA: Crear intervalos de tiempo
                 const weekendIntervals = [];
 
-                // Solo añadir intervalos para fin de semana si no es 24 horas
-                if (!disponible24h) {
-                    // Si hay horarios específicos de fin de semana
-                    if (pista.horario_inicio_fds && pista.horario_fin_fds) {
-                        weekendIntervals.push({
-                            start: pista.horario_inicio_fds,
-                            end: pista.horario_fin_fds
-                        });
-                    } else {
-                        // Si no hay horarios de fin de semana, usar los mismos que los días laborables
-                        weekdayIntervals.forEach(interval => {
-                            weekendIntervals.push({ ...interval });
-                        });
-                    }
+                // Si hay horarios específicos de fin de semana
+                if (pista.horario_inicio_fds && pista.horario_fin_fds) {
+                    // NO interpretar 00:00-23:59 como 24h, es un horario específico
+                    weekendIntervals.push({
+                        start: pista.horario_inicio_fds,
+                        end: pista.horario_fin_fds
+                    });
+                } else {
+                    // Si no hay horarios de fin de semana, usar los mismos que los días laborables
+                    weekdayIntervals.forEach(interval => {
+                        weekendIntervals.push({ ...interval });
+                    });
                 }
 
-                // Si no hay intervalos definidos y no es 24h, usar valores predeterminados
-                const weekdayBusinessHours = disponible24h ? [] : (
-                    weekdayIntervals.length > 0 ? weekdayIntervals :
-                        (calendar.businessHours?.weekdays || [{ start: "09:00", end: "22:00" }])
-                );
+                // Si no hay intervalos definidos, usar valores predeterminados
+                const weekdayBusinessHours = weekdayIntervals.length > 0 ? weekdayIntervals :
+                    (calendar.businessHours?.weekdays || [{ start: "09:00", end: "22:00" }]);
 
-                const weekendBusinessHours = disponible24h ? [] : (
-                    weekendIntervals.length > 0 ? weekendIntervals :
-                        (calendar.businessHours?.weekends || [{ start: "09:00", end: "21:00" }])
-                );
+                const weekendBusinessHours = weekendIntervals.length > 0 ? weekendIntervals :
+                    (calendar.businessHours?.weekends || [{ start: "09:00", end: "21:00" }]);
 
                 console.log(`Configuración final para ${pista.nombre}:`);
                 console.log(`  Días laborables: ${JSON.stringify(weekdayBusinessHours)}`);
@@ -149,7 +133,7 @@ export class ClubsModel {
                     // Mantener la pista como activa
                     avaliable: true,
                     restricciones: restricciones || [],
-                    // NUEVO: Asignar la configuración 24h correctamente
+                    // IMPORTANTE: Solo usar el valor explícito de disponible24h
                     disponible24h: disponible24h,
                     horaInicioSlot: pista.horaInicioSlot || '00:00'
                 };
