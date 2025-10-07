@@ -136,17 +136,20 @@ export class ReservasController {
             // 1. Buscar slot exacto en la pista solicitada
             const slotInfo = await buscarSlotDisponibleExacto(startDate);
             if (slotInfo && slotInfo.disponible) {
-                // Validar que slotInicio y slotFin existen
-                if (!slotInfo.slotInicio || !slotInfo.slotFin) {
+                // Compatibilidad: aceptar shape nuevo y antiguo
+                const slotInicio = slotInfo.slotInicio || (slotInfo.inicio ? new Date(slotInfo.inicio) : null);
+                const slotFin = slotInfo.slotFin || (slotInfo.fin ? new Date(slotInfo.fin) : null);
+                const pistaObj = typeof slotInfo.pista === 'string' ? { name: slotInfo.pista } : slotInfo.pista;
+
+                if (!slotInicio || !slotFin) {
                     console.error("Error: slotInfo no contiene fechas válidas", slotInfo);
                     throw new Error("Información del slot incompleta");
                 }
 
-                // Generar enlace de confirmación para ese slot
                 const reservaPayload = {
-                    pista: slotInfo.pista.name,
-                    inicio: slotInfo.slotInicio.toISOString(),
-                    fin: slotInfo.slotFin.toISOString(),
+                    pista: pistaObj.name,
+                    inicio: slotInicio.toISOString(),
+                    fin: slotFin.toISOString(),
                     nombre,
                     numero,
                     partida,
@@ -155,13 +158,12 @@ export class ReservasController {
                 };
 
                 const urlReserva = `${DOMINIO_FRONTEND}/confirmar-reserva?data=${encodeURIComponent(JSON.stringify(reservaPayload))}`;
-
                 const enlace = await shortenUrl(urlReserva);
 
                 await enviarMensajeWhatsApp('reservas.disponibilidad.disponible', numero, {
-                    pista: slotInfo.pista.name,
-                    fecha: slotInfo.slotInicio.toLocaleString('es-ES', { timeZone: 'Europe/Madrid' }),
-                    enlace: enlace
+                    pista: pistaObj.name,
+                    fecha: slotInicio.toLocaleString('es-ES', { timeZone: 'Europe/Madrid' }),
+                    enlace
                 });
 
                 return res.json({
@@ -2044,40 +2046,28 @@ async function buscarSlotDisponibleExacto(startDate) {
         if (pista.disponible24h) {
             console.log(`  Verificando pista 24h: ${pista.name}`);
 
-            // Para pistas 24h, verificar si la hora coincide con un slot válido
             const [inicioHora, inicioMinuto] = (pista.horaInicioSlot || '00:00').split(':').map(Number);
-
-            // Crear punto de referencia
             const puntoReferencia = new Date(startDate);
             puntoReferencia.setHours(inicioHora, inicioMinuto, 0, 0);
 
-            // Calcular diferencia en minutos
             let diffMs = startDate - puntoReferencia;
-
-            // Si es negativo, considerar el ciclo del día anterior
-            while (diffMs < 0) {
-                diffMs += 24 * 60 * 60 * 1000;
-            }
+            while (diffMs < 0) diffMs += 24 * 60 * 60 * 1000;
 
             const diffMinutos = Math.floor(diffMs / 60000);
             const esSlotValido = (diffMinutos % pista.slotDuration) === 0;
 
             if (esSlotValido) {
-                // Verificar restricciones
                 const restriccion = verificarRestriccionesHorario(startDate, slotFin, pista.restricciones);
 
                 if (!restriccion) {
-                    // Verificar disponibilidad real
                     const { disponible, razon } = await verificarDisponibilidadSlot(pista, startDate, slotFin);
-
                     if (disponible) {
                         console.log(`    ✅ Pista ${pista.name} disponible`);
                         return {
                             disponible: true,
-                            pista: pista.name,
-                            calendarId: pista.id,
-                            inicio: startDate.toISOString(),
-                            fin: slotFin.toISOString()
+                            pista,                       // objeto completo
+                            slotInicio: new Date(startDate), // Date
+                            slotFin: new Date(slotFin)       // Date
                         };
                     } else {
                         console.log(`    ❌ Pista ${pista.name} ocupada: ${razon}`);
@@ -2091,7 +2081,7 @@ async function buscarSlotDisponibleExacto(startDate) {
             continue;
         }
 
-        // Para pistas con horarios normales
+        // Pistas con horarios normales
         const horarios = isWeekend ? pista.businessHours.weekends : pista.businessHours.weekdays;
         if (!horarios || horarios.length === 0) continue;
 
@@ -2104,33 +2094,26 @@ async function buscarSlotDisponibleExacto(startDate) {
 
             let slotFinRango = new Date(startDate);
             slotFinRango.setHours(endHour, endMinute, 0, 0);
-
             if ((endHour === 0 && endMinute === 0) || endHour < startHour) {
                 slotFinRango.setDate(slotFinRango.getDate() + 1);
             }
 
             while (slotInicio < slotFinRango) {
                 let slotFinCalc = new Date(slotInicio.getTime() + duracionMs);
-
                 if (slotFinCalc > slotFinRango) break;
 
-                // ¿La hora coincide exactamente?
                 if (Math.abs(slotInicio.getTime() - startDate.getTime()) < 60000) {
-                    // Verificar restricciones
                     const restriccion = verificarRestriccionesHorario(slotInicio, slotFinCalc, pista.restricciones);
 
                     if (!restriccion) {
-                        // Verificar disponibilidad real
                         const { disponible, razon } = await verificarDisponibilidadSlot(pista, slotInicio, slotFinCalc);
-
                         if (disponible) {
                             console.log(`    ✅ Pista ${pista.name} disponible`);
                             return {
                                 disponible: true,
-                                pista: pista.name,
-                                calendarId: pista.id,
-                                inicio: slotInicio.toISOString(),
-                                fin: slotFinCalc.toISOString()
+                                pista,                           // objeto completo
+                                slotInicio: new Date(slotInicio), // Date
+                                slotFin: new Date(slotFinCalc)    // Date
                             };
                         } else {
                             console.log(`    ❌ Pista ${pista.name} ocupada: ${razon}`);
@@ -2138,7 +2121,7 @@ async function buscarSlotDisponibleExacto(startDate) {
                     } else {
                         console.log(`    🚫 Pista ${pista.name} con restricción: ${restriccion.descripcion}`);
                     }
-                    break; // Ya verificamos este slot
+                    break;
                 }
 
                 slotInicio = new Date(slotInicio.getTime() + duracionMs);
