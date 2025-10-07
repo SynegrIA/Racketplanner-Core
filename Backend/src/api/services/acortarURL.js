@@ -1,26 +1,60 @@
 import fetch from 'node-fetch'
-import { NODE_ENV } from '../../config/config.js'
+import { NODE_ENV, TINY_URL_API_KEY as TINYURL_API_TOKEN } from '../../config/config.js'
 
-const TINYURL_API = 'https://tinyurl.com/api-create.php'
+const TINYURL_CREATE_ENDPOINT = 'https://api.tinyurl.com/create'
 
-export async function shortenUrl(longUrl) {
+/**
+ * Acorta una URL usando TinyURL API v2.
+ * opciones: { alias?, domain?, description?, tags?, expiresAt? }
+ */
+export async function shortenUrl(longUrl, opciones = {}) {
     if (!longUrl) throw new Error('No se proporcionó una URL para acortar.')
+    if (NODE_ENV === 'development') return longUrl
 
-    if (NODE_ENV == "development") { return longUrl }
+    // Validación básica de URL
+    try { new URL(longUrl) } catch { throw new Error('La URL proporcionada no es válida.') }
 
-    const urlPattern = /^(https?:\/\/)?([\w\-]+(\.[\w\-]+)+)([\w.,@?^=%&:/~+#\-]*[\w@?^=%&/~+#\-])?$/
-    if (!urlPattern.test(longUrl)) throw new Error('La URL proporcionada no es válida.')
+    if (!TINYURL_API_TOKEN) {
+        throw new Error('Falta TINYURL_API_TOKEN en configuración.')
+    }
+
+    const {
+        alias,
+        domain = 'tinyurl.com',
+        description,
+        tags,
+        expiresAt // ISO string o fecha
+    } = opciones
+
+    const payload = { url: longUrl, domain }
+    if (alias) payload.alias = alias
+    if (description) payload.description = description
+    if (Array.isArray(tags) && tags.length) payload.tags = tags
+    if (expiresAt) payload.expires_at = typeof expiresAt === 'string' ? expiresAt : new Date(expiresAt).toISOString()
 
     try {
-        const apiUrl = `${TINYURL_API}?url=${encodeURIComponent(longUrl)}`
-        const response = await fetch(apiUrl, {
-            headers: { 'User-Agent': 'Mozilla/5.0' }
+        const resp = await fetch(TINYURL_CREATE_ENDPOINT, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${TINYURL_API_TOKEN}`,
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(payload)
         })
-        const shortUrl = await response.text()
-        if (!urlPattern.test(shortUrl)) throw new Error('Respuesta inválida de TinyURL')
-        return shortUrl
+
+        const data = await resp.json().catch(() => ({}))
+
+        if (!resp.ok) {
+            const apiMsg = data?.errors?.map(e => e.message).join('; ') || data?.message || resp.statusText
+            throw new Error(`TinyURL API error (${resp.status}): ${apiMsg}`)
+        }
+
+        const tiny = data?.data?.tiny_url || data?.tiny_url
+        if (!tiny) throw new Error('Respuesta de TinyURL sin tiny_url.')
+        return tiny
     } catch (error) {
-        console.error('Error acortando URL:', error)
+        console.error('Error acortando URL (TinyURL v2):', error)
         throw new Error('No se pudo acortar la URL proporcionada.')
     }
 }
