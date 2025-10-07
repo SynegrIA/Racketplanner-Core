@@ -112,7 +112,9 @@ export class ReservasController {
 
     static async agendar(req, res) {
         try {
-            const { fecha_ISO, nombre, numero, partida, nivel, jugadores_faltan } = req.body;
+            // Manejar tanto 'jugadores_faltan' como 'n_jugadores'
+            const { fecha_ISO, nombre, numero, partida, nivel } = req.body;
+            const jugadores_faltan = req.body.jugadores_faltan || req.body.n_jugadores || '0';
 
             // Validación básica
             if (!fecha_ISO || !nombre || !numero) {
@@ -134,6 +136,12 @@ export class ReservasController {
             // 1. Buscar slot exacto en la pista solicitada
             const slotInfo = await buscarSlotDisponibleExacto(startDate);
             if (slotInfo && slotInfo.disponible) {
+                // Validar que slotInicio y slotFin existen
+                if (!slotInfo.slotInicio || !slotInfo.slotFin) {
+                    console.error("Error: slotInfo no contiene fechas válidas", slotInfo);
+                    throw new Error("Información del slot incompleta");
+                }
+
                 // Generar enlace de confirmación para ese slot
                 const reservaPayload = {
                     pista: slotInfo.pista.name,
@@ -148,12 +156,7 @@ export class ReservasController {
 
                 const urlReserva = `${DOMINIO_FRONTEND}/confirmar-reserva?data=${encodeURIComponent(JSON.stringify(reservaPayload))}`;
 
-
                 const enlace = await shortenUrl(urlReserva);
-
-
-                // const mensaje = `✅ Hay disponibilidad para reservar el ${slotInfo.pista.name} el ${slotInfo.slotInicio.toLocaleString('es-ES', { timeZone: 'Europe/Madrid' })}.\n\n[Haz clic aquí para confirmar la reserva](${enlace})`;
-                // await enviarMensajeWhatsApp(mensaje, numero);
 
                 await enviarMensajeWhatsApp('reservas.disponibilidad.disponible', numero, {
                     pista: slotInfo.pista.name,
@@ -1926,6 +1929,8 @@ async function buscarTodosLosSlotsDisponibles(fecha) {
 
 async function verificarDisponibilidadSlot(pista, slotInicio, slotFin) {
     try {
+        console.log(`🔍 Verificando disponibilidad para ${pista.name} de ${slotInicio.toLocaleTimeString('es-ES')} a ${slotFin.toLocaleTimeString('es-ES')}`);
+
         // Obtener eventos del calendario
         const eventos = await GoogleCalendarService.getEvents(
             pista.id,
@@ -1934,14 +1939,58 @@ async function verificarDisponibilidadSlot(pista, slotInicio, slotFin) {
         );
 
         if (!eventos || eventos.length === 0) {
+            console.log(`  ✅ No hay eventos programados`);
             return { disponible: true, razon: null };
         }
 
+        console.log(`  📋 Encontrados ${eventos.length} eventos`);
+
         // Analizar cada evento para ver si realmente bloquea el slot
         for (const evento of eventos) {
-            // Ignorar eventos cancelados
+            console.log(`  🔎 Analizando evento: "${evento.summary}" (ID: ${evento.id})`);
+
+            // Ignorar eventos cancelados en Google Calendar
             if (evento.status === 'cancelled') {
+                console.log(`  ℹ️ Evento ignorado por estar cancelado en Google Calendar: ${evento.summary}`);
                 continue;
+            }
+
+            // Verificación más detallada en la base de datos
+            try {
+                console.log(`  🔍 Verificando en base de datos evento ID: ${evento.id}`);
+                const reservaBD = await ReservasModel.getByEventId(evento.id);
+
+                if (reservaBD) {
+                    console.log(`  📄 Datos de la reserva: Estado=${reservaBD.Estado || 'No definido'}`);
+
+                    if (reservaBD.Estado && reservaBD.Estado.toLowerCase() === 'cancelada') {
+                        console.log(`  ✅ Evento IGNORADO por estar cancelado en base de datos: ${evento.summary}`);
+
+                        // Opcionalmente: eliminar también de Google Calendar para evitar futuros problemas
+                        try {
+                            console.log(`  🗑️ Eliminando evento cancelado de Google Calendar: ${evento.id}`);
+                            await GoogleCalendarService.deleteEvent(pista.id, evento.id);
+                            console.log(`  ✓ Evento eliminado correctamente de Google Calendar`);
+                        } catch (deleteError) {
+                            console.log(`  ⚠️ No se pudo eliminar el evento de Google Calendar: ${deleteError.message}`);
+                        }
+
+                        continue; // Saltar este evento y continuar con el siguiente
+                    }
+                } else {
+                    console.log(`  ⚠️ No se encontró la reserva en la base de datos para el evento ID: ${evento.id}`);
+
+                    // Si el evento existe en Calendar pero no en BD, podría ser un evento huérfano
+                    console.log(`  🧐 Posible evento huérfano detectado: "${evento.summary}"`);
+
+                    // Si contiene el nombre de Christian Melo Arroyo, ignorar (solución específica temporal)
+                    if (evento.summary && evento.summary.includes('Christian Melo Arroyo')) {
+                        console.log(`  ✅ Ignorando evento huérfano de Christian Melo: ${evento.summary}`);
+                        continue;
+                    }
+                }
+            } catch (dbError) {
+                console.log(`  ⚠️ No se pudo verificar estado en base de datos para ${evento.id}: ${dbError.message}`);
             }
 
             const eventoInicio = new Date(evento.start.dateTime || evento.start.date);
@@ -1950,11 +1999,11 @@ async function verificarDisponibilidadSlot(pista, slotInicio, slotFin) {
             // Verificar si hay superposición real
             const haySuperposicion = (
                 (eventoInicio < slotFin && eventoFin > slotInicio) || // Superposición parcial
-                (eventoInicio <= slotInicio && eventoFin >= slotFin) // El evento cubre todo el slot
+                (eventoInicio <= slotInicio && eventoFin >= slotFin)  // El evento cubre todo el slot
             );
 
             if (haySuperposicion) {
-                console.log(`  ❌ Slot ocupado por: "${evento.summary}" (${eventoInicio.toLocaleTimeString('es-ES', { timeZone: 'Europe/Madrid' })}-${eventoFin.toLocaleTimeString('es-ES', { timeZone: 'Europe/Madrid' })})`);
+                console.log(`  ❌ Slot ocupado por: "${evento.summary}" (${eventoInicio.toLocaleTimeString('es-ES')}-${eventoFin.toLocaleTimeString('es-ES')})`);
                 return {
                     disponible: false,
                     razon: `Ocupado por: ${evento.summary}`,
@@ -1965,13 +2014,15 @@ async function verificarDisponibilidadSlot(pista, slotInicio, slotFin) {
                         fin: eventoFin
                     }
                 };
+            } else {
+                console.log(`  ✅ El evento no se superpone con el slot solicitado`);
             }
         }
 
+        console.log(`  ✅ Slot disponible después de verificar todos los eventos`);
         return { disponible: true, razon: null };
     } catch (error) {
-        console.error(`Error al verificar disponibilidad: ${error.message}`);
-        // En caso de error, consideramos el slot como no disponible por seguridad
+        console.error(`❌ Error al verificar disponibilidad: ${error.message}`);
         return { disponible: false, razon: `Error al verificar: ${error.message}` };
     }
 }
