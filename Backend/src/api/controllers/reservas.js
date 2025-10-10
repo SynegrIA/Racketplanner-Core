@@ -540,7 +540,8 @@ Jugador 4: ${jugador4}
                 jugadores_faltan: jugadores_faltan,
                 estado: estadoTraducido,
                 textoReserva: textoReserva,
-                urlEliminar: urlEliminarCorta
+                urlEliminar: urlEliminarCorta,
+                estado_lower: estadoTraducido.toLowerCase()
             });
 
             // 14. Enviar mensaje adicional con enlace para invitar si es partida abierta
