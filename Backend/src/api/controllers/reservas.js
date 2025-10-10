@@ -544,7 +544,7 @@ Jugador 4: ${jugador4}
             });
 
             // 14. Enviar mensaje adicional con enlace para invitar si es partida abierta
-            if (INVITACIONES_PARTIDAS_ABIERTAS) {
+            if (INVITACIONES_PARTIDAS_ABIERTAS && estadoClave == "estado_abierta") {
                 await enviarMensajeWhatsApp('reservas.confirmacion.invitacion', numero, {
                     urlInvitar: urlInvitarCorta
                 });
