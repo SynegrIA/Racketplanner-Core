@@ -1,10 +1,10 @@
 import fetch from 'node-fetch'
 import { NODE_ENV } from '../../config/config.js'
 
-const ISGD_CREATE_ENDPOINT = 'https://is.gd/create.php'
+const DAGD_CREATE_ENDPOINT = 'https://da.gd/s'
 
 /**
- * Acorta una URL usando is.gd API.
+ * Acorta una URL usando da.gd API.
  * No requiere API Key.
  */
 export async function shortenUrl(longUrl) {
@@ -15,30 +15,30 @@ export async function shortenUrl(longUrl) {
     try { new URL(longUrl) } catch { throw new Error('La URL proporcionada no es válida.') }
 
     try {
-        // is.gd usa una petición GET simple: https://is.gd/create.php?format=json&url=...
-        const url = `${ISGD_CREATE_ENDPOINT}?format=json&url=${encodeURIComponent(longUrl)}`
+        // da.gd usa una petición GET simple: https://da.gd/s?url=...
+        // Devuelve texto plano con la URL acortada
+        const url = `${DAGD_CREATE_ENDPOINT}?url=${encodeURIComponent(longUrl)}`
         
         const resp = await fetch(url, {
             method: 'GET',
             headers: {
-                'Accept': 'application/json',
                 'User-Agent': 'Mozilla/5.0 (compatible; RacketPlanner/1.0; +https://racketplanner.es)'
             }
         })
 
-        const data = await resp.json().catch(() => ({}))
-
-        if (!resp.ok || data.errorcode) {
-            const apiMsg = data.errormessage || resp.statusText
-            throw new Error(`is.gd API error: ${apiMsg}`)
+        if (!resp.ok) {
+            throw new Error(`da.gd API error: ${resp.statusText}`)
         }
 
-        const shortUrl = data.shorturl
-        if (!shortUrl) throw new Error('Respuesta de is.gd sin shorturl.')
+        const shortUrl = (await resp.text()).trim()
+        
+        if (!shortUrl || !shortUrl.startsWith('http')) {
+             throw new Error('Respuesta de da.gd inválida.')
+        }
         
         return shortUrl
     } catch (error) {
-        console.error('Error acortando URL (is.gd):', error)
+        console.error('Error acortando URL (da.gd):', error)
         // En caso de fallo, devolvemos la URL original para no romper el flujo
         return longUrl
     }
