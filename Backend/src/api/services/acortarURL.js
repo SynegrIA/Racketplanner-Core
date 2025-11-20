@@ -21,7 +21,8 @@ export async function shortenUrl(longUrl) {
         const resp = await fetch(url, {
             method: 'GET',
             headers: {
-                'Accept': 'application/json'
+                'Accept': 'application/json',
+                'User-Agent': 'Mozilla/5.0 (compatible; RacketPlanner/1.0; +https://racketplanner.es)'
             }
         })
 
