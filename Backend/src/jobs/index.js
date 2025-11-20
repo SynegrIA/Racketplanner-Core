@@ -3,7 +3,8 @@ import { cierraPartidas } from './tasks/cierraPartidas.js';
 import { jugadoresSinConfirmar } from './tasks/jugadoresSinConfirmar.js';
 import { procesarCapturasPagos, recordarPagos, enforceAutorizacionInicial } from './tasks/pagos.js';
 import { dailyUpdate } from './tasks/dailyUpdate.js';
-import { PASARELA, DAILY_NOTIFICATION, INVITACIONES_PARTIDAS_ABIERTAS } from '../config/config.js';
+import { keepAlive } from './tasks/keepAlive.js';
+import { PASARELA, DAILY_NOTIFICATION, INVITACIONES_PARTIDAS_ABIERTAS, CLUB } from '../config/config.js';
 
 /**
  * Inicializa y registra todas las tareas programadas
@@ -24,6 +25,15 @@ export const initializeJobs = () => {
         '0 * * * *',
         () => jugadoresSinConfirmar()
     )
+
+    // Keep-alive para evitar pausa de Supabase Free Tier (solo en demo)
+    if (CLUB === 'demo') {
+        cronManager.register(
+            'keep-alive',
+            '0 */4 * * *', // Cada 4 horas
+            () => keepAlive()
+        );
+    }
 
     // Tarea para el informe diario - se ejecuta todos los días a las 23:00 (11 PM)
     if (DAILY_NOTIFICATION) {
