@@ -19,8 +19,6 @@ export const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET
 export const SUPABASE_URL = process.env.SUPABASE_URL
 export const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY
 
-export const TINY_URL_API_KEY = process.env.TINY_URL_API_KEY
-
 export const BUILDERBOT_URL = process.env.BUILDERBOT_URL
 export const BUILDERBOT_KEY = process.env.BUILDERBOT_KEY
 export const WHATSAPP_GROUPS = {
