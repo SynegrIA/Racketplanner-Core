@@ -1,60 +1,44 @@
 import fetch from 'node-fetch'
-import { NODE_ENV, TINY_URL_API_KEY as TINYURL_API_TOKEN } from '../../config/config.js'
+import { NODE_ENV } from '../../config/config.js'
 
-const TINYURL_CREATE_ENDPOINT = 'https://api.tinyurl.com/create'
+const ISGD_CREATE_ENDPOINT = 'https://is.gd/create.php'
 
 /**
- * Acorta una URL usando TinyURL API v2.
- * opciones: { alias?, domain?, description?, tags?, expiresAt? }
+ * Acorta una URL usando is.gd API.
+ * No requiere API Key.
  */
-export async function shortenUrl(longUrl, opciones = {}) {
+export async function shortenUrl(longUrl) {
     if (!longUrl) throw new Error('No se proporcionó una URL para acortar.')
     if (NODE_ENV === 'development') return longUrl
 
     // Validación básica de URL
     try { new URL(longUrl) } catch { throw new Error('La URL proporcionada no es válida.') }
 
-    if (!TINYURL_API_TOKEN) {
-        throw new Error('Falta TINYURL_API_TOKEN en configuración.')
-    }
-
-    const {
-        alias,
-        domain = 'tinyurl.com',
-        description,
-        tags,
-        expiresAt // ISO string o fecha
-    } = opciones
-
-    const payload = { url: longUrl, domain }
-    if (alias) payload.alias = alias
-    if (description) payload.description = description
-    if (Array.isArray(tags) && tags.length) payload.tags = tags
-    if (expiresAt) payload.expires_at = typeof expiresAt === 'string' ? expiresAt : new Date(expiresAt).toISOString()
-
     try {
-        const resp = await fetch(TINYURL_CREATE_ENDPOINT, {
-            method: 'POST',
+        // is.gd usa una petición GET simple: https://is.gd/create.php?format=json&url=...
+        const url = `${ISGD_CREATE_ENDPOINT}?format=json&url=${encodeURIComponent(longUrl)}`
+        
+        const resp = await fetch(url, {
+            method: 'GET',
             headers: {
-                'Authorization': `Bearer ${TINYURL_API_TOKEN}`,
-                'Content-Type': 'application/json',
                 'Accept': 'application/json'
-            },
-            body: JSON.stringify(payload)
+            }
         })
 
         const data = await resp.json().catch(() => ({}))
 
-        if (!resp.ok) {
-            const apiMsg = data?.errors?.map(e => e.message).join('; ') || data?.message || resp.statusText
-            throw new Error(`TinyURL API error (${resp.status}): ${apiMsg}`)
+        if (!resp.ok || data.errorcode) {
+            const apiMsg = data.errormessage || resp.statusText
+            throw new Error(`is.gd API error: ${apiMsg}`)
         }
 
-        const tiny = data?.data?.tiny_url || data?.tiny_url
-        if (!tiny) throw new Error('Respuesta de TinyURL sin tiny_url.')
-        return tiny
+        const shortUrl = data.shorturl
+        if (!shortUrl) throw new Error('Respuesta de is.gd sin shorturl.')
+        
+        return shortUrl
     } catch (error) {
-        console.error('Error acortando URL (TinyURL v2):', error)
-        throw new Error('No se pudo acortar la URL proporcionada.')
+        console.error('Error acortando URL (is.gd):', error)
+        // En caso de fallo, devolvemos la URL original para no romper el flujo
+        return longUrl
     }
 }
